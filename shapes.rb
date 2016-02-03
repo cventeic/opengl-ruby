@@ -1,5 +1,10 @@
 require "./mesh_shapes"
 
+def deep_copy(complex_array)
+    return Marshal.load(Marshal.dump(complex_array))
+end
+
+
 module GL_Shapes
 
   def GL_Shapes.cylinder(base_radius = 0.1, top_radius=0.1, f_length = 6.0, num_slices=8, num_stacks = 8)
@@ -7,13 +12,6 @@ module GL_Shapes
     mesh.push_cylinder(base_radius, top_radius, f_length, num_slices, num_stacks)
     mesh.clamp_ranges
 
-    #mesh.translate!(Geo3d::Vector.new(5, 0, 0))
-
-    # go = GPU_Object.new()
-    # go.mesh = mesh
-    # go.load_mesh()
-
-    # go
     mesh
   end
 
@@ -22,14 +20,9 @@ module GL_Shapes
     mesh.push_sphere(f_radius, i_slices, i_stacks)
     mesh.clamp_ranges
 
-    # go = GPU_Object.new()
-    # go.mesh = mesh
-    # go.load_mesh()
-
-    # go
     mesh
   end
-
+ 
 end
 
 

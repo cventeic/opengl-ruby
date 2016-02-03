@@ -21,12 +21,15 @@ module Gl
  
   GL_TRIANGLES                                                  = 0x0004
 
-  GL_UNSIGNED_INT                                               = 0x1405
-  GL_FLOAT                                                      = 0x1406
+  GL_DEPTH_TEST                                                 = 0x0B71
+  GL_CULL_FACE                                                  = 0x0B44
 
   GL_COLOR_BUFFER_BIT                                           = 0x00004000
   GL_DEPTH_BUFFER_BIT                                           = 0x00000100
   GL_STENCIL_BUFFER_BIT                                         = 0x00000400
+
+  GL_UNSIGNED_INT                                               = 0x1405
+  GL_FLOAT                                                      = 0x1406
 
   GL_VERTEX_SHADER                                              = 0x8B31
   GL_FRAGMENT_SHADER                                            = 0x8B30
@@ -37,6 +40,16 @@ module Gl
   GL_STATIC_DRAW                                                = 0x88E4
   GL_DYNAMIC_DRAW                                               = 0x88E8
 
+
+  extern 'void glEnable(GLenum)'
+  def Gl.enable(cap)
+    glEnable(cap)
+  end
+
+  extern 'void glDisable(GLenum)'
+  def Gl.enable(cap)
+    glDisable(cap)
+  end
 
   extern 'void glUniform4fv(GLint, GLsizei, const GLfloat *)'
   def Gl.uniform4fv(	location, count, value)
@@ -200,11 +213,11 @@ end
 require 'minitest/autorun'
 
 class BugTest < Minitest::Test
-  def test_genBuffer
+  def _test_genBuffer
     id = Gl.genBuffer()
     assert(id > 0)
   end
-  def test_genVertexArray
+  def _test_genVertexArray
     id = Gl.genVertexArray()
     assert(id > 0)
   end

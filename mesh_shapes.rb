@@ -1,4 +1,6 @@
 require './gpu_object'
+require './util/Assert'
+require 'ap'
 
 def deep_copy(complex_array)
     return Marshal.load(Marshal.dump(complex_array))
@@ -6,7 +8,41 @@ end
 
 class Mesh
 
-    def push_triangle( _verts, _vNorms = nil, _vTexCoords = nil)
+  # _verts is an array of 4 points
+  def push_triangle( _verts, _vNorms = nil, _vTexCoords = nil)
+
+    verts  = deep_copy(_verts.first(3))
+
+    #assert {_verts.size == 4}
+    
+    vNorms = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ]
+
+    points = []
+
+    (0..2).each do |vi|
+      puts "vi = #{vi}"
+
+      vertex   = verts[vi]
+      normal   = vNorms.nil? ? nil : vNorms[vi]
+      texcoord = _vTexCoords.nil? ? nil : _vTexCoords[vi]
+
+      point = Point.new(vertex, normal, texcoord)
+
+      points << point
+    end
+
+    puts "points = "
+    ap points
+
+    add_triangle(points)
+
+  end
+
+    def _push_triangle( _verts, _vNorms = nil, _vTexCoords = nil)
 
         verts  = deep_copy(_verts.first(3))
         vNorms = _vNorms.nil? ? nil : deep_copy(_vNorms.first(3))
@@ -18,7 +54,12 @@ class Mesh
         #verts.map!      { |v|  (v.kind_of? Vector) ? v.to_a : v}
 
         # Synthesize vNorms and vTexCoord if not provided
-        vNorms = compute_vertex_normals(verts) if vNorms.nil?
+        #vNorms = compute_vertex_normals(verts) if vNorms.nil?
+        vNorms = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+        ]
 
         if vTexCoords.nil? then
             vTexCoords = verts.map do |v|
@@ -62,10 +103,11 @@ class Mesh
             #break unless @match.nil? 
 
             # No existing point found, add new point 
-            @index    << [@position.size]
-            @position << verts[vi] 
-            @normal   << vNorms[vi]
-            @tex      << vTexCoords[vi]
+            #
+            @data_sets[:index]    << [@data_sets[:vertex].size]
+            @data_sets[:vertex]   << verts[vi] 
+            @data_sets[:normal]   << vNorms[vi]
+            @data_sets[:texcoord] << vTexCoords[vi]
         end
     end
 
