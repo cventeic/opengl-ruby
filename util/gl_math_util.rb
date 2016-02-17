@@ -1,5 +1,20 @@
 require 'geo3d'
 
+def deep_copy(complex_array)
+    return Marshal.load(Marshal.dump(complex_array))
+end
+
+def rand_vector_in_box(named_arguments={x: -10.0..10.0, y: -10.0..10.0, z: -10.0..10.0})
+  Geo3d::Vector.new( 
+                    rand(named_arguments[:x]),
+                    rand(named_arguments[:y]),
+                    rand(named_arguments[:z])
+                   )
+end
+
+def radians(degrees)
+  radians = degrees * Math::PI / 180.0
+end
 
 
 
@@ -74,32 +89,27 @@ end
 =end
 
 
-def compute_vertex_normals(verts)
+def compute_triangle_normal(triangle)
     c = Cross.new
-    norms = Array.new
 
-    verts.each_slice(3) do |s|
-        v1 = Array.new
-        v2 = Array.new
+    s = triangle.vertex_array.map {|vertex| vertex.position}
 
-        #a = Geo3d::Vector.elements(s[1]) - Geo3d::Vector.elements(s[0])
-        #b = Geo3d::Vector.elements(s[2]) - Geo3d::Vector.elements(s[1])
+    #a = Geo3d::Vector.elements(s[1]) - Geo3d::Vector.elements(s[0])
+    #b = Geo3d::Vector.elements(s[2]) - Geo3d::Vector.elements(s[1])
 
-        a = Geo3d::Vector.new(*s[1]) - Geo3d::Vector.new(*s[0])
-        b = Geo3d::Vector.new(*s[2]) - Geo3d::Vector.new(*s[1])
-        
-        a = a.to_a
-        b = b.to_a
-        #ap s 
-        #ap a
-        #ap b
-        c.crossProduct(a,b,v1)
-        c.normalize(v1,v2)
-        norms << v2
-        norms << v2
-        norms << v2
-    end
-    norms
+    a = Geo3d::Vector.new(*s[1]) - Geo3d::Vector.new(*s[0])
+    b = Geo3d::Vector.new(*s[2]) - Geo3d::Vector.new(*s[1])
+
+    a = a.to_a
+    b = b.to_a
+
+    vector1 = Array.new
+    vector2 = Array.new
+
+    c.crossProduct(a,b,vector1)
+    c.normalize(vector1,vector2)
+
+    vector2
 end
 
 
