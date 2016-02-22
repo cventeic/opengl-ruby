@@ -5,7 +5,7 @@ require './gpu_object.rb'
 module Geo3d
   class Matrix
     def remove_translation_component()
-      m = deep_copy(self)
+      m = self.dup
       m._41 = m._42 = m._43 = 0.0
       m 
     end
@@ -90,8 +90,6 @@ class Gpu
     #set_uniform_vector(program_id, :vEyePosition, camera_location_world)
     set_uniform_vector(program_id, :vEyePosition, vec_camera_location_in_world_space)
 
-
-
     error = Gl.getError()
     puts "Error: update_camera_view,  glError = #{error}" unless error == 0
  
@@ -166,6 +164,7 @@ class Gpu
     # Bind VAO to gpu context
     Gl.glBindVertexArray(vertex_array_obj_id)
 
+    # todo dont do this unless something changed
     set_object_uniforms(gpu_graphic_object)
 
     Gl.drawElements(Gl::GL_TRIANGLES, gpu_graphic_object.index_count, Gl::GL_UNSIGNED_INT, 0)
@@ -177,8 +176,6 @@ class Gpu
     attr_location = Gl.getAttribLocation(program_id, attr_name)
 
     if attr_location >= 0 then
-      #Gl.vertexAttribPointer(attr_location, element_size, Gl::GL_FLOAT, Gl::GL_FALSE, 0, 0)
-      #Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, GL_FALSE, 0, 0)
       Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, 0, 0, 0)
       Gl.enableVertexAttribArray(attr_location)
     end
@@ -201,20 +198,17 @@ class Gpu
     # Bind the buffer with the vertex locations (x,y,z) to the VAO
     # and map attribute to the buffer
     bind_buffer_to_vao(go, :position)
-    #map_attribute_to_buffer(program_id, :vertexPosition_modelspace)
     map_attribute_to_buffer(program_id, :position)
 
     #vNorms = compute_vertex_normals(verts) if vNorms.nil?
     # Bind the buffer with the normal vectors to the VAO
     # and map attribute to the buffer
     bind_buffer_to_vao(go, :normal)
-    #map_attribute_to_buffer(program_id, :vertexNormal_modelspace)
     map_attribute_to_buffer(program_id, :normal)
 
     # Bind the buffer with the texture coordinates to the VAO
     # and map attribute to the buffer
     bind_buffer_to_vao(go, :texcoord)
-    #map_attribute_to_buffer(program_id,  :vertexUV)
     map_attribute_to_buffer(program_id,  :texCoords)
 
     bind_buffer_to_vao(go, :index)
@@ -318,26 +312,24 @@ class Gpu
     end
 
 
-    # hack.... make sure texcoord is valid
-    #
-    subcomponents[:texcoord].map! {|texcoord| texcoord.nil? ? [0.0, 0.0] : texcoord}
-
 
     # subcomponent = content_type = vertex, normal, texcoord, index
 
     # pack data for each subcomponent to be ready for gpu
     #
-    subcomponents.each_pair do |subcomponent, vertex_subcomponent_array|
+    subcomponents.each_pair do |subcomponent, vector_array|
       content_config = @mesh_to_gpu_mapping_info[subcomponent]
 
       vao_key  = content_config[:vao_key] # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
       indicies = content_config[:indicies]
 
       # make sure we don't get x,y,z,a if we only want x,y,z
-      vertex_subcomponent_array.map! {|data| data.first(indicies)}
+      array_array = vector_array.map {|vec| vec.to_a.first(indicies)}
+
 
       # convert [[x,y,z], ..., [x,y,z]] into [x,y,z,x,y,z]
-      element_array = vertex_subcomponent_array.flatten
+      element_array = array_array.flatten
+
 
       gl_ready_buffers[subcomponent] = element_array.pack("f*")
     end

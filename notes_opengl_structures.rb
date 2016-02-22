@@ -112,6 +112,80 @@
 #         buffers - Specifies an array in which the generated buffer object names (numbers) are stored.
 
 
+=begin
+
+# Data Flow Through Shaders
+#
+
+==== CPU ====
+
+Input buffer:
+  Object:
+    Triangle:
+      Vertex:
+        Model Space:
+          Position: (x,y,z)
+          Normal Vector: (x, y, z)
+
+==== Vertex Shader ====
+
+Intermediate:
+  Object:
+    Triangle:
+      Vertex:
+        Model Space:
+          Position: (x,y,z)
+          Normal Vector: (x, y, z)
+
+        World Space:
+          Position: (x,y,z)
+          Normal Vector: (x, y, z)
+
+        Clip Space:
+          Position: (x,y,z)
+
+========
+==== Fixed Function ====
+==== Output a Window Pixel Fragement for each pixel covered by a triangle ===
+==== All vertex values are interpolated to the pixel vertex from the 3 input vertex in triangle ===
+========
+
+Intermediate:
+  Object:
+    Triangle:
+      Window Pixel:
+        Window Position: (x, y, z)
+
+        Vertex @ Pixel:
+          Model Space:
+            Position: (x,y,z)
+            Normal Vector: (x, y, z)
+
+          World Space:
+            Position: (x,y,z)
+            Normal Vector: (x, y, z)
+
+          Clip Space:
+            Position: (x,y,z)
+
+==== Fragment Shader ====
+
+Intermediate:
+  Object:
+    Triangle:
+      Window Pixel:
+        Window Position: (x, y, z)
+        Color: (r, g, b, a)
+
+
+
+=end
+
+
+
+
+
+
 # VAO binding target id's
 #
 # GL_ARRAY_BUFFER	            Vertex attributes

@@ -1,13 +1,5 @@
 require './util/gl_math_util'
 
-class Array
-  def normalize
-    sum_squares = self.inject(0) {|sum, item| (sum + item * item) }
-    magnitude   = Math.sqrt(sum_squares)
-    self.map! {|item| item / magnitude}
-  end
-end
-
 def merge_graphic_objects(objects=[])
   new_object = Mesh.new
 
@@ -21,12 +13,39 @@ end
 def clone_graphic_object(reference_shape, translation_rotation_scale_matrices = [])
 
   translation_rotation_scale_matrices.map do |matrix|
-    object = deep_copy(reference_shape)
-    object.applyMatrix!(matrix)
+    object = reference_shape.dup
+    object = object.applyMatrix!(matrix)
     object
   end
 
 end
+
+def cylinder_vertex(radius, cos_theyta, sin_theyta, z, z_normal, s, t)
+
+  position = Geo3d::Vector.new( cos_theyta * radius, sin_theyta * radius, z )
+  texcoord = Geo3d::Vector.new(s,t)
+
+  #if(!close_enough(radius, 0.0, 0.00001))
+
+  normal   = Geo3d::Vector.new( cos_theyta * radius, sin_theyta * radius, z_normal, 0.0 )
+  normal.normalize!
+
+  Vertex.new(position, normal, texcoord)
+end
+
+def sphere_vertex(radius, x, y, z, s, t)
+
+  position = Geo3d::Vector.new( x * radius, y * radius, z * radius )
+  texcoord = Geo3d::Vector.new(s,t)
+
+  #if(!close_enough(radius, 0.0, 0.00001))
+
+  normal   = Geo3d::Vector.new( x, y, z )
+  normal.normalize!
+
+  Vertex.new(position, normal, texcoord)
+end
+
 
 module GL_Shapes
 
@@ -69,6 +88,63 @@ module GL_Shapes
 
   end
 
+  # Draw arror between start and stop point
+  #
+  def GL_Shapes.arrow(line_start, line_stop, radius)
+
+    v = line_stop - line_start 
+
+    # line_start + v = line_stop
+    # line_stop - v  = line_start
+    
+    v_arrow = v.normalize * 8.0 * radius
+
+    v_arrow_start = line_stop - v_arrow
+    v_arrow_stop  = line_stop
+
+    cone  = GL_Shapes.directional_cylinder(v_arrow_start, v_arrow_stop, 4.0 * radius, 0.0)
+
+    line  = GL_Shapes.line(line_start, line_stop, radius)
+
+    merge_graphic_objects([line,cone])
+
+  end
+
+
+  # Draw line between start and stop point
+  #
+  def GL_Shapes.line(start, stop, radius)
+    GL_Shapes.directional_cylinder(start, stop, radius, radius)
+  end
+
+  def GL_Shapes.directional_cylinder(start, stop, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
+
+    # Generate the translation rotation matrix to get the line where we want it
+    #
+    v_end = stop - start                                       # Vector for ending line 
+    v_start  = Geo3d::Vector.new(0.0, 0.0, v_end.length.abs, 0.0)  # Vector for original cylinder
+
+    v_perp   = v_start.cross(v_end).normalize
+
+    angle = angle_between_two_vectors( [ v_start, v_end ] )
+
+    q = Geo3d::Quaternion.from_axis(v_perp, angle)
+
+    m_rotation = q.to_matrix
+    m_translation = Geo3d::Matrix.translation(start.x, start.y, start.z)
+
+    # Why is this backward order?????? It works but why???
+    m_translation_rotation = m_rotation * m_translation
+
+    # Create the line and move it into position
+    line = GL_Shapes.cylinder(v_end.length, base_radius, top_radius, num_slices, num_stacks)
+    line.applyMatrix!(m_translation_rotation)
+    #line = line.applyMatrix!(m_rotation)
+    #line.applyMatrix!(m_translation)
+
+    line
+  end
+
 
   # Cylinder centerline extends from origin along +z axis
   #   (center line vector = [0,0,0] -> [0, 0, f_length])
@@ -79,14 +155,14 @@ module GL_Shapes
   #
 
   def GL_Shapes.cylinder(f_length = 6.0, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
+
     mesh = Mesh.new
 
     # Draw a cylinder. Much like gluCylinder
-    baseRadius, topRadius, fLength, numSlices, numStacks = base_radius, top_radius, f_length, num_slices, num_stacks
+    baseRadius, topRadius, fLength, numSlices, numStacks = 
+      base_radius, top_radius, f_length, num_slices, num_stacks
 
-    vVertex  = Array.new(4) { Array.new(3) }
-    vNormal  = Array.new(4) { [0.0, 0.0, 0.0] }
-    vTexture = nil
+    vVertex  = Array.new(4)
 
     fRadiusStep = (topRadius - baseRadius) / (numStacks)
 
@@ -98,7 +174,6 @@ module GL_Shapes
     dt = 1.0 / numStacks
 
     numStacks.times do |i|
-      #puts "iStack = #{i}"
       i_next = i + 1 
 
       # texture
@@ -117,11 +192,9 @@ module GL_Shapes
       fNextZ    = i_next  * stack_delta
 
       # Rise over run...
-      zNormal = (baseRadius - topRadius) 
-      zNormal =  0.0 if(!close_enough(baseRadius - topRadius, 0.0, 0.00001))
-
-      #puts "[zNormal, fCurrentRadius, fNextRadius, fCurrentZ, fNextZ]"
-      #puts "#{[zNormal, fCurrentRadius, fNextRadius, fCurrentZ, fNextZ].join(":")}"
+      zNormal = (baseRadius - topRadius) / fLength # /todo check this is right 
+      #zNormal = (baseRadius - topRadius) # /todo check this is right 
+      zNormal = 0.0 if(close_enough(zNormal, 0.0, 0.00001))
 
       numSlices.times do |j|
         #puts "iSlice = #{j}"
@@ -146,64 +219,26 @@ module GL_Shapes
         sin_theytaNext = Math.sin(theytaNext)
 
         # Inner First
-        vVertex[1] = [cos_theyta * fCurrentRadius, sin_theyta * fCurrentRadius, fCurrentZ]
-
-        vNormal[1] = [cos_theyta * fCurrentRadius, sin_theyta * fCurrentRadius, zNormal]
-        vNormal[1].normalize
-
-        #vTexture[1] = [s, t]
-
+        vVertex[1] = cylinder_vertex(fCurrentRadius, cos_theyta, sin_theyta, fCurrentZ, zNormal, s, t)
 
         # Outer First
-        vVertex[0] = [cos_theyta * fNextRadius, sin_theyta * fNextRadius, fNextZ]
-
-        #if(!close_enough(fNextRadius, 0.0, 0.00001))
-          vNormal[0] = [cos_theyta * fNextRadius, sin_theyta * fNextRadius, zNormal]
-          vNormal[0].normalize
-        #else
-        #    vNormal[0] = deep_copy(vNormal[1])
-        #end
-
-        #vTexture[0] = [s, tNext]
-
+        vVertex[0] = cylinder_vertex(fNextRadius, cos_theyta, sin_theyta, fNextZ, zNormal, s, tNext)
+ 
         # Inner second
-        vVertex[3] = [cos_theytaNext * fCurrentRadius, sin_theytaNext * fCurrentRadius, fCurrentZ]
-
-        vNormal[3] = [cos_theytaNext * fCurrentRadius, sin_theytaNext * fCurrentRadius, zNormal]
-        vNormal[3].normalize
-
-        #vTexture[3] = [sNext, t]
+        vVertex[3] = cylinder_vertex(fCurrentRadius, cos_theytaNext, sin_theytaNext, fCurrentZ, zNormal, sNext, t)
 
         # Outer second
-        vVertex[2] = [cos_theytaNext * fNextRadius,  sin_theytaNext * fNextRadius, fNextZ]
+        vVertex[2] = cylinder_vertex(fNextRadius, cos_theytaNext, sin_theytaNext, fNextZ, zNormal, sNext, tNext)
 
-        #if(!close_enough(fNextRadius, 0.0, 0.00001))
-            vNormal[2] = [cos_theytaNext * fNextRadius,  sin_theytaNext * fNextRadius, zNormal]
-            vNormal[2].normalize
-        #else
-        #    vNormal[2] = deep_copy(vNormal[3])
-        #end
-
-
-        #vTexture[2] = [sNext, tNext]
-
-        #puts "cylinder push triangle"
-        mesh.push_triangle(vVertex, vNormal, vTexture)			
+        mesh.add_triangle([vVertex[0], vVertex[1], vVertex[2]])
 
         # Rearrange for next triangle
-        vVertex[0] = deep_copy(vVertex[1])
-        vNormal[0] = deep_copy(vNormal[1])
-        #vTexture[0] = deep_copy(vTexture[1])
-
-        vVertex[1] = deep_copy(vVertex[3])
-        vNormal[1] = deep_copy(vNormal[3])
-        #vTexture[1] = deep_copy(vTexture[3])
-
-        mesh.push_triangle(vVertex, vNormal, vTexture)			
+        #
+        mesh.add_triangle([vVertex[1], vVertex[3], vVertex[2]])
       end
     end
 
-    mesh.clamp_ranges
+    #mesh.clamp_ranges
 
     mesh
   end
@@ -211,9 +246,7 @@ module GL_Shapes
   def GL_Shapes.sphere(fRadius = 2.0, iSlices = 16 , iStacks = 16)
     mesh = Mesh.new
 
-    vVertex  = Array.new(4) { Array.new(3) }
-    vNormal  = Array.new(4) { Array.new(3) }
-    vTexture = Array.new(4) { Array.new(2) }
+    vVertex  = Array.new(4)
 
     drho = Math::PI /  iStacks
     dtheta = 2.0 * Math::PI /  iSlices
@@ -238,6 +271,8 @@ module GL_Shapes
       # artifacts at the poles on some OpenGL implementations
       s = 0.0
       iSlices.times do |j|
+
+        ##################
         theta = (j == iSlices) ? 0.0 : j * dtheta
         stheta = -Math.sin(theta)
         ctheta = Math.cos(theta)
@@ -246,30 +281,15 @@ module GL_Shapes
         y = ctheta * srho
         z = crho
 
-        vTexture[0][0] = s
-        vTexture[0][1] = t
-        vNormal[0][0] = x
-        vNormal[0][1] = y
-        vNormal[0][2] = z
-        vVertex[0][0] = x * fRadius
-        vVertex[0][1] = y * fRadius
-        vVertex[0][2] = z * fRadius
+        vVertex[0] = sphere_vertex(fRadius, x, y, z, s, t)
 
         x = stheta * srhodrho
         y = ctheta * srhodrho
         z = crhodrho
 
-        vTexture[1][0] = s
-        vTexture[1][1] = t - dt
-        vNormal[1][0] = x
-        vNormal[1][1] = y
-        vNormal[1][2] = z
-        vVertex[1][0] = x * fRadius
-        vVertex[1][1] = y * fRadius
-        vVertex[1][2] = z * fRadius
+        vVertex[1] = sphere_vertex(fRadius, x, y, z, s, t - dt)
 
-
-
+        ##################
         theta = ((j+1) == iSlices) ? 0.0 : (j+1) * dtheta
         stheta = -Math.sin(theta)
         ctheta = Math.cos(theta)
@@ -279,47 +299,25 @@ module GL_Shapes
         z = crho
 
         s += ds
-        vTexture[2][0] = s
-        vTexture[2][1] = t
-        vNormal[2][0] = x
-        vNormal[2][1] = y
-        vNormal[2][2] = z
-        vVertex[2][0] = x * fRadius
-        vVertex[2][1] = y * fRadius
-        vVertex[2][2] = z * fRadius
 
+        vVertex[2] = sphere_vertex(fRadius, x, y, z, s, t)
 
         x = stheta * srhodrho
         y = ctheta * srhodrho
         z = crhodrho
 
-        vTexture[3][0] = s
-        vTexture[3][1] = t - dt
-        vNormal[3][0] = x
-        vNormal[3][1] = y
-        vNormal[3][2] = z
-        vVertex[3][0] = x * fRadius
-        vVertex[3][1] = y * fRadius
-        vVertex[3][2] = z * fRadius
+        vVertex[3] = sphere_vertex(fRadius, x, y, z, s, t - dt)
 
-        mesh.push_triangle(vVertex, vNormal, vTexture)			
+        ##################
 
-        # Rearrange for next triangle
-        vVertex[0] = deep_copy(vVertex[1])
-        vNormal[0] = deep_copy(vNormal[1])
-        vTexture[0] = deep_copy(vTexture[1])
-
-        vVertex[1] = deep_copy(vVertex[3])
-        vNormal[1] = deep_copy(vNormal[3])
-        vTexture[1] = deep_copy(vTexture[3])
-
-        mesh.push_triangle(vVertex, vNormal, vTexture)			
+        mesh.add_triangle([vVertex[0], vVertex[1], vVertex[2]])
+        mesh.add_triangle([vVertex[1], vVertex[3], vVertex[2]])
       end
 
       t -= dt
     end 
 
-    mesh.clamp_ranges
+    #mesh.clamp_ranges
 
     mesh
   end
@@ -330,16 +328,6 @@ end
 require 'minitest/autorun'
 
 class BugTest < Minitest::Test
-  def test_array_normalize
-    array = [1.0, 2.0, 3.0]
-    array.normalize
-
-    sum_squares = 14.0 # 1.0 + 4.0 + 9.0
-    magnitude   = Math.sqrt(sum_squares)
-    expected    = [1.0 / magnitude, 2.0 / magnitude, 3.0 / magnitude]
-
-    assert_equal expected, array
-  end
 end
 
 

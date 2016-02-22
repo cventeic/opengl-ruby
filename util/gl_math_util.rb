@@ -13,7 +13,16 @@ def rand_vector_in_box(named_arguments={x: -10.0..10.0, y: -10.0..10.0, z: -10.0
 end
 
 def radians(degrees)
+  to_radians(degrees)
+end
+
+
+def to_radians(degrees)
   radians = degrees * Math::PI / 180.0
+end
+
+def to_degrees(radians)
+  degrees = radians / ( Math::PI / 180.0)
 end
 
 
@@ -213,3 +222,36 @@ def ComputeFOVProjection(fov, aspect, nearDist, farDist, leftHanded=true)
         [0.0, 0.0,   d, 0.0]
     ]
 end
+
+# Note this is always a positive angle
+#
+def angle_between_two_vectors(vectors)
+  dot   = vectors[0].dot(vectors[1])
+  mag   = (vectors[0].length * vectors[1].length).abs
+  angle = Math.acos(dot / mag)
+end
+
+require 'minitest/autorun'
+
+class BugTest < Minitest::Test
+
+  def test_angle_between_two_vectors
+    v = {}
+    v[:x] = Geo3d::Vector.new(1.0, 0.0, 0.0)
+    v[:y] = Geo3d::Vector.new(0.0, 1.0, 0.0)
+    v[:z] = Geo3d::Vector.new(0.0, 0.0, 1.0)
+
+    v[:x_y] = Geo3d::Vector.new(1.0, 1.0, 0.0)
+    v[:nx_ny] = Geo3d::Vector.new(-1.0, -1.0, 0.0)
+
+    assert_in_epsilon to_radians(90.0), angle_between_two_vectors( [ v[:x], v[:y] ] )
+    assert_in_epsilon to_radians(45.0), angle_between_two_vectors( [ v[:x_y], v[:x] ] )
+
+    assert_in_epsilon to_radians(135.0), angle_between_two_vectors( [ v[:x], v[:nx_ny] ] )
+
+    assert_in_epsilon to_radians(90.0), angle_between_two_vectors( [ v[:z], v[:nx_ny] ] )
+    assert_in_epsilon to_radians(90.0), angle_between_two_vectors( [ v[:z], v[:x_y] ] )
+  end
+end
+
+
