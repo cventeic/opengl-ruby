@@ -147,7 +147,9 @@ if false
     color: Geo3d::Vector.new( 0.8, 1.0, 1.0, 1.0)
   )
 end
+
 if true 
+  #/todo make this match actual light position
   # show light 
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
     internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(3.0, 3.0, 0.1) },
@@ -203,7 +205,6 @@ if true
     )
   end
 end
-
 
 
 

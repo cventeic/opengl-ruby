@@ -157,9 +157,16 @@ class Gpu
 
     # Position the object in world space
     #cpu_graphic_object.external()
-
+    
+    ##### Uniforms
+    #
     gpu_graphic_object.model_matrix = cpu_graphic_object.model_matrix
     gpu_graphic_object.color        = cpu_graphic_object.color
+
+    # Setup a matrix to rotate normals from object space to world space 
+    gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
+
+
 
     gpu_graphic_object.mesh         = cpu_graphic_object.mesh
 

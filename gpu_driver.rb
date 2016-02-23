@@ -2,6 +2,7 @@ require './util/uniforms'
 require './gl_ffi'
 require './gpu_object.rb'
 require './gpu_driver_buffers.rb'
+require './util/geo3d_vector.rb'
 
 
 class Gpu
@@ -38,11 +39,15 @@ class Gpu
     set_uniform_matrix(program_id, :projection, camera.perspective)
 
 
-    vec_camera_location_camera_space = Geo3d::Vector.new(0.0, 0.0, 0.0, 1.0)
+    vec_camera_location_camera_space = Geo3d::Vector.new(0.0, 0.0, 0.0, -1.0)
 
     matrix_view_inverse = camera.view.inverse
 
     vec_camera_location_in_world_space = matrix_view_inverse * vec_camera_location_camera_space
+
+    vec_camera_location_in_world_space.w  = 0.0
+
+    puts "camera in world = #{vec_camera_location_in_world_space.to_s_round}"
 
     set_uniform_vector(program_id, :vEyePosition, vec_camera_location_in_world_space)
 
@@ -54,7 +59,7 @@ class Gpu
   def update_lights(program_id)
     uniforms_vec3 = {
 #      'viewPos'           => [0.0, 0.0, 0.0],
-       'light.position'    => [0.0, 0.0, 10.0],    # in world space
+       'light.position'    => [0.0, 0.0, 20.0],    # in world space
 #      'light.direction'   => [0.0, 0.0, -1.0],    # spotlight
     }
 
@@ -75,14 +80,19 @@ class Gpu
 
   def set_object_uniforms(gpu_graphic_object)
 
-    # Setup a matrix to rotate normals from object space to world space 
-    model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
+    gpu_graphic_object.uniform_variables.each_pair do |parameter, config_and_data|
 
-    set_uniform_matrix(gpu_graphic_object.program_id, "model_matrix_for_normals", model_matrix_for_normals)
+      case  config_and_data[:data_structure]
+      when :vector
+        set_uniform_vector(gpu_graphic_object.program_id, parameter, config_and_data[:data] )
+      when :matrix
+        set_uniform_matrix(gpu_graphic_object.program_id, parameter, config_and_data[:data] )
+      else
+        puts "error"
+      end
 
-    set_uniform_matrix(gpu_graphic_object.program_id, :model, gpu_graphic_object.model_matrix)
+    end
 
-    set_uniform_vector(gpu_graphic_object.program_id, :surface_color, gpu_graphic_object.color)
   end
 
 
