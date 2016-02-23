@@ -20,6 +20,22 @@ class Camera
     @view = view_change_matrix * @view
   end
 
+  def camera_location_in_world_space
+
+    vec_camera_location_camera_space = Geo3d::Vector.new(0.0, 0.0, 0.0, -1.0)
+
+    matrix_view_inverse = @view.inverse
+
+    vec_camera_location_in_world_space = matrix_view_inverse * vec_camera_location_camera_space
+
+    vec_camera_location_in_world_space.w  = 0.0
+
+    # puts "camera in world = #{vec_camera_location_in_world_space.to_s_round}"
+
+    vec_camera_location_in_world_space
+  end
+
+
 end    
 
 

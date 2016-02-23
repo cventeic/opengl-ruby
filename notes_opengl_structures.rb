@@ -92,10 +92,28 @@
 
 # Definitions:
 
+## Vertex
+#    One of 3 locations in a triangle
+#
+
+## Vertex Attribute
+#    Data stored for each vertex
+#    Example: Position, Normal, Color, Texture Coords are all vertex attributes
+#
+
+## Vertex Array Object
+#    A open GL object agregating and encapsulating a large set of vertexes
+#    
+#    VAO interface facilitates the rapid (re)selection of a graphical object, in
+#    terms of it's vertexes, to be rendered.
+
+
 ## Uniform
 #    A uniform is a global GL Shader Language variable declared with the "uniform" storage qualifier. 
 #    These act as parameters that the user of a shader program can pass to that program. 
 #    Uniforms are stored in a program object.
+#
+#    Uniforms are stored with a program instance not with a vertex array object instance
 #
 #    Uniforms are so named because they do not change from one execution of a shader program to the next
 #      within a particular rendering call. 

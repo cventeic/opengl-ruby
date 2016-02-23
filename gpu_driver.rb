@@ -34,22 +34,9 @@ class Gpu
 
   def update_camera_view(program_id, camera)
 
-    set_uniform_matrix(program_id, :view, camera.view)
-
-    set_uniform_matrix(program_id, :projection, camera.perspective)
-
-
-    vec_camera_location_camera_space = Geo3d::Vector.new(0.0, 0.0, 0.0, -1.0)
-
-    matrix_view_inverse = camera.view.inverse
-
-    vec_camera_location_in_world_space = matrix_view_inverse * vec_camera_location_camera_space
-
-    vec_camera_location_in_world_space.w  = 0.0
-
-    puts "camera in world = #{vec_camera_location_in_world_space.to_s_round}"
-
-    set_uniform_vector(program_id, :vEyePosition, vec_camera_location_in_world_space)
+    set_uniform_matrix(program_id, :view,         camera.view)
+    set_uniform_matrix(program_id, :projection,   camera.perspective)
+    set_uniform_vector(program_id, :vEyePosition, camera.camera_location_in_world_space)
 
     error = Gl.getError()
     puts "Error: update_camera_view,  glError = #{error}" unless error == 0
@@ -57,44 +44,15 @@ class Gpu
   end
 
   def update_lights(program_id)
-    uniforms_vec3 = {
-#      'viewPos'           => [0.0, 0.0, 0.0],
-       'light.position'    => [0.0, 0.0, 20.0],    # in world space
-#      'light.direction'   => [0.0, 0.0, -1.0],    # spotlight
-    }
 
-    uniforms_1 = {
+    uniform_variables_hash = {
+      'light.position' => {elements: 3, data: Geo3d::Vector.new(0.0, 0.0, 20.0)},    # in world space
       #'material.diffuse'  => 0,
       #'material.specular' => 1,
     }
-      
-    set_uniforms_vec3(program_id, uniforms_vec3)
-    set_uniforms_1(program_id, uniforms_1)
+
+    set_uniforms_in_bulk(program_id, uniform_variables_hash)
   end
-
-
-  # /todo don't due these time intensive yet static things every render
-  #   - compute and set mNormal
-  #   - set model_matrix
-  #   - set color
-
-  def set_object_uniforms(gpu_graphic_object)
-
-    gpu_graphic_object.uniform_variables.each_pair do |parameter, config_and_data|
-
-      case  config_and_data[:data_structure]
-      when :vector
-        set_uniform_vector(gpu_graphic_object.program_id, parameter, config_and_data[:data] )
-      when :matrix
-        set_uniform_matrix(gpu_graphic_object.program_id, parameter, config_and_data[:data] )
-      else
-        puts "error"
-      end
-
-    end
-
-  end
-
 
   def render_object(gpu_object_id)
     vertex_array_obj_id = gpu_object_id
@@ -104,8 +62,8 @@ class Gpu
     # Bind VAO to gpu context
     Gl.glBindVertexArray(vertex_array_obj_id)
 
-    # todo dont do this unless something changed
-    set_object_uniforms(gpu_graphic_object)
+    # Set graphic object specific uniforms
+    set_uniforms_in_bulk(gpu_graphic_object.program_id, gpu_graphic_object.uniform_variables)
 
     Gl.drawElements(Gl::GL_TRIANGLES, gpu_graphic_object.element_count, Gl::GL_UNSIGNED_INT, 0)
   end

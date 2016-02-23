@@ -19,8 +19,9 @@ class GPU_Graphic_Object
     @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
   end
 
+
   def model_matrix_for_normals=(_matrix = Geo3d::Matrix.identity)
-    @uniform_variables[:model_matrix_for_normals] = {data_structure: :matrix, data: _matrix}
+    @uniform_variables[:model_matrix_for_normals] = {data: _matrix}
   end
 
   def model_matrix_for_normals
@@ -29,7 +30,7 @@ class GPU_Graphic_Object
 
 
   def model_matrix=(_matrix = Geo3d::Matrix.identity)
-    @uniform_variables[:model] = {data_structure: :matrix, data: _matrix}
+    @uniform_variables[:model] = {data: _matrix}
   end
 
   def model_matrix
@@ -37,7 +38,7 @@ class GPU_Graphic_Object
   end
 
   def color=(_color = Geo3d::Vector.new(0.0, 0.0, 0.0, 1.0))
-    @uniform_variables[:surface_color] = {data_structure: :vector, data: _color}
+    @uniform_variables[:surface_color] = {data: _color}
   end
 
   def color

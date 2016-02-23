@@ -215,6 +215,9 @@ gpu_obj_ids = cpu_graphic_objects.map do |object|
   gpu.push_cpu_graphic_object(ctx.program_id, object)
 end
 
+# /todo pass in light data
+gpu.update_lights(ctx.program_id)
+
 StackProf.stop
 StackProf.results('./stackprof.dump')
 
@@ -257,7 +260,6 @@ loop do
     camera = input_tracker.camera
 
     gpu.update_camera_view(ctx.program_id, camera)
-    gpu.update_lights(ctx.program_id)
   end
 
   #### Draw / Update objects
