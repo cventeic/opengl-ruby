@@ -13,7 +13,7 @@ uniform mat4 projection; // eye   to clip  (space) matrix
 //
 in vec3 position;   // vertex position in model space
 in vec3 normal;     // vertex normal   in model space
-in vec2 texCoords;  // vertex texture coords in texture space
+in vec2 texcoord;  // vertex texture coords in texture space
 
 // Output vars leave vertex specific but enter frag shader fragment specific
 //   due to fixed blocks between vertex and fragment shader
@@ -54,6 +54,6 @@ void main()
 
   vNormalInWorldSpace = model_matrix_for_normals * vec4(vFragNormal, 1.0);
 
-  TexCoords = texCoords;
+  TexCoords = texcoord;
  
 }

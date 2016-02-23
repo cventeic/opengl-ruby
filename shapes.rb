@@ -322,6 +322,55 @@ module GL_Shapes
     mesh
   end
 
+  def GL_Shapes.axis_arrows()
+    cpu_graphic_objects = []
+
+    # show origin
+    radius = 0.2
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.sphere(radius) },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: Geo3d::Matrix.translation(0.0, 0.0, 0.0),
+      color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
+    )
+
+    # show x axis 
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_y(radians(-90.0))),
+      color: Geo3d::Vector.new( 1.0, 0.0, 0.0, 1.0) 
+    )
+
+    # show y axis 
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_x(radians(90.0))),
+      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
+    )
+
+    # show z axis 
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0)),
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+    )
+
+    # show z axis 
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 2.0)),
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+    )
+
+    return cpu_graphic_objects
+
+  end
+
+
 
 end
 

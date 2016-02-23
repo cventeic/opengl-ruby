@@ -1,5 +1,16 @@
 module Geo3d
   class Matrix
+     def remove_translation_component()
+      m = self.dup
+      m._41 = m._42 = m._43 = 0.0
+      m 
+    end
+
+    def to_s_round(digits=2)
+      (0..3).to_a.map { |i| 
+        row(i).to_s_round(digits)
+      }.join "\n"
+    end
  
     def * v
        result = nil
