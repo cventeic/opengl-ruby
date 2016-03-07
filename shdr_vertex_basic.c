@@ -23,7 +23,7 @@ in vec2 texcoord;  // vertex texture coords in texture space
 
 out vec4 vFragPosition; // Fragment Position in world space
 
-out vec3 vFragNormal; // Fragment Normal   in world space
+//out vec3 vFragNormal; // Fragment Normal   in world space
 
 out vec2 TexCoords;   // Fragment texCoord in texture space
 
@@ -46,13 +46,13 @@ void main()
 {
   gl_Position = projection * view *  model * vec4(position, 1.0f);
 
-  // Transform the postion from Object to Model space
+  // Transform the postion from Model to World space
   vFragPosition = model * vec4(position, 1.0f);
   //FragPos = vec3(vFragPostion);
 
-  vFragNormal = normal;
+  //vFragNormal = normal;
 
-  vNormalInWorldSpace = model_matrix_for_normals * vec4(vFragNormal, 1.0);
+  vNormalInWorldSpace = model_matrix_for_normals * vec4(normal, 1.0f);
 
   TexCoords = texcoord;
  

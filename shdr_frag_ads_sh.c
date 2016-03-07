@@ -31,7 +31,7 @@ uniform Light light;
 uniform vec4 vEyePosition; // Location of the "Camera" in world space
 
 in vec4 vFragPosition; // Fragment Position in world space
-in vec3 vFragNormal;   // Fragment Normal   in world space
+// in vec3 vFragNormal;   // Fragment Normal   in world space
 
 in vec4 vNormalInWorldSpace; // Vertex Normal in World Space
                              // Fragment Normal entering frag shader (after interpolation)
@@ -79,14 +79,14 @@ vec4 GetSpecularColor(
       // normal (incoming angle = outgoing angle)
       // We have to use the invert of the light direction because "reflect"
       // expects the incident vector as its first parameter
-      // vec3 vReflection = reflect( -vLightDirection, vNormalizedNormal);
+      vec3 vReflection = reflect( -vLightDirection, vNormalizedNormal);
 
       // Based on the dot product between the reflection vector and the camera
       // direction.
       //
       // hint: The Dot Product corresponds to the angle between the two vectors
       // hint: if the angle is out of range (0 ... 180 degrees) we use 0.0
-      // spec = pow( max( 0.0, dot( vCameraDirection, vReflection )), 4.0 );
+      spec = pow( max( 0.0, dot( vCameraDirection, vReflection )), 4.0 );
     }
  
     return vec4( spec, spec, spec, 1.0 );
@@ -100,7 +100,8 @@ vec4 GetDiffuseColorSphericalHarmonics(
     vec4 vNormalInWorldSpace  // Fragment normal in model space
     )
 {
-  vec3 tnorm = normalize(vec3(vNormalInWorldSpace));
+  //vec3 tnorm = normalize(vec3(vNormalInWorldSpace));
+  vec3 tnorm = vec3(vNormalInWorldSpace);
 
   vec3 diffuse_color = 
     C1 * L22 *(tnorm.x * tnorm.x - tnorm.y * tnorm.y) +
@@ -131,6 +132,7 @@ void main(void)
   float SpecularPercent = 0.75;
 
   vVaryingColor   =
+      //mix(vec4(0.0), diffuseMagnitudes  * surface_color, DiffusePercent);
       mix(vec4(0.0), diffuseMagnitudes  * surface_color, DiffusePercent) +
       mix(vec4(0.0), specularMagnitudes * surface_color, SpecularPercent);
 

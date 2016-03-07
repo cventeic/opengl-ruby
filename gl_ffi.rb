@@ -17,11 +17,10 @@ module Gl
   typealias 'GLvoid', 'void' 
   typealias 'GLfloat', 'float' 
   typealias 'GLdouble', 'float' 
+  typealias 'GLclampf', 'float' 
 
   GL_FALSE                                                      = 0
 
-=begin
-  GL_FALSE                                                      = 0
   GL_TRUE                                                       = 1
  
   GL_TRIANGLES                                                  = 0x0004
@@ -71,14 +70,43 @@ module Gl
 
   GL_DRAW_FRAMEBUFFER               = 0x8CA9
   GL_DEPTH_ATTACHMENT               = 0x8D00
-=end
 
 
-  #extern 'void glViewport(	GLint , GLint , GLsizei , GLsizei )'
+  # Matrix Mode
+  GL_MODELVIEW			= 0x1700
+  GL_PROJECTION			=	0x1701
+ 
 
-  #def Gl.viewport(x, y, width, height)
-  #  glViewport(	x, y, width, height)
-  #end
+  GL_SMOOTH				  = 0x1D01
+  GL_FLAT					  = 0x1D00
+
+extern 'void glClearColor(	GLclampf , GLclampf , GLclampf , GLclampf )'
+def Gl.clearColor(	red, green, blue, alpha)
+  glClearColor(	red, green, blue, alpha)
+end
+
+extern 'void glLoadIdentity()'
+
+  def Gl.loadIdentity()
+    glLoadIdentity()
+  end
+
+  extern 'void glShadeModel( GLenum )'
+  def Gl.shadeModel(mode)
+    glShadeModel(mode)
+  end 
+
+  extern 'void glMatrixMode(GLenum)'
+  def Gl.matrixMode(mode) 
+    glMatrixMode(mode)
+  end
+
+
+  extern 'void glViewport(	GLint , GLint , GLsizei , GLsizei )'
+
+  def Gl.viewport(x, y, width, height)
+    glViewport(	x, y, width, height)
+  end
 
 
   extern 'void glGetBooleanv(	GLenum , GLboolean * )'
@@ -184,7 +212,6 @@ module Gl
     glDepthRange( nearVal, farVal)
   end
 
-=begin
 
   extern 'void glDepthFunc(	GLenum )'
 
@@ -196,7 +223,6 @@ module Gl
   def Gl.depthMask(	flag )
     glDepthMask(flag)
   end
-=end
 
   #extern 'void glGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei * length, GLchar * infoLog)'
   extern 'void glGetShaderInfoLog(GLuint, GLsizei, GLsizei *, GLchar *)'
@@ -270,17 +296,15 @@ module Gl
     glGetError()
   end
   
-=begin
   extern 'void glEnable(GLenum)'
   def Gl.enable(cap)
     glEnable(cap)
   end
 
   extern 'void glDisable(GLenum)'
-  def Gl.enable(cap)
+  def Gl.disable(cap)
     glDisable(cap)
   end
-=end
 
   # extern 'void glUniform3f(	GLint location, GLfloat v0, GLfloat v1, GLfloat v2)'
   extern 'void glUniform3f(	GLint , GLfloat, GLfloat, GLfloat )'
@@ -329,13 +353,11 @@ module Gl
     glDrawElements(mode, count, type, indices)
   end
 
-=begin
   extern 'void glClear(GLbitfield)'
 
   def Gl.clear(mask)
     glClear(mask)
   end
-=end
 
 
   extern 'void glEnableVertexAttribArray(	GLuint )'

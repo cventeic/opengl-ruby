@@ -164,8 +164,12 @@ class Gpu
     gpu_graphic_object.color        = cpu_graphic_object.color
 
     # Setup a matrix to rotate normals from object space to world space 
-    gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
-
+    # gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
+    
+    matrix            = gpu_graphic_object.model_matrix.dup
+    inverse           = matrix.inverse
+    inverse_transpose = inverse.transpose
+    gpu_graphic_object.model_matrix_for_normals = inverse_transpose
 
 
     gpu_graphic_object.mesh         = cpu_graphic_object.mesh

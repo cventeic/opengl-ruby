@@ -50,7 +50,7 @@ class InputTracker
             @camera = @camera_before_arcball_touched.clone
 
             # Rotate the camera space around origin (0.0, 0.0, 0.0) 
-            @camera.move(arc_ball_rotation_matrix)
+            @camera.move_in_world_space(arc_ball_rotation_matrix)
         end
 
     end

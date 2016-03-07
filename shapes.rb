@@ -1,11 +1,21 @@
 require './util/gl_math_util'
+require './g_object'
+require './g_object_shapes'
 
 def merge_graphic_objects(objects=[])
   new_object = Mesh.new
 
+  sum_sizes = 0
+
+  sizes = objects.map { |object| object.triangles.size}
+
   objects.each do |object|
-    new_object.add_mesh(object)
+    sum_sizes += object.triangles.size
+    new_object.add_mesh!(object)
   end
+
+  puts "merge_graphic_object new_object.triangles.size = #{new_object.triangles.size}, sum_sizes = #{sum_sizes}"
+  puts "merge_graphic_object individual sizes = #{sizes}"
 
   new_object
 end
@@ -22,12 +32,13 @@ end
 
 def cylinder_vertex(radius, cos_theyta, sin_theyta, z, z_normal, s, t)
 
-  position = Geo3d::Vector.new( cos_theyta * radius, sin_theyta * radius, z )
+  x = cos_theyta * radius
+  y = sin_theyta * radius
+
+  position = Geo3d::Vector.new(x, y, z)
   texcoord = Geo3d::Vector.new(s,t)
 
-  #if(!close_enough(radius, 0.0, 0.00001))
-
-  normal   = Geo3d::Vector.new( cos_theyta * radius, sin_theyta * radius, z_normal, 0.0 )
+  normal   = Geo3d::Vector.new(x, y, z_normal, 0.0 )
   normal.normalize!
 
   Vertex.new(position, normal, texcoord)
@@ -37,8 +48,6 @@ def sphere_vertex(radius, x, y, z, s, t)
 
   position = Geo3d::Vector.new( x * radius, y * radius, z * radius )
   texcoord = Geo3d::Vector.new(s,t)
-
-  #if(!close_enough(radius, 0.0, 0.00001))
 
   normal   = Geo3d::Vector.new( x, y, z )
   normal.normalize!
@@ -62,18 +71,21 @@ module GL_Shapes
 
     corner_spheres = clone_graphic_object(reference_sphere, trs_matricies)
 
-    ##### Make the set of (12) cylinders for each edge of the box
+    ##### Make set of 4 cylinders
     #
-
-    reference_cylinder = GL_Shapes.cylinder(20.0)
+    reference_cylinder = GL_Shapes.cylinder(f_length: 20.0)
 
     t_matricies = [-10.0,10.0].product([-10.0,10.0]).map do |x,y|
       Geo3d::Matrix.translation(x, y, -10.0)
     end
 
     objects = clone_graphic_object(reference_cylinder, t_matricies)
+
     four_cylinders_on_z = merge_graphic_objects(objects)
 
+    ##### Make the set of (12) cylinders for each edge of the box
+    #     3 sets of 4 
+    #
     r_matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
       Geo3d::Matrix.rotation_x(radians(90.0)),  # Version with centerline on y
@@ -102,7 +114,7 @@ module GL_Shapes
     v_arrow_start = line_stop - v_arrow
     v_arrow_stop  = line_stop
 
-    cone  = GL_Shapes.directional_cylinder(v_arrow_start, v_arrow_stop, 4.0 * radius, 0.0)
+    cone  = GL_Shapes.directional_cylinder(start: v_arrow_start, stop: v_arrow_stop, base_radius: 4.0 * radius, top_radius: 0.0)
 
     line  = GL_Shapes.line(line_start, line_stop, radius)
 
@@ -114,10 +126,10 @@ module GL_Shapes
   # Draw line between start and stop point
   #
   def GL_Shapes.line(start, stop, radius)
-    GL_Shapes.directional_cylinder(start, stop, radius, radius)
+    GL_Shapes.directional_cylinder(start: start, stop: stop, base_radius: radius, top_radius: radius)
   end
 
-  def GL_Shapes.directional_cylinder(start, stop, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
+  def GL_Shapes.directional_cylinder( start: Geo3d::Vector.new, stop: Geo3d::Vector.new, **args)
 
     # Generate the translation rotation matrix to get the line where we want it
     #
@@ -137,7 +149,8 @@ module GL_Shapes
     m_translation_rotation = m_rotation * m_translation
 
     # Create the line and move it into position
-    line = GL_Shapes.cylinder(v_end.length, base_radius, top_radius, num_slices, num_stacks)
+    #line = GL_Shapes.cylinder(f_length: v_end.length, base_radius: base_radius, top_radius: top_radius, num_slices: num_slices, num_stacks: num_stacks)
+    line = GL_Shapes.cylinder(args.merge({f_length: v_end.length}))
     line.applyMatrix!(m_translation_rotation)
     #line = line.applyMatrix!(m_rotation)
     #line.applyMatrix!(m_translation)
@@ -154,7 +167,8 @@ module GL_Shapes
   #   +X axis -- Rotate +90 on +y axis
   #
 
-  def GL_Shapes.cylinder(f_length = 6.0, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
+  #def GL_Shapes.cylinder(f_length = 6.0, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
+  def GL_Shapes.cylinder(f_length: 6.0, base_radius: 0.1, top_radius: 0.1, num_slices: 16, num_stacks: 16)
 
     mesh = Mesh.new
 
@@ -173,12 +187,13 @@ module GL_Shapes
     ds = 1.0 / numSlices
     dt = 1.0 / numStacks
 
-    numStacks.times do |i|
-      i_next = i + 1 
+    numStacks.times do |_i|
+      i = _i.to_f
+      i_next = i + 1.0
 
       # texture
       t = i * dt
-      t = 0.0 if i == 0
+      t = 0.0 if _i == 0
 
       tNext = (i + 1.0) * dt
       tNext = 1.0 if (i==numStacks-1)
@@ -196,21 +211,24 @@ module GL_Shapes
       #zNormal = (baseRadius - topRadius) # /todo check this is right 
       zNormal = 0.0 if(close_enough(zNormal, 0.0, 0.00001))
 
-      numSlices.times do |j|
+
+      numSlices.times do |_j|
         #puts "iSlice = #{j}"
-        j_next = j + 1
+        j = _j.to_f
+        _j_next = _j + 1
+        j_next = _j_next.to_f
 
         # texture
         s = j * ds
-        s = 0.0 if(j == 0)
+        s = 0.0 if(_j == 0)
 
         sNext = j_next * ds
-        sNext = 1.0 if(j_next == numSlices)
+        sNext = 1.0 if(_j_next == numSlices)
 
         # 
         theyta     = fStepSizeSlice * j
         theytaNext = fStepSizeSlice * j_next
-        theytaNext = 0.0 if(j_next == numSlices)
+        theytaNext = 0.0 if(_j_next == numSlices)
 
         cos_theyta = Math.cos(theyta)
         sin_theyta = Math.sin(theyta)
@@ -259,10 +277,12 @@ module GL_Shapes
 
     #sphereBatch.BeginMesh(iSlices * iStacks * 6)
 
-    iStacks.times do |i|
+    iStacks.times do |_i|
+      i = _i.to_f
       rho = i * drho
       srho = Math.sin(rho)
       crho = Math.cos(rho)
+
       srhodrho = Math.sin(rho + drho)
       crhodrho = Math.cos(rho + drho)
 
@@ -270,7 +290,8 @@ module GL_Shapes
       # for the caps of the sphere. This however introduces texturing 
       # artifacts at the poles on some OpenGL implementations
       s = 0.0
-      iSlices.times do |j|
+      iSlices.times do |_j|
+        j = _j.to_f
 
         ##################
         theta = (j == iSlices) ? 0.0 : j * dtheta
@@ -290,7 +311,7 @@ module GL_Shapes
         vVertex[1] = sphere_vertex(fRadius, x, y, z, s, t - dt)
 
         ##################
-        theta = ((j+1) == iSlices) ? 0.0 : (j+1) * dtheta
+        theta = ((_j+1) == iSlices) ? 0.0 : (j+1.0) * dtheta
         stheta = -Math.sin(theta)
         ctheta = Math.cos(theta)
 
@@ -336,7 +357,7 @@ module GL_Shapes
 
     # show x axis 
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_y(radians(-90.0))),
       color: Geo3d::Vector.new( 1.0, 0.0, 0.0, 1.0) 
@@ -344,7 +365,7 @@ module GL_Shapes
 
     # show y axis 
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_x(radians(90.0))),
       color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
@@ -352,7 +373,7 @@ module GL_Shapes
 
     # show z axis 
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0)),
       color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
@@ -360,7 +381,7 @@ module GL_Shapes
 
     # show z axis 
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(0.6, 0.2, 0.0) },
+      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 2.0)),
       color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 

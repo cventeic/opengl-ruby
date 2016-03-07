@@ -1,5 +1,5 @@
 require 'sdl2'
-require 'gl'
+#require 'gl'
 
 require 'ostruct'
 
@@ -9,17 +9,21 @@ require './util/gl_math_util'
 require './shapes'
 require './gl_input_tracker'
 require './mesh'
-#require './gl_ffi'
+require './gl_ffi'
 
 require './gpu_driver'
 require './cpu_graphic_object'
 
 require 'stackprof'
 
+require 'json'
+
+require './oi_shapes'
+
 
 include Gl
 
-StackProf.start(mode: :cpu, interval:100, raw: true)
+#StackProf.start(mode: :cpu, interval:100, raw: true)
 
 scale = 1.0
 aspect_ratio = 1.0 / 1.0
@@ -38,24 +42,31 @@ SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLEBUFFERS, 1)
 SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLESAMPLES, 2)
 
 
-window  = SDL2::Window.create("testgl", 0, 0, WINDOW_W, WINDOW_H, SDL2::Window::Flags::OPENGL)
+window  = SDL2::Window.create("testgl", 0, 1400, WINDOW_W, WINDOW_H, SDL2::Window::Flags::OPENGL)
+
 context = SDL2::GL::Context.create(window)
 
 printf("OpenGL version %d.%d\n",
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MAJOR_VERSION),
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MINOR_VERSION))
 
-glViewport( 0, 0, WINDOW_W, WINDOW_H)
-glMatrixMode( GL_PROJECTION )
-glLoadIdentity( )
+#glViewport( 0, 0, WINDOW_W, WINDOW_H)
+Gl.viewport( 0, 0, WINDOW_W, WINDOW_H)
 
-glMatrixMode( GL_MODELVIEW )
-glLoadIdentity( )
+Gl.matrixMode( GL_PROJECTION )
+Gl.loadIdentity( )
 
-glEnable(GL_DEPTH_TEST)
-glDepthFunc(GL_LESS)
+Gl.matrixMode( GL_MODELVIEW )
+Gl.loadIdentity( )
 
-glShadeModel(GL_SMOOTH)
+#glEnable(GL_DEPTH_TEST)
+Gl.enable(Gl::GL_DEPTH_TEST)
+
+#glDepthFunc(GL_LESS)
+Gl.depthFunc(Gl::GL_LESS)
+
+Gl.shadeModel(Gl::GL_SMOOTH)
+#Gl.shadeModel(Gl::GL_FLAT)
 
 
 
@@ -105,7 +116,7 @@ cpu_graphic_objects = []
 
 
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(length, base_radius, top_radius) },
+    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: length, base_radius: base_radius, top_radius: top_radius) },
     external_proc: lambda { |named_arguments| },
     model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
     color: Geo3d::Vector.new( 1.0, 0.1, 0.1, 1.0)
@@ -127,7 +138,7 @@ end
   )
 end
 
-if true 
+if false 
   # wire_box
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
     internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.box_wire() },
@@ -152,7 +163,7 @@ if true
   #/todo make this match actual light position
   # show light 
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(3.0, 3.0, 0.1) },
+    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 3.0, base_radius: 3.0) },
     external_proc: lambda { |named_arguments| },
     # model_matrix: (Geo3d::Matrix.rotation_y(radians(180.0)) * Geo3d::Matrix.translation(0.0, 0.0, 20.0)),
     model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 20.0)),
@@ -191,7 +202,7 @@ cpu_graphic_objects += (GL_Shapes.axis_arrows)
 if true 
   # Draw 5 connected line segments to random locations in box
 
-  points = 50.times.map {rand_vector_in_box()}
+  points = 10.times.map {rand_vector_in_box()}
 
   points.each_cons(2) do |p0,p1|
 
@@ -206,6 +217,139 @@ if true
   end
 end
 
+=begin
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = Object_Indirection.oi_box_wire()
+    mesh = oi.render_object
+
+    File.open("./mesh.txt", "w") do |f|
+      f.write(JSON.generate(mesh.triangles))
+    end
+
+    named_arguments[:mesh] = mesh 
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = Object_Indirection.oi_cube_corner_spheres()
+    mesh = oi.render_object
+    named_arguments[:mesh] = mesh 
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+=end
+
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.sphere()
+    state = oi.render
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.cylinder()
+    state = oi.render({f_length: 100.0})
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.directional_cylinder()
+    state = oi.render
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh 
+    },
+    external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+if false 
+  # Draw 5 connected line segments to random locations in box
+
+  points = 5.times.map {rand_vector_in_box()}
+
+  points.each_cons(2) do |p0,p1|
+
+    # show line
+    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| 
+        oi = OI.directional_cylinder(start: p0, stop: p1)
+        state = oi.render
+        mesh = state[:mesh]
+        named_arguments[:mesh] = mesh 
+      },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.identity()),
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+    )
+  end
+end
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.box_wire()
+    state = oi.render
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh 
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.cube_corner_spheres()
+    state = oi.render
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh 
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+)
+
+=begin
+cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+  internal_proc: lambda { |named_arguments| 
+    oi = OI.square()
+    state = oi.render
+    mesh = state[:mesh]
+    named_arguments[:mesh] = mesh 
+  },
+  external_proc: lambda { |named_arguments| },
+  model_matrix: (Geo3d::Matrix.identity()),
+  color: Geo3d::Vector.new( 1.0, 0.0, 1.0, 1.0) 
+)
+=end
+
+
+
+
+
 
 
 #############
@@ -218,8 +362,8 @@ end
 # /todo pass in light data
 gpu.update_lights(ctx.program_id)
 
-StackProf.stop
-StackProf.results('./stackprof.dump')
+#StackProf.stop
+#StackProf.results('./stackprof.dump')
 
 #############
 #
@@ -227,11 +371,40 @@ StackProf.results('./stackprof.dump')
 state = SDL2::Mouse.state
 input_tracker.cursor_position_callback(0,state.x,state.y)
 
+
 loop do
 
   while event = SDL2::Event.poll
     case event
-    when SDL2::Event::Quit, SDL2::Event::KeyDown
+
+    when SDL2::Event::KeyDown
+      ev = event
+      puts "scancode: #{ev.scancode}(#{SDL2::Key::Scan.name_of(ev.scancode)})"
+      puts "keycode: #{ev.sym}(#{SDL2::Key.name_of(ev.sym)})"
+      puts "mod: #{ev.mod}"
+      puts "mod(SDL2::Key::Mod.state): #{SDL2::Key::Mod.state}"
+
+      case ev.sym
+      when SDL2::Key::RETURN
+        camera_translation = Geo3d::Matrix.translation(0.0, 0.0, -5.0)
+
+        input_tracker.camera.move_in_camera_space(camera_translation)
+        gpu.update_camera_view(ctx.program_id, input_tracker.camera)
+
+      when SDL2::Key::SPACE
+        camera_translation = Geo3d::Matrix.translation(0.0, 0.0, 5.0)
+
+        input_tracker.camera.move_in_camera_space(camera_translation)
+        gpu.update_camera_view(ctx.program_id, input_tracker.camera)
+
+      #when Glfw::KEY_X then @arc_ball.select_axis(X)
+      #when Glfw::KEY_Y then @arc_ball.select_axis(Y)
+      #when Glfw::KEY_Z then @arc_ball.select_axis(Z)
+
+      end
+
+    #when SDL2::Event::Quit, SDL2::Event::KeyDown
+    when SDL2::Event::Quit
       exit
 
     when SDL2::Event::MouseButtonUp
@@ -248,8 +421,8 @@ loop do
   error = Gl.getError()  # Flush any errors
   error = Gl.getError()
 
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  Gl.glClearColor(0.0, 0.0, 0.0, 1.0);
+  Gl.glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
   error = Gl.getError()  # Flush any errors
   error = Gl.getError()

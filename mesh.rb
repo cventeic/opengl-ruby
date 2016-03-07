@@ -1,4 +1,5 @@
 require "ap"
+require './util/Assert'
 require './util/geo3d_matrix.rb'
 
 
@@ -20,11 +21,15 @@ require './util/geo3d_matrix.rb'
 class Vertex
   attr_accessor :position, :normal, :texcoord
 
-  def initialize(position, normal, texcoord)
+  def initialize(position, normal = Geo3d::Vector.new(0.0, 0.0, 0.0), texcoord = Geo3d::Vector.new(0.0))
     @position = position 
     @normal = normal
     @texcoord = texcoord
   end
+
+  def to_hash
+    { position: @position, normal: @normal, texcoord: @texcoord}
+   end
 
 end
 
@@ -44,13 +49,18 @@ class Triangle
 
 end
 
+require 'json'
+
 ##############################################
 class Mesh
   #attr_accessor :triangles
   attr_reader :triangles
 
-  def initialize()
+  def initialize(mesh=nil)
     @triangles = Array.new
+
+    # Copy triangles from input mesh 
+    @triangles = mesh.triangles.map {|triangle| triangle.dup} unless mesh.nil?
   end
 
   def initialize_copy(other)
@@ -59,11 +69,11 @@ class Mesh
     @triangles = @triangles.map {|triangle| triangle.dup}
   end
 
-
   def applyMatrix!(matrix)
 
     # For Normal Rotation w/o translation
-    matrix_no_t = matrix.clone
+    #matrix_no_t = matrix.clone
+    matrix_no_t = matrix.dup
     matrix_no_t._41 = matrix_no_t._42 = matrix_no_t._43 = 0
 
     @triangles = @triangles.map do |triangle|
@@ -95,8 +105,25 @@ class Mesh
     end
   end
 
-  def add_mesh(mesh)
-    @triangles += mesh.triangles
+  def add_mesh!(mesh)
+    assert{!mesh.nil?}
+    assert{!mesh.triangles.nil?}
+    assert{mesh.triangles.size > 0}
+    self.concat(mesh)
+     #@triangles += mesh.triangles
+  end
+
+  def concat(other)
+     @triangles = @triangles.concat(other.triangles)
+     self
+  end
+
+  def +(other)
+    Mesh.new(self).concat(other)
+  end
+
+  def triangles=(triangle_array)
+    @triangles = triangle_array
   end
 
   def add_triangle(vertex_array)
