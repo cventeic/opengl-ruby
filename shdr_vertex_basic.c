@@ -23,13 +23,11 @@ in vec2 texcoord;  // vertex texture coords in texture space
 
 out vec4 vFragPosition; // Fragment Position in world space
 
-//out vec3 vFragNormal; // Fragment Normal   in world space
-
 out vec2 TexCoords;   // Fragment texCoord in texture space
 
 out vec4 vNormalInWorldSpace; // Vertex Normal in World Space
                               // Fragment Normal entering frag shader (after interpolation)
-                              //
+                              
 // Matrix to generate Normal in World Space from Normal in Modle Space
 //
 // Inverse and transpose are expensive.
@@ -38,8 +36,8 @@ out vec4 vNormalInWorldSpace; // Vertex Normal in World Space
 // Pass in a rotation matrix for 
 //
 // mat4 normalMatrix = transpose(inverse(modelView));
+//
 uniform mat4 model_matrix_for_normals;
-
 
 
 void main()
@@ -48,12 +46,8 @@ void main()
 
   // Transform the postion from Model to World space
   vFragPosition = model * vec4(position, 1.0f);
-  //FragPos = vec3(vFragPostion);
-
-  //vFragNormal = normal;
 
   vNormalInWorldSpace = model_matrix_for_normals * vec4(normal, 1.0f);
 
   TexCoords = texcoord;
- 
 }

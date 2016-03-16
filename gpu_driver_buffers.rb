@@ -1,7 +1,8 @@
 require './util/uniforms'
+require './util/Assert'
+require './util/debug'
 require './gl_ffi'
 require './gpu_object.rb'
-
 
 class Gpu
 
@@ -21,9 +22,22 @@ class Gpu
     # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
     vao_key  = @mesh_to_gpu_mapping_info[content_type][:vao_key]
     gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type] 
+    
+    assert {gl_bfr_id > 0}
 
     Gl.glBindBuffer(vao_key, gl_bfr_id) 
   end
+
+  def unbind_buffer_to_vao(gpu_graphic_object, content_type)
+    # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
+    vao_key  = @mesh_to_gpu_mapping_info[content_type][:vao_key]
+
+    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type] 
+    assert {gl_bfr_id > 0}
+
+    Gl.glBindBuffer(vao_key, 0) 
+  end
+
 
   ############### Routines to push buffers to GPU
   #
@@ -93,19 +107,36 @@ class Gpu
   # Push set of buffers out to the GPU
   #
   def write_mesh_data_to_gpu(gpu_graphic_object, gl_ready_buffers)
+    assert{gpu_graphic_object.vertex_array_obj_id > 0}
 
     # Vertex Array instance has pointers to the buffers were loading
     # Bind opengl context / gl functions to the vertex array instance
     Gl.glBindVertexArray(gpu_graphic_object.vertex_array_obj_id)
 
+    check_for_gl_error()
+
     gl_ready_buffers.each_pair do |subcomponent, packed_buffer|
 
       bind_buffer_to_vao(gpu_graphic_object, subcomponent)
 
+      gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[subcomponent] 
+
+      check_for_gl_error()
+
       vao_key  = @mesh_to_gpu_mapping_info[subcomponent][:vao_key]
 
-      Gl::glBufferData(vao_key, packed_buffer.size, packed_buffer, Gl::GL_DYNAMIC_DRAW) # Gl::GL_STATIC_DRAW
+      #Gl::glBufferData(vao_key, packed_buffer.size, packed_buffer, Gl::GL_DYNAMIC_DRAW) # Gl::GL_STATIC_DRAW
+
+      Gl.bufferData(vao_key, packed_buffer.size, packed_buffer, Gl::GL_STATIC_DRAW) # Gl::GL_STATIC_DRAW
+
+      check_for_gl_error()
+
+      # todo: why does following cause nothing to be displayed?
+      # unbind_buffer_to_vao(gpu_graphic_object, subcomponent)
+      
+      check_for_gl_error()
     end
+
   end
 
   ############### Routines to Map per vertex inputs to shader (attributes) to gpu buffers
@@ -116,12 +147,16 @@ class Gpu
     attr_location = Gl.getAttribLocation(program_id, attr_name)
 
     if attr_location >= 0 then
+      # Note: Attribute --actually used-- in shader code if attr_location >= 0
+      #
       Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, 0, 0, 0)
       Gl.enableVertexAttribArray(attr_location)
     end
   end
 
   def map_attribute_to_buffer(go, program_id, attr_name, element_size=3)
+
+    assert{go.vertex_array_obj_id > 0}
 
     # Bind VAO to gpu context
     # /todo don't do this if already done
@@ -132,6 +167,8 @@ class Gpu
     bind_buffer_to_vao(go, attr_name)
 
     configure_enable_attribute(program_id, attr_name, element_size)
+
+    unbind_buffer_to_vao(go, attr_name)
   end
 
 
@@ -142,12 +179,19 @@ class Gpu
 
   def push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
     # vertex_array_obj_id = gpu_object_id
+    
+    assert{program_id > 0}
 
     if gpu_object_id < 0
       gpu_graphic_object = GPU_Graphic_Object.new()
       gpu_object_id = gpu_graphic_object.vertex_array_obj_id
-      @gpu_graphic_objects[gpu_object_id] = gpu_graphic_object
+
+      assert{gpu_object_id > 0}
+
+      id = @gpu_graphic_objects[gpu_object_id] = gpu_graphic_object
     end
+
+    assert{gpu_object_id > 0}
 
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
     gpu_graphic_object.program_id = program_id
@@ -177,13 +221,19 @@ class Gpu
     # Establish set of buffers that are ready to go into GPU
     gl_ready_buffers = pack_triangles_into_gpu_buffer_format(gpu_graphic_object.mesh.triangles)
 
+    check_for_gl_error()
+
     # Push the data buffers to the GPU
     write_mesh_data_to_gpu(gpu_graphic_object, gl_ready_buffers)
+
+    check_for_gl_error()
 
     # Map per vertex inputs to shader (attributes) to gpu buffers
     map_attribute_to_buffer(gpu_graphic_object, program_id, :position)
     map_attribute_to_buffer(gpu_graphic_object, program_id, :normal)
     map_attribute_to_buffer(gpu_graphic_object, program_id, :texcoord, 2)
+
+    check_for_gl_error()
 
     #map_attribute_to_buffer(gpu_graphic_object, program_id, :index, 1)
     
@@ -195,7 +245,7 @@ class Gpu
     gpu_object_id
   end
 
-
-
 end
  
+
+

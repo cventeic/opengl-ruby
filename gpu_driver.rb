@@ -1,8 +1,9 @@
 require './util/uniforms'
 require './gl_ffi'
-require './gpu_object.rb'
-require './gpu_driver_buffers.rb'
-require './util/geo3d_vector.rb'
+require './gpu_object'
+require './gpu_driver_buffers'
+require './util/geo3d_vector'
+require './util/debug'
 
 
 class Gpu
@@ -34,13 +35,12 @@ class Gpu
 
   def update_camera_view(program_id, camera)
 
-    set_uniform_matrix(program_id, :view,         camera.view)
+    #set_uniform_matrix(program_id, :view,         camera.view)
+    set_uniform_matrix(program_id, :view,         camera.world_to_camera_space)
     set_uniform_matrix(program_id, :projection,   camera.perspective)
     set_uniform_vector(program_id, :vEyePosition, camera.camera_location_in_world_space)
 
-    error = Gl.getError()
-    puts "Error: update_camera_view,  glError = #{error}" unless error == 0
- 
+    check_for_gl_error()
   end
 
   def update_lights(program_id)
@@ -57,6 +57,8 @@ class Gpu
   def render_object(gpu_object_id)
     vertex_array_obj_id = gpu_object_id
     
+    #puts "render_object vertex_array_obj_id = #{vertex_array_obj_id}"
+
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
 
     # Bind VAO to gpu context

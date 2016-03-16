@@ -80,6 +80,44 @@ module Gl
   GL_SMOOTH				  = 0x1D01
   GL_FLAT					  = 0x1D00
 
+
+extern 'void glBindAttribLocation(GLuint, GLuint, const GLchar *)'
+
+def Gl.bindAttribLocation( program, index, name)
+  name_s   = name.to_s
+  puts "name_s: #{(name_s).inspect}"
+  name_ptr = Fiddle::Pointer[name]
+
+  glBindAttribLocation(	program, index, name_ptr)
+  error = glGetError()
+  puts "bindAttribLocation error = #{error}"
+end
+
+# void glGetActiveAttrib(	GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
+
+extern 'void glGetActiveAttrib(	GLuint , GLuint , GLsizei , GLsizei *, GLint *, GLenum *, GLchar *)'
+
+def Gl.getActiveAttrib(	program, index)
+	
+  length = [0].pack('i*')
+  length_ptr = Fiddle::Pointer[length]
+
+  size     = [0].pack('i*')
+  size_ptr = Fiddle::Pointer[size]
+
+  type   = [0].pack('i*')
+  type_ptr = Fiddle::Pointer[type]
+
+  name_len = 50
+  name = "".rjust(name_len, ' ')
+  name_ptr = Fiddle::Pointer[name]
+
+  glGetActiveAttrib(program, index, name_len, length_ptr, size_ptr, type_ptr, name_ptr)
+
+  {name: name_ptr.to_s, type: type, size: size}
+
+end
+
 extern 'void glClearColor(	GLclampf , GLclampf , GLclampf , GLclampf )'
 def Gl.clearColor(	red, green, blue, alpha)
   glClearColor(	red, green, blue, alpha)
@@ -111,59 +149,43 @@ extern 'void glLoadIdentity()'
 
   extern 'void glGetBooleanv(	GLenum , GLboolean * )'
 
-  def Gl.getBooleanv(	pname )
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_BOOLEAN*1, free)
-    p[0] = 0
 
-    # Note there needs to be a window context before this is called or garbage
-    # is returned
-    glGetBooleanv(1, p) 
-    p[0] 
+  def Gl.getBooleanv(	pname )
+    buf = Fiddle::Pointer.malloc(8)
+    glGetBooleanv(1, buf) 
+    v = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
 
   extern 'void glGetFloatv(	GLenum , GLfloat * )'
   def Gl.getFloatv(	pname )
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_FLOAT*1, free)
-    p[0] = 0
+    buf = Fiddle::Pointer.malloc(8)
 
-    # Note there needs to be a window context before this is called or garbage
-    # is returned
-    glGetFloatv(1, p) 
-    p[0] 
+    # Note there needs to be a window context before this is called or garbage is returned
+    glGetFloatv(1, buf) 
+    v = buf.to_str.unpack('F').first
   end
 
 
   extern 'void glGetIntegerv(	GLenum , GLint * )'
   def Gl.getIntegerv(	pname )
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT*1, free)
-    p[0] = 0
+    buf = Fiddle::Pointer.malloc(8)
 
-    # Note there needs to be a window context before this is called or garbage
-    # is returned
-    glGetIntegerv(1, p) 
-    p[0] 
+    # Note there needs to be a window context before this is called or garbage is returned
+    glGetFloatv(1, buf) 
+    v = buf.to_str.unpack('i').first
   end
-
-
 
 
   extern 'void glGenRenderbuffers(	GLsizei, GLuint * )'
   def Gl.genRenderbuffer
 
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT*1, free)
-    p[0] = 0
-
     # Note there needs to be a window context before this is called or garbage
     # is returned
-    glGenRenderbuffers(1, p) 
-    p[0] 
+    buf = Fiddle::Pointer.malloc(8)
+    glGenRenderbuffers(1, buf) 
+    id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
-
 
   extern 'void glBindRenderbuffer(GLenum, GLuint)'
 
@@ -179,15 +201,11 @@ extern 'void glLoadIdentity()'
   extern 'void glGenFramebuffers(	GLsizei , GLuint * )'
 
   def Gl.genFramebuffer
-
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT*1, free)
-    p[0] = 0
-
     # Note there needs to be a window context before this is called or garbage
     # is returned
-    glGenFramebuffers(1, p) 
-    p[0] 
+    buf = Fiddle::Pointer.malloc(8)
+    glGenFramebuffers(1, buf) 
+    id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
 
@@ -230,7 +248,7 @@ extern 'void glLoadIdentity()'
 
     log_len = Gl.getShaderiv(shader_id, Gl::GL_INFO_LOG_LENGTH )
 
-    log = ""
+    log = ''
     log = log.rjust(log_len, '.')
 
     out_len_bits = [0].pack('i*')
@@ -392,11 +410,21 @@ extern 'void glLoadIdentity()'
   # void glBufferData(
   #   GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage);
   #
-  extern 'void glBufferData(GLenum, GLsizei, const GLvoid *, GLenum)'
+  extern 'void glBufferData(GLenum, int, const GLvoid *, GLenum)'
 
   def Gl.bufferData(target, size, data, usage)
     glBufferData(target, size, data, usage)
   end
+
+  # void glNamedBufferData(	GLuint buffer, GLsizei size, const void *data, GLenum usage);
+
+  #extern 'void glNamedBufferData(	GLuint , GLsizei , const void *, GLenum)'
+
+  #def Gl.namedBufferData(	buffer, size, data, usage)
+  #  glNamedBufferData(buffer, size, data, usage)
+  #end
+
+
 
 
   extern 'void glBindVertexArray(GLuint)'
@@ -452,19 +480,14 @@ extern 'void glLoadIdentity()'
   end
 
   extern 'void glGenBuffers(int, unsigned *)'
-
   def Gl.genBuffer
-
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT*1, free)
-    p[0] = 0
 
     # Note there needs to be a window context before this is called or garbage
     # is returned
-    glGenBuffers(1, p) 
-    p[0] 
+    buf = Fiddle::Pointer.malloc(8)
+    glGenBuffers(1, buf) 
+    id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
-
 
 
   # glGenVertexArrays - generate vertex array object names
@@ -477,14 +500,12 @@ extern 'void glLoadIdentity()'
   extern 'void glGenVertexArrays(int, unsigned *)'
 
   def Gl.genVertexArray
-    free = Fiddle::Function.new(Fiddle::RUBY_FREE, [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOID)
-    p = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT*1, free)
-    p[0] = 0
 
     # Note there needs to be a window context before this is called or garbage
     # is returned
-    glGenVertexArrays(1, p) 
-    p[0] 
+    buf = Fiddle::Pointer.malloc(8)
+    glGenVertexArrays(1, buf) 
+    id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
 end

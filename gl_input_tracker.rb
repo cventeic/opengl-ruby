@@ -10,13 +10,13 @@ class InputTracker
 
 
     # width, height = window width and height (apx 1920 x 1080)
-    def initialize(width, height)
+    def initialize(camera, width, height)
         @arc_ball =  ArcBall.new(width, height)
         @arc_ball_moving = false   
         @x=0
         @y=0
         @frame = false
-        @camera = Camera.new
+        @camera = camera
     end
 
     def updated?
@@ -40,19 +40,23 @@ class InputTracker
         @frame = true
         @x = x
         @y = y
+    end
 
-        if(@arc_ball_moving == true)
-            @arc_ball.mouse_dragged(@x,@y)
-            arc_ball_rotation_matrix = @arc_ball.compute_sphere_rotation_matrix
+    def update_camera(camera)
+      if(@arc_ball_moving == true)
+        @arc_ball.mouse_dragged(@x,@y)
+        arc_ball_rotation_matrix = @arc_ball.compute_sphere_rotation_matrix
 
-            # All movements are delta on the position when we first touched the
-            # arcball
-            @camera = @camera_before_arcball_touched.clone
+        # All movements are delta on the position when we first touched the
+        # arcball
+        @camera = @camera_before_arcball_touched.clone
 
-            # Rotate the camera space around origin (0.0, 0.0, 0.0) 
-            @camera.move_in_world_space(arc_ball_rotation_matrix)
-        end
-
+        # Rotate the camera space around origin (0.0, 0.0, 0.0) 
+        @camera.move_camera_in_world_space(arc_ball_rotation_matrix)
+      else
+        @camera = camera
+      end
+      @camera
     end
 
     def key_callback(window, key, code, action, mods)

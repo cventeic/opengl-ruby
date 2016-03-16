@@ -1,3 +1,4 @@
+require './util/debug'
 
 # Uniforms:
 #   Data (variables) that are not vertex specific for a model.
@@ -29,14 +30,12 @@ end
 class Gpu
 
   def set_uniform_matrix(program_id, uniform_name, data)
-    #error = Gl.getError()
-    #puts "error before call to set_uniform_matrix"
 
     location = @uniformsLocationCache.uniform_location(program_id, uniform_name)
     d = data.to_a.flatten.pack("f*")
     Gl.uniformMatrix4fv(location, 1, Gl::GL_FALSE, d)
-    error = Gl.getError()
-    puts "set_uniform_matrix uniform_name = #{uniform_name}, glError = #{error}" unless error == 0
+
+    check_for_gl_error(uniform_name: uniform_name)
   end
 
   def set_uniform_vector(program_id, uniform_name, data, element_count=4)
@@ -47,8 +46,7 @@ class Gpu
     Gl.uniform3f(location, *data_array) if element_count == 3
     Gl.uniform4fv(location, 1, d) if element_count == 4
 
-    error = Gl.getError()
-    puts "set_uniform_vector uniform_name = #{uniform_name}, glError = #{error}" unless error == 0
+    check_for_gl_error(uniform_name: uniform_name)
   end
 
   # Set uniforms in bulk from data structure of form

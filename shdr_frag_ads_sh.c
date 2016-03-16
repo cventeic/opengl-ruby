@@ -31,7 +31,6 @@ uniform Light light;
 uniform vec4 vEyePosition; // Location of the "Camera" in world space
 
 in vec4 vFragPosition; // Fragment Position in world space
-// in vec3 vFragNormal;   // Fragment Normal   in world space
 
 in vec4 vNormalInWorldSpace; // Vertex Normal in World Space
                              // Fragment Normal entering frag shader (after interpolation)

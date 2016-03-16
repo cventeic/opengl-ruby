@@ -19,6 +19,19 @@ class GPU_Graphic_Object
     @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
   end
 
+  def to_s
+    puts "GPU_Graphic_Object"
+    puts "@vertex_array_obj_id: #{(@vertex_array_obj_id).inspect}"
+
+    puts "@mesh_to_gpu_buffer_id_map: #{(@mesh_to_gpu_buffer_id_map).inspect}"
+
+    puts "@element_count: #{(@element_count).inspect}"
+
+    puts "@program_id: #{(@program_id).inspect}"
+
+    puts "@uniform_variables : #{(@uniform_variables ).inspect}"
+  end
+
 
   def model_matrix_for_normals=(_matrix = Geo3d::Matrix.identity)
     @uniform_variables[:model_matrix_for_normals] = {data: _matrix}

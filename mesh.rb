@@ -21,7 +21,7 @@ require './util/geo3d_matrix.rb'
 class Vertex
   attr_accessor :position, :normal, :texcoord
 
-  def initialize(position, normal = Geo3d::Vector.new(0.0, 0.0, 0.0), texcoord = Geo3d::Vector.new(0.0))
+  def initialize(position, normal = Geo3d::Vector.new(0.0, 0.0, 0.0), texcoord = Geo3d::Vector.new(0.0, 0.0))
     @position = position 
     @normal = normal
     @texcoord = texcoord
@@ -86,6 +86,9 @@ class Mesh
         # Vertex Normal: rotate (but don't translate) the vertex normal
         vertex.normal.w = 1.0
         normal = matrix_no_t * vertex.normal
+
+        # texcoord = Geo3d::Vector.new(vertex.texcoord.x, vertex.texcoord.y)
+        # Vertex.new(position, normal, texcoord)
 
         Vertex.new(position, normal, vertex.texcoord.dup)
       end
