@@ -30,7 +30,9 @@ class Gpu
 
   def unbind_buffer_to_vao(gpu_graphic_object, content_type)
     # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
-    vao_key  = @mesh_to_gpu_mapping_info[content_type][:vao_key]
+
+    gpu_mapping_info = @mesh_to_gpu_mapping_info[content_type]
+    vao_key  = gpu_mapping_info[:vao_key]
 
     gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type] 
     assert {gl_bfr_id > 0}
@@ -56,7 +58,7 @@ class Gpu
   #   index:    [0,1,2,3...]
   # }
   #
-  def pack_triangles_into_gpu_buffer_format(triangles)
+  def scatter_triangles_into_packed_subcomponent_buffers(triangles)
 
     vertex_array = []
     subcomponents    = Hash.new {|hash,key| hash[key] = Array.new}
@@ -141,19 +143,6 @@ class Gpu
 
   ############### Routines to Map per vertex inputs to shader (attributes) to gpu buffers
   #
-  def configure_enable_attribute(program_id, _attr_name, element_size=3)
-    attr_name = _attr_name.to_s
-
-    attr_location = Gl.getAttribLocation(program_id, attr_name)
-
-    if attr_location >= 0 then
-      # Note: Attribute --actually used-- in shader code if attr_location >= 0
-      #
-      Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, 0, 0, 0)
-      Gl.enableVertexAttribArray(attr_location)
-    end
-  end
-
   def map_attribute_to_buffer(go, program_id, attr_name, element_size=3)
 
     assert{go.vertex_array_obj_id > 0}
@@ -166,8 +155,15 @@ class Gpu
     # and map attribute to the buffer
     bind_buffer_to_vao(go, attr_name)
 
-    configure_enable_attribute(program_id, attr_name, element_size)
+    attr_location = Gl.getAttribLocation(program_id, attr_name.to_s)
 
+    if attr_location >= 0 then
+      # Note: Attribute --actually used-- in shader code if attr_location >= 0
+      #
+      Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, 0, 0, 0)
+      Gl.enableVertexAttribArray(attr_location)
+    end
+ 
     unbind_buffer_to_vao(go, attr_name)
   end
 
@@ -219,7 +215,7 @@ class Gpu
     gpu_graphic_object.mesh         = cpu_graphic_object.mesh
 
     # Establish set of buffers that are ready to go into GPU
-    gl_ready_buffers = pack_triangles_into_gpu_buffer_format(gpu_graphic_object.mesh.triangles)
+    gl_ready_buffers = scatter_triangles_into_packed_subcomponent_buffers(gpu_graphic_object.mesh.triangles)
 
     check_for_gl_error()
 
