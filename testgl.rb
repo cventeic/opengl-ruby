@@ -1,4 +1,5 @@
 require 'sdl2'
+require 'color-generator'
 #require 'gl'
 
 require 'ostruct'
@@ -24,6 +25,19 @@ require './oi_shapes'
 
 include Gl
 
+@color_generator = ColorGenerator.new saturation: 0.3, lightness: 0.75
+
+def new_color
+
+  r,g,b = @color_generator.create_rgb().map {|c| c.to_f / 255.0}
+
+  assert{r>=0.0 && r<=1.0}
+
+  color = Geo3d::Vector.new(r,g,b,1.0)
+
+end
+
+
 #StackProf.start(mode: :cpu, interval:100, raw: true)
 
 SDL2.init(SDL2::INIT_EVERYTHING)
@@ -43,6 +57,7 @@ ctx = OpenStruct.new
 ctx.window = OpenStruct.new
 ctx.window.aspect_ratio = 1920.0 / 1080.0
 ctx.window.width = 1900
+#ctx.window.width = 4000
 ctx.window.height= (ctx.window.width / ctx.window.aspect_ratio).to_i
 ctx.window.x     = 0
 ctx.window.y     = 1080 
@@ -110,49 +125,11 @@ puts "program_log         = #{Gl.getProgramInfoLog(ctx.program_id)}"
 ###### Load objects
 #
 cpu_graphic_objects = []
+oi_objects = []
 
 
-#cpu_graphic_objects << GL_Shapes.file("/home/cventeic/teapot.obj")
-
-#10.times do 
-5.times do 
-  length = rand(1.0..7.0)
-  base_radius = rand(0.1..2.0)
-  top_radius = rand(0.1..2.0)
-
-  vec = rand_vector_in_box()
-
-
-  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: length, base_radius: base_radius, top_radius: top_radius) },
-    external_proc: lambda { |named_arguments| },
-    model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
-    color: Geo3d::Vector.new( 1.0, 0.1, 0.1, 1.0)
-  )
-end
-
-5.times do 
-  radius = rand(0.5..2.0)
-
-  vec = rand_vector_in_box()
-
-  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.sphere(radius) },
-    external_proc: lambda { |named_arguments| },
-    model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
-    #color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
-    color: Geo3d::Vector.new( ((vec.x+10.0)/40.0)+0.5, ((vec.y+10.0)/40.0)+0.5, ((vec.z+10.0)/40.0)+0.5, 1.0)
-  )
-end
-
-if false 
-  # wire_box
-  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.box_wire() },
-    external_proc: lambda { |named_arguments| },
-    model_matrix: Geo3d::Matrix.translation(0.0, 0.0, 0.0),
-    color: Geo3d::Vector.new( 0.8, 0.0, 0.0, 1.0)
-  )
+if false
+  generator.create_hex
 end
 
 
@@ -161,110 +138,69 @@ if true
   # show light 
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
     internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 3.0, base_radius: 3.0) },
-    external_proc: lambda { |named_arguments| },
-    # model_matrix: (Geo3d::Matrix.rotation_y(radians(180.0)) * Geo3d::Matrix.translation(0.0, 0.0, 20.0)),
     model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 20.0)),
     color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0) 
   )
 end
 
-if false 
-  # show arrow 
-  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.arrow(
-      Geo3d::Vector.new(0.0, 0.0, 0.0), 
-      Geo3d::Vector.new(-5.0, 5.0, 0.0),
-      0.1) },
-      external_proc: lambda { |named_arguments| },
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
-  )
-end
 
-if false 
-  # show line
-  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.line(
-      Geo3d::Vector.new(0.0, 0.0, 0.0), 
-      Geo3d::Vector.new(5.0, 5.0, 0.0),
-      3.1) },
-      external_proc: lambda { |named_arguments| },
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
-  )
-end
+#cpu_graphic_objects << GL_Shapes.file("/home/cventeic/teapot.obj")
 
 cpu_graphic_objects += (GL_Shapes.axis_arrows)
 
-if true 
-  # Draw 5 connected line segments to random locations in box
+oi_objects << OI.box_wire()
 
-  points = 10.times.map {rand_vector_in_box()}
+####################
+# Draw random cylinders
+points = 5.times.map {rand_vector_in_box()}
+points.each do |vec|
+  length      = rand(1.0..7.0)
+  base_radius = rand(0.1..2.0)
+  top_radius  = rand(0.1..2.0)
 
-  points.each_cons(2) do |p0,p1|
-
-    # show line
-    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      #internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.directional_cylinder( p0, p1)},
-      internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.arrow( p0, p1, 0.05)},
-      external_proc: lambda { |named_arguments| },
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
-    )
-  end
-end
-
-if true 
-  # Draw 5 connected line segments to random locations in box
-
-  #points = 71.times.map {rand_vector_in_box()}
-  #points = 10.times.map {rand_vector_in_box()}
-  points = 200.times.map {rand_vector_in_box()}
-
-  points.each_cons(2) do |p0,p1|
-
-    # show line
-    cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| 
-        oi = OI.directional_cylinder(start: p0, stop: p1)
-        state = oi.render
-        mesh = state[:mesh]
-        named_arguments[:mesh] = mesh 
-      },
-      external_proc: lambda { |named_arguments| },
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
-    )
-  end
-end
-
-
-cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-  internal_proc: lambda { |named_arguments| 
-    oi = OI.box_wire()
-    state = oi.render
-    mesh = state[:mesh]
-    named_arguments[:mesh] = mesh 
-  },
-  external_proc: lambda { |named_arguments| },
-  model_matrix: (Geo3d::Matrix.identity()),
-  color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
-)
-
-0.times do 
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
-    internal_proc: lambda { |named_arguments| 
-      oi = OI.cube_corner_spheres()
-      state = oi.render
-      mesh = state[:mesh]
-      named_arguments[:mesh] = mesh 
-    },
-    external_proc: lambda { |named_arguments| },
-    model_matrix: (Geo3d::Matrix.identity()),
-    color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+    mesh: GL_Shapes.cylinder(f_length: length, base_radius: base_radius, top_radius: top_radius),
+    # internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: length, base_radius: base_radius, top_radius: top_radius) },
+    model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
+    color: new_color()
   )
 end
 
+####################
+# Draw random spheres
+points = 5.times.map {rand_vector_in_box()}
+points.each do |vec|
+  radius = rand(0.5..2.0)
+
+  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+    #internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.sphere(radius) },
+    mesh: GL_Shapes.sphere(radius),
+    model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
+    #color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
+    #color: Geo3d::Vector.new( ((vec.x+10.0)/40.0)+0.5, ((vec.y+10.0)/40.0)+0.5, ((vec.z+10.0)/40.0)+0.5, 1.0)
+    color: new_color()
+  )
+end
+
+####################
+# Draw connected line segments to random locations in box
+color = new_color()
+points = 10.times.map {rand_vector_in_box()}
+points.each_cons(2) do |p0,p1|
+  cpu_graphic_objects <<  Cpu_Graphic_Object.new(
+    # internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.arrow( p0, p1, 0.05)},
+    mesh: GL_Shapes.arrow( p0, p1, 0.05 ),
+    #color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
+    color: new_color
+  )
+end
+
+####################
+# Draw 5 connected line segments to random locations in box
+points = 20.times.map {rand_vector_in_box()}
+points.each_cons(2) do |p0,p1|
+  oi_objects << OI.directional_cylinder(start: p0, stop: p1)
+end
 
 
 #############
@@ -275,6 +211,13 @@ gpu_obj_ids = cpu_graphic_objects.map do |object|
   #object_count += 1
   id = gpu.push_cpu_graphic_object(ctx.program_id, object)
 end
+
+gpu_obj_ids += oi_objects.map do |object|
+  #puts "pushing object #{object_count} to gpu"
+  #object_count += 1
+  id = gpu.push_oi(ctx.program_id, object)
+end
+
 
 # /todo pass in light data
 gpu.update_lights(ctx.program_id)
