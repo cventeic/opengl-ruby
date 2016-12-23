@@ -10,7 +10,7 @@ class Cpu_Graphic_Object
   end
 
   def model_matrix 
-    @named_arguments[:model_matrix]
+    @named_arguments.fetch(:model_matrix, Geo3d::Matrix.identity())
   end
 
 

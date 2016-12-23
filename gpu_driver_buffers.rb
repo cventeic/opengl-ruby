@@ -155,7 +155,8 @@ class Gpu
     # and map attribute to the buffer
     bind_buffer_to_vao(go, attr_name)
 
-    attr_location = Gl.getAttribLocation(program_id, attr_name.to_s)
+    #attr_location = Gl.getAttribLocation(program_id, attr_name.to_s)
+    attr_location = get_attribute_location(program_id, attr_name)
 
     if attr_location >= 0 then
       # Note: Attribute --actually used-- in shader code if attr_location >= 0
@@ -172,6 +173,21 @@ class Gpu
   # Main routine in this file
   # Turn the cpu graphic object into gpu data
   #
+
+  def push_oi(program_id, oi, gpu_object_id = -1)
+    cpu_graphic_object = Cpu_Graphic_Object.new(
+      internal_proc: lambda { |named_arguments| 
+        state = oi.render
+        mesh = state[:mesh]
+        named_arguments[:mesh] = mesh 
+      },
+      external_proc: lambda { |named_arguments| },
+      model_matrix: (Geo3d::Matrix.identity()),
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+    )
+    push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id)
+  end
+
 
   def push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
     # vertex_array_obj_id = gpu_object_id

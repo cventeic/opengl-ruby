@@ -5,14 +5,22 @@ require './gpu_driver_buffers'
 require './util/geo3d_vector'
 require './util/debug'
 
-
 class Gpu
   def initialize
     @uniformsLocationCache = Uniforms_Location_Cache.new()
 
     @gpu_graphic_objects = Hash.new
 
+    @shader_attribute_location_cache = Hash.new {|hash,tag| 
+      program_id, attr_name = tag
+      hash[tag] = Gl.getAttribLocation(program_id, attr_name.to_s)
+    }
+
     self.initialize_buffer_mapping()
+  end
+
+  def get_attribute_location(program_id, attribute_name)
+    attr_location = @shader_attribute_location_cache[[program_id, attribute_name]]
   end
 
   # compile and push shader to gpu
