@@ -289,7 +289,7 @@ loop do
       gpu.update_camera_view(ctx.program_id, ctx.camera)
 
 
-    #when SDL2::Event::Quit, SDL2::Event::KeyDown
+      #when SDL2::Event::Quit, SDL2::Event::KeyDown
     when SDL2::Event::Quit
       exit
 

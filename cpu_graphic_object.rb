@@ -51,5 +51,3 @@ class Cpu_Graphic_Object
   end
 
 end
-
-

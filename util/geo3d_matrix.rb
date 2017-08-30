@@ -1,6 +1,6 @@
 module Geo3d
   class Matrix
-     def remove_translation_component()
+    def remove_translation_component()
       m = self.dup
       m._41 = m._42 = m._43 = 0.0
       m
@@ -13,7 +13,7 @@ module Geo3d
     end
 
     def * v
-       result = nil
+      result = nil
 
       if Vector == v.class
         vec = v
@@ -82,4 +82,3 @@ module Geo3d
     end
   end
 end
-

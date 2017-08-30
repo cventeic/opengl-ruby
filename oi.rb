@@ -23,7 +23,7 @@ class OI
     @symbol = symbol
 
     @joins = Hash.new(){ |hash,key| hash[key] = {} }
-   end
+  end
 
 
   # Add a sub-component to to this super-component
@@ -33,10 +33,10 @@ class OI
   #  b_to_a:   compute super-component additions/modifications from sub-component content
   def add(symbol: "",
           computes: {
-            a_to_b:   lambda {|a_input| b_input = a_input},
-            b_render: lambda {|b_input| b_output = b_input},
-            b_to_a:   lambda {|a_input, b_output| a_output = a_input}
-          }
+    a_to_b:   lambda {|a_input| b_input = a_input},
+    b_render: lambda {|b_input| b_output = b_input},
+    b_to_a:   lambda {|a_input, b_output| a_output = a_input}
+  }
          )
 
     guid = [symbol,@joins.size]

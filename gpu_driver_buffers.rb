@@ -10,7 +10,7 @@ class Gpu
 
     # fixed parameters for each mesh data set
     @mesh_to_gpu_mapping_info = {
-     # variable name: {}
+      # variable name: {}
       position: {vao_key: Gl::GL_ARRAY_BUFFER,         indicies: 3},
       normal:   {vao_key: Gl::GL_ARRAY_BUFFER,         indicies: 3},
       texcoord: {vao_key: Gl::GL_ARRAY_BUFFER,         indicies: 2},
@@ -240,24 +240,24 @@ class Gpu
 
     check_for_gl_error()
 
-    # Map per vertex inputs to shader (attributes) to gpu buffers
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :position)
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :normal)
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :texcoord, 2)
+    # MAP PER VERTEX INPUTS TO SHADER (ATTRIBUTES) TO GPU BUFFERS
+    MAP_ATTRIBUTE_TO_BUFFER(GPU_GRAPHIC_OBJECT, PROGRAM_ID, :POSITION)
+    MAP_ATTRIBUTE_TO_BUFFER(GPU_GRAPHIC_OBJECT, PROGRAM_ID, :NORMAL)
+    MAP_ATTRIBUTE_TO_BUFFER(GPU_GRAPHIC_OBJECT, PROGRAM_ID, :TEXCOORD, 2)
 
-    check_for_gl_error()
+    CHECK_FOR_GL_ERROR()
 
-    #map_attribute_to_buffer(gpu_graphic_object, program_id, :index, 1)
+    #MAP_ATTRIBUTE_TO_BUFFER(GPU_GRAPHIC_OBJECT, PROGRAM_ID, :INDEX, 1)
 
-    # Number of elements to render
-    # So far, each index is unique so #elements = #index
-    # /todo reuse index if position, normal and texcoord are the same
-    gpu_graphic_object.element_count = gl_ready_buffers[:index].size
+    # NUMBER OF ELEMENTS TO RENDER
+    # SO FAR, EACH INDEX IS UNIQUE SO #ELEMENTS = #INDEX
+    # /TODO REUSE INDEX IF POSITION, NORMAL AND TEXCOORD ARE THE SAME
+    GPU_GRAPHIC_OBJECT.ELEMENT_COUNT = GL_READY_BUFFERS[:INDEX].SIZE
 
-    gpu_object_id
-  end
+    GPU_OBJECT_ID
+    END
 
-end
+    END
 
 
 

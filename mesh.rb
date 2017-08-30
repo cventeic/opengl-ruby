@@ -29,7 +29,7 @@ class Vertex
 
   def to_hash
     { position: @position, normal: @normal, texcoord: @texcoord}
-   end
+  end
 
 end
 
@@ -113,12 +113,12 @@ class Mesh
     assert{!mesh.triangles.nil?}
     assert{mesh.triangles.size > 0}
     self.concat(mesh)
-     #@triangles += mesh.triangles
+    #@triangles += mesh.triangles
   end
 
   def concat(other)
-     @triangles = @triangles.concat(other.triangles)
-     self
+    @triangles = @triangles.concat(other.triangles)
+    self
   end
 
   def +(other)

@@ -23,40 +23,38 @@
 
 class Object_Indirection
 
- def Object_Indirection.add_computed_cylinder
+  def Object_Indirection.add_computed_cylinder
     lambda {|input|
       # output mesh
       GL_Shapes.cylinder(input[:f_length])
     }
   end
 
- def Object_Indirection.add_computed_sphere
-   lambda {|input|
-     # output mesh
-     GL_Shapes.sphere(input[:radius])
-   }
- end
+  def Object_Indirection.add_computed_sphere
+    lambda {|input|
+      # output mesh
+      GL_Shapes.sphere(input[:radius])
+    }
+  end
 
 
   def Object_Indirection.oi_sphere(opts)
     sphere = Object_Indirection.new
     sphere.add_compute(
-                       inputs: {radius: 0.5}.merge(opts),
-                       compute: lambda {|input| GL_Shapes.sphere(input[:radius]) }
-                      )
+      inputs: {radius: 0.5}.merge(opts),
+      compute: lambda {|input| GL_Shapes.sphere(input[:radius]) }
+    )
     sphere
   end
 
   def Object_Indirection.oi_cylinder(opts)
     cylinder = Object_Indirection.new
     cylinder.add_compute(
-                       inputs: {}.merge(opts),
-                       compute: lambda {|input| GL_Shapes.cylinder(input[:f_length]) }
-                      )
+      inputs: {}.merge(opts),
+      compute: lambda {|input| GL_Shapes.cylinder(input[:f_length]) }
+    )
     cylinder
   end
-
-
 
   def Object_Indirection.oi_cube_corner_spheres(side_length: 20.0)
 
@@ -162,8 +160,6 @@ class Object_Indirection
     cube_of_cylinders_oi
   end
 
-
-
   # Produce a wire box centered at 0, 0, 0
   #
   # This example avoids extra OI for code clarity
@@ -216,11 +212,5 @@ class Object_Indirection
     #
     twelve_cylinders
   end
-
-
-
-end
-
-module GL_Shapes
 
 end

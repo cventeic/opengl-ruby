@@ -162,7 +162,7 @@ class OI
             mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
 
             a_output = OI.mesh_merge(a_input, mesh_in_a)
-         }
+          }
         }
       )
     end
@@ -191,7 +191,7 @@ class OI
             mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
 
             a_output = OI.mesh_merge(a_input, mesh_in_a)
-         }
+          }
         }
       )
     end

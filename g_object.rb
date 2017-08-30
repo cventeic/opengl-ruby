@@ -76,14 +76,14 @@ class Object_Indirection
       vertex_array_in_super_space =
         trs_matrix_array.inject(vertex_array_in_sub_space) do |vertex_array, trs_matrix|
 
-        # translate, rotate, scale vertex into new "space"
-        vertex_array = vertex_array.map do |vertex|
-          vertex.position.w = 1.0
-          vertex.position = trs_matrix * vertex.position
-          vertex
-        end
+          # translate, rotate, scale vertex into new "space"
+          vertex_array = vertex_array.map do |vertex|
+            vertex.position.w = 1.0
+            vertex.position = trs_matrix * vertex.position
+            vertex
+          end
 
-        vertex_array
+          vertex_array
         end
 
       vertex_array_in_super_space
@@ -146,11 +146,11 @@ class BugTest < Minitest::Test
 
     # Directly generate vertex for this object
     oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input|
-                                                     Vertex.new(Geo3d::Vector.new(0,1,2))})
+      Vertex.new(Geo3d::Vector.new(0,1,2))})
 
     # Directly generate vertex for this object
     oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input|
-                                                      Vertex.new(Geo3d::Vector.new(3,4,5))})
+      Vertex.new(Geo3d::Vector.new(3,4,5))})
 
 
     # Composite sub-components
@@ -179,11 +179,11 @@ class BugTest < Minitest::Test
 
     oi_1_1 = Object_Indirection.new(name: "oi_1_1")
     oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input|
-                                                     Vertex.new(Geo3d::Vector.new(0,1,2))})
+      Vertex.new(Geo3d::Vector.new(0,1,2))})
 
     oi_1_2 = Object_Indirection.new(name: "oi_1_2")
     oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input|
-                                                      Vertex.new(Geo3d::Vector.new(3,4,5))})
+      Vertex.new(Geo3d::Vector.new(3,4,5))})
 
     oi_1.add_component(name: "sub1", object_indirection: oi_1_1)
     oi_1.add_component(name: "sub2", object_indirection: oi_1_2)
@@ -198,5 +198,3 @@ class BugTest < Minitest::Test
     assert_equal expected.map{|a| a.to_hash}, out.map{|a| a.to_hash}
   end
 end
-
-
