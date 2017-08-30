@@ -3,26 +3,26 @@ require 'fiddle/import'
 require 'ap'
 
 
-module Gl 
+module Gl
   extend Fiddle::Importer
   dlload 'libGL.so.1'
 
-  typealias 'GLsizei', 'int' 
+  typealias 'GLsizei', 'int'
   #typealias 'GLuint*', 'unsigned int*'
   typealias 'GLuint', 'unsigned int'
   typealias 'GLint', 'int'
   typealias 'GLenum', 'unsigned int'
   typealias 'GLboolean', 'int'
   typealias 'GLbitfield', 'int'
-  typealias 'GLvoid', 'void' 
-  typealias 'GLfloat', 'float' 
-  typealias 'GLdouble', 'float' 
-  typealias 'GLclampf', 'float' 
+  typealias 'GLvoid', 'void'
+  typealias 'GLfloat', 'float'
+  typealias 'GLdouble', 'float'
+  typealias 'GLclampf', 'float'
 
   GL_FALSE                                                      = 0
 
   GL_TRUE                                                       = 1
- 
+
   GL_TRIANGLES                                                  = 0x0004
 
   GL_CULL_FACE                                                  = 0x0B44
@@ -39,7 +39,7 @@ module Gl
 
   GL_ARRAY_BUFFER                                               = 0x8892
   GL_ELEMENT_ARRAY_BUFFER                                       = 0x8893
- 
+
   GL_STATIC_DRAW                                                = 0x88E4
   GL_DYNAMIC_DRAW                                               = 0x88E8
 
@@ -75,7 +75,7 @@ module Gl
   # Matrix Mode
   GL_MODELVIEW			= 0x1700
   GL_PROJECTION			=	0x1701
- 
+
 
   GL_SMOOTH				  = 0x1D01
   GL_FLAT					  = 0x1D00
@@ -98,7 +98,7 @@ end
 extern 'void glGetActiveAttrib(	GLuint , GLuint , GLsizei , GLsizei *, GLint *, GLenum *, GLchar *)'
 
 def Gl.getActiveAttrib(	program, index)
-	
+
   length = [0].pack('i*')
   length_ptr = Fiddle::Pointer[length]
 
@@ -132,10 +132,10 @@ extern 'void glLoadIdentity()'
   extern 'void glShadeModel( GLenum )'
   def Gl.shadeModel(mode)
     glShadeModel(mode)
-  end 
+  end
 
   extern 'void glMatrixMode(GLenum)'
-  def Gl.matrixMode(mode) 
+  def Gl.matrixMode(mode)
     glMatrixMode(mode)
   end
 
@@ -152,7 +152,7 @@ extern 'void glLoadIdentity()'
 
   def Gl.getBooleanv(	pname )
     buf = Fiddle::Pointer.malloc(8)
-    glGetBooleanv(1, buf) 
+    glGetBooleanv(1, buf)
     v = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
@@ -162,7 +162,7 @@ extern 'void glLoadIdentity()'
     buf = Fiddle::Pointer.malloc(8)
 
     # Note there needs to be a window context before this is called or garbage is returned
-    glGetFloatv(1, buf) 
+    glGetFloatv(1, buf)
     v = buf.to_str.unpack('F').first
   end
 
@@ -172,7 +172,7 @@ extern 'void glLoadIdentity()'
     buf = Fiddle::Pointer.malloc(8)
 
     # Note there needs to be a window context before this is called or garbage is returned
-    glGetFloatv(1, buf) 
+    glGetFloatv(1, buf)
     v = buf.to_str.unpack('i').first
   end
 
@@ -183,7 +183,7 @@ extern 'void glLoadIdentity()'
     # Note there needs to be a window context before this is called or garbage
     # is returned
     buf = Fiddle::Pointer.malloc(8)
-    glGenRenderbuffers(1, buf) 
+    glGenRenderbuffers(1, buf)
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
@@ -204,7 +204,7 @@ extern 'void glLoadIdentity()'
     # Note there needs to be a window context before this is called or garbage
     # is returned
     buf = Fiddle::Pointer.malloc(8)
-    glGenFramebuffers(1, buf) 
+    glGenFramebuffers(1, buf)
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
@@ -259,7 +259,7 @@ extern 'void glLoadIdentity()'
       glGetShaderInfoLog( shader_id, log_len, out_len_bits, log_ptr)
     end
 
-    log_ptr.to_s 
+    log_ptr.to_s
   end
 
   # Returns a parameter from a shader object
@@ -282,7 +282,7 @@ extern 'void glLoadIdentity()'
     # Fiddle will pack and unpack strings automatically
     # Might work on structs too...
     # Anything else you need to manually pack and unpack
-    
+
     log_len = Gl.getProgramiv(program_id, Gl::GL_INFO_LOG_LENGTH )
     log = ""
     log = log.rjust(log_len, '.')
@@ -293,7 +293,7 @@ extern 'void glLoadIdentity()'
       glGetProgramInfoLog( program_id, log_len, out_len_bits, log)
     end
 
-    log.to_s 
+    log.to_s
   end
 
 
@@ -313,7 +313,7 @@ extern 'void glLoadIdentity()'
   def Gl.getError()
     glGetError()
   end
-  
+
   extern 'void glEnable(GLenum)'
   def Gl.enable(cap)
     glEnable(cap)
@@ -365,7 +365,7 @@ extern 'void glLoadIdentity()'
     glGetUniformLocation(program, name)
   end
 
-  extern 'void glDrawElements(	GLenum, GLsizei, GLenum, const GLvoid *)' 
+  extern 'void glDrawElements(	GLenum, GLsizei, GLenum, const GLvoid *)'
 
   def Gl.drawElements(mode, count, type, indices)
     glDrawElements(mode, count, type, indices)
@@ -472,7 +472,7 @@ extern 'void glLoadIdentity()'
     glCreateShader(shaderType)
   end
 
-  
+
   extern 'GLuint glCreateProgram()'
 
   def Gl.createProgram
@@ -485,7 +485,7 @@ extern 'void glLoadIdentity()'
     # Note there needs to be a window context before this is called or garbage
     # is returned
     buf = Fiddle::Pointer.malloc(8)
-    glGenBuffers(1, buf) 
+    glGenBuffers(1, buf)
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
@@ -496,7 +496,7 @@ extern 'void glLoadIdentity()'
   #   n      - Specifies the number of vertex array object names to generate.
   #   arrays - Specifies an array in which the generated vertex array object names are stored.
   #
-  # glGenVertexArrays returns n vertex array object names in arrays. 
+  # glGenVertexArrays returns n vertex array object names in arrays.
   extern 'void glGenVertexArrays(int, unsigned *)'
 
   def Gl.genVertexArray
@@ -504,7 +504,7 @@ extern 'void glLoadIdentity()'
     # Note there needs to be a window context before this is called or garbage
     # is returned
     buf = Fiddle::Pointer.malloc(8)
-    glGenVertexArrays(1, buf) 
+    glGenVertexArrays(1, buf)
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 

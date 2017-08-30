@@ -9,12 +9,12 @@ class Cpu_Graphic_Object
     @named_arguments[:model_matrix] = matrix
   end
 
-  def model_matrix 
+  def model_matrix
     @named_arguments.fetch(:model_matrix, Geo3d::Matrix.identity())
   end
 
 
-  def color 
+  def color
     @named_arguments[:color]
   end
 

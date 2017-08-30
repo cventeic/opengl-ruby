@@ -13,7 +13,7 @@ require 'ostruct'
 #   translate, rotate and scales sub components vertexes to the correct place in super-component's 3D space
 #
 # Object_Indirection.render adds content
-#   renders vertexes that can't be produced by aggregating sub-components 
+#   renders vertexes that can't be produced by aggregating sub-components
 #
 
 class OI
@@ -31,14 +31,14 @@ class OI
   #  a_to_b:   compute sub-component inputs from super-component state / inputs
   #  b_render: compute/render sub-component content
   #  b_to_a:   compute super-component additions/modifications from sub-component content
-  def add(symbol: "", 
+  def add(symbol: "",
           computes: {
             a_to_b:   lambda {|a_input| b_input = a_input},
             b_render: lambda {|b_input| b_output = b_input},
             b_to_a:   lambda {|a_input, b_output| a_output = a_input}
           }
          )
- 
+
     guid = [symbol,@joins.size]
 
     @joins[guid] = computes
@@ -61,7 +61,7 @@ class OI
 
       b_input  = join_computes[:a_to_b].call(a_input)            # b_inputs extracted from a_state
       b_output = join_computes[:b_render].call(b_input)          # b_output rendered by lambda
-      a_state  = join_computes[:b_to_a].call(a_input, b_output)  # new a_state integrating b_ouput 
+      a_state  = join_computes[:b_to_a].call(a_input, b_output)  # new a_state integrating b_ouput
 
       a_state
     end
@@ -75,4 +75,4 @@ require 'minitest/autorun'
 
 class BugTest < Minitest::Test
 end
- 
+

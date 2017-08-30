@@ -18,7 +18,7 @@ require './oi'
 #        }
 #
 # In this case OI_1.1, OI_1.2, OI_1.3 are extra OI for purpose of code clarity
-# 
+#
 
 
 class OI
@@ -42,19 +42,19 @@ class OI
   def OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
     mesh_in_b = b_output.fetch(:mesh, Mesh.new)
 
-    mesh_in_a = mesh_in_b.applyMatrix!(b_to_a_matrix) 
+    mesh_in_a = mesh_in_b.applyMatrix!(b_to_a_matrix)
 
     {mesh: mesh_in_a}
   end
 
   ############### Base Shapes
-  
+
   def OI.sphere(a_input = {})
 
     sphere = OI.new(symbol: :sphere)
 
     sphere.add(
-      symbol: :sphere_mesh, 
+      symbol: :sphere_mesh,
       computes: {
         a_to_b:   lambda {|a_input|           b_input  = {radius: 0.5}.merge(a_input)},
         b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.sphere(b_input[:radius])} },
@@ -69,10 +69,10 @@ class OI
     cylinder = OI.new(symbol: :cylinder)
 
     cylinder.add(
-      symbol: :cylinder_mesh, 
+      symbol: :cylinder_mesh,
       computes: {
         #b_render: lambda {|b_input| {mesh: GL_Shapes.cylinder(b_input[:f_length])} },
-        
+
         a_to_b:   lambda {|a_input|            b_input = a_input},
         b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.cylinder(args.merge(b_input))} },
         b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
@@ -86,10 +86,10 @@ class OI
     cylinder = OI.new(symbol: :directional_cylinder)
 
     cylinder.add(
-      symbol: :cylinder_mesh, 
+      symbol: :cylinder_mesh,
       computes: {
         #b_render: lambda {|b_input| {mesh: GL_Shapes.cylinder(b_input[:f_length])} },
-        
+
         a_to_b:   lambda {|a_input|            b_input = a_input},
         b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.directional_cylinder(args.merge(b_input))} },
         b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
@@ -100,12 +100,12 @@ class OI
   end
 
   ############### Composite Shapes
-  
-  ##### Make the set of (8) spheres 
+
+  ##### Make the set of (8) spheres
   # on sphere for each corner of the box
   #
   def OI.cube_corner_spheres(side_length: 20.0)
-    
+
     trs_matricies = [-10.0, 10.0].product( [-10.0, 10.0], [-10.0, 10.0]).map do |x,y,z|
       Geo3d::Matrix.translation(x,y,z)
     end
@@ -114,15 +114,15 @@ class OI
 
     spheres = OI.new
 
-    trs_matricies.each do |b_to_a_matrix| 
+    trs_matricies.each do |b_to_a_matrix|
       spheres.add(
-        symbol: :a_transform, 
+        symbol: :a_transform,
 
         computes: {
           a_to_b:   lambda {|a_input| b_input  = a_input},
           b_render: lambda {|b_input| b_output = sphere.render },
 
-          b_to_a: lambda {|a_input, b_output| 
+          b_to_a: lambda {|a_input, b_output|
 
             mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
 
@@ -132,7 +132,7 @@ class OI
       )
     end
 
-    spheres 
+    spheres
   end
 
   def OI.box_wire(side_length: 20.0, **args)
@@ -149,15 +149,15 @@ class OI
 
     parallel_cylinders = OI.new
 
-    trs_matricies.each do |b_to_a_matrix| 
+    trs_matricies.each do |b_to_a_matrix|
       parallel_cylinders.add(
-        symbol: :a_transform, 
+        symbol: :a_transform,
 
         computes: {
           a_to_b:   lambda {|a_input| b_input  = a_input},
           b_render: lambda {|b_input| b_output = cylinder.render },
 
-          b_to_a: lambda {|a_input, b_output| 
+          b_to_a: lambda {|a_input, b_output|
 
             mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
 
@@ -168,7 +168,7 @@ class OI
     end
 
     ##### Make the set of (12) cylinders for each edge of the box
-    #     3 sets of 4 
+    #     3 sets of 4
     #
     matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
@@ -178,15 +178,15 @@ class OI
 
     box = OI.new
 
-    matricies.each do |b_to_a_matrix| 
+    matricies.each do |b_to_a_matrix|
       box.add(
-        symbol: :a_transform, 
+        symbol: :a_transform,
 
         computes: {
           a_to_b:   lambda {|a_input| b_input  = a_input},
           b_render: lambda {|b_input| b_output = parallel_cylinders.render },
 
-          b_to_a: lambda {|a_input, b_output| 
+          b_to_a: lambda {|a_input, b_output|
 
             mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
 

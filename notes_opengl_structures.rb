@@ -1,21 +1,21 @@
-# This file is just notes.... 
+# This file is just notes....
 
 # To Render a 3D scene... The GPU must be given the following data.
 #
 # - A set of graphic objects to render
 #     Each object has:
 #       * A set of triangles... 3 3D points... (x,y,z,color) for each point.
-#       * A matrix to position the object in world space (rotate, translate, scale) 
+#       * A matrix to position the object in world space (rotate, translate, scale)
 #
 # - A set of lights to render
 #     Each light has:
 #       * Parameters defining the light
-#       * A matrix to position the object in world space (rotate, translate, scale) 
+#       * A matrix to position the object in world space (rotate, translate, scale)
 #
 # - A camera to render
 #     Each camera has:
 #       * Parameters ???
-#       * A matrix to position the camera in world space (rotate, translate, scale) 
+#       * A matrix to position the camera in world space (rotate, translate, scale)
 #
 # - The command to render a 2D image of the world as viewed from the camera
 #
@@ -31,8 +31,8 @@
 # Modern GPU's are full flexible compute platforms.
 # Graphic object meshes and position matrixes remain in GPU memory
 # The GPU can (re) render scenes from internal data stores.
-# 
-# In my current code, 
+#
+# In my current code,
 #   The main CPU has to initiate a re-draw of each object on a scene change
 #   The main CPU does not need to re-transfer the mesh data for each object.
 #
@@ -55,7 +55,7 @@
 #
 # Along with this buffers are allocated independently and when needed but the
 # core API functions weren't changed by adding buffer id's to the legacy
-# functions. 
+# functions.
 # An API function exists to map a buffer id to the role of the buffer in
 # interactions with the legacy API.  (GL_ARRAY_BUFFER, etc)
 #
@@ -63,16 +63,16 @@
 # Instead a context must be established.
 #   The GL function then accesses buffers mapped within the context.
 #
-#             vao:1 --> 
-#             vao:2 --> 
+#             vao:1 -->
+#             vao:2 -->
 # Current --> vao:3 --> binding:<some target id>  --> buffer_id:<some bfr id>  --> buffer: ...
 # Context           --> binding:GL_ARRAY_BUFFER   --> buffer_id:5              --> buffer: ...
-#                   --> binding:GL_UNIFORM_BUFFER --> buffer_id:6              --> buffer: ... 
-#             vao:4 --> 
+#                   --> binding:GL_UNIFORM_BUFFER --> buffer_id:6              --> buffer: ...
+#             vao:4 -->
 #
 #
 
-# Note: it is reasonable to give each graphical object it's own vao (vertex array object) 
+# Note: it is reasonable to give each graphical object it's own vao (vertex array object)
 #
 #       then you can configure all the buffers,
 #       variable to buffer mappings,
@@ -103,27 +103,27 @@
 
 ## Vertex Array Object
 #    A open GL object agregating and encapsulating a large set of vertexes
-#    
+#
 #    VAO interface facilitates the rapid (re)selection of a graphical object, in
 #    terms of it's vertexes, to be rendered.
 
 
 ## Uniform
-#    A uniform is a global GL Shader Language variable declared with the "uniform" storage qualifier. 
-#    These act as parameters that the user of a shader program can pass to that program. 
+#    A uniform is a global GL Shader Language variable declared with the "uniform" storage qualifier.
+#    These act as parameters that the user of a shader program can pass to that program.
 #    Uniforms are stored in a program object.
 #
 #    Uniforms are stored with a program instance not with a vertex array object instance
 #
 #    Uniforms are so named because they do not change from one execution of a shader program to the next
-#      within a particular rendering call. 
-#    This makes uniforms unlike shader stage inputs and outputs, 
+#      within a particular rendering call.
+#    This makes uniforms unlike shader stage inputs and outputs,
 #      which are often different for each invocation of a program stage.
 
 ## Buffer Objects
 #    Buffer Objects are an array of unformatted memory allocated in the GPU (w/in the OpenGL context)
 #    Buffer Objects can store vertex data, pixel data retrieved from images or the framebuffer, etc.
-#    
+#
 #    Create with glGenBuffers()
 #       void glGenBuffers(GLsizei n, GLuint * buffers);
 #         n       - Specifies the number of buffer object names to be generated.
@@ -238,10 +238,10 @@ class program
   end
 end
 
-class vao 
+class vao
   def initialize
     @map_buffer_purpose_to_buffer_id = {
-      # binding point used to set vertex array data pointers using glvertexattribpointer(). 
+      # binding point used to set vertex array data pointers using glvertexattribpointer().
       # this is the target that you will likely use most often.
       'gl_array_buffer' => 0,
 
@@ -249,9 +249,9 @@ class vao
       # binding point for buffers that will be used as uniform buffer objects
       'gl_uniform_buffer' => 0,
 
-      # buffers bound to this target can contain vertex indices 
+      # buffers bound to this target can contain vertex indices
       # which are used by indexed draw commands such as gldrawelements().
-      'gl_element_array_buffer' => 0 
+      'gl_element_array_buffer' => 0
     }
   end
 end
@@ -298,7 +298,7 @@ end
 #   would be supported by the hardware.
 #  Ability to allocate and manage buffers was added later.
 #  GL couldnt change existing function prototypes so instead you do this
-# 
+#
 def glBindBuffer(ctx, vao_buffer_purpose, gl_buffer_id)
   current_vao = ctx.vao_map[ctx.current_vao_id]
   current_vao.map_buffer_purpose_to_buffer_id[vao_buffer_purpose] = gl_buffer_id
@@ -342,7 +342,7 @@ end
 
 ######################################################################
 # attribute interface configures the transform or map from
-#   shader program variable name <---> specific section in specific buffer 
+#   shader program variable name <---> specific section in specific buffer
 #
 # note: specific buffer is the buffer currently mapped to gl_array_buffer in
 # current vao

@@ -5,7 +5,7 @@ def deep_copy(complex_array)
 end
 
 def rand_vector_in_box(named_arguments={x: -10.0..10.0, y: -10.0..10.0, z: -10.0..10.0})
-  Geo3d::Vector.new( 
+  Geo3d::Vector.new(
                     rand(named_arguments[:x]),
                     rand(named_arguments[:y]),
                     rand(named_arguments[:z])
@@ -125,7 +125,7 @@ end
 def close_enough(_fCandidate, _fCompare, fEpsilon = 0.00001)
 
     can  = _fCandidate
-    comp = _fCompare 
+    comp = _fCompare
 
     #can  = can.to_a if can.kind_of? Vector
     can  = can.to_a if can.kind_of? Geo3d::Vector
@@ -145,7 +145,7 @@ def close_enough(_fCandidate, _fCompare, fEpsilon = 0.00001)
 
     @total == 0 ? true : false
 end
- 
+
 def lookAt ( eye_, center_, up_)
     eye,center,up = Geo3d::Vector.new(eye_), Geo3d::Vector.new(center_), Geo3d::Vector.new(up_)
 
@@ -183,22 +183,22 @@ def pperspective ( fov, aspect, zNear, zFar)
     ]
 end
 
-                                 
+
 def ComputeFOVProjection(fov, aspect, nearDist, farDist, leftHanded=true)
     # General form of the Projection Matrix
     #
     # uh = Cot( fov/2 ) == 1/Tan(fov/2)
     # uw / uh = aspect
-    # 
+    #
     #   uw         0       0       0
     #    0        uh       0       0
     #    0         0      f/(f-n)  1
     #    0         0    -fn/(f-n)  0
     #
     # Make result to be identity first
-   
+
     r_fov =  fov * Math::PI / 180
-    
+
     # check for bad parameters to avoid divide by zero:
     # if found, assert and return an identity matrix.
     if ( r_fov <= 0 || aspect == 0 )

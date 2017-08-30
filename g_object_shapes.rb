@@ -19,7 +19,7 @@
 #        }
 #
 # In this case OI_1.1, OI_1.2, OI_1.3 are extra OI for purpose of code clarity
-# 
+#
 
 class Object_Indirection
 
@@ -40,7 +40,7 @@ class Object_Indirection
 
   def Object_Indirection.oi_sphere(opts)
     sphere = Object_Indirection.new
-    sphere.add_compute( 
+    sphere.add_compute(
                        inputs: {radius: 0.5}.merge(opts),
                        compute: lambda {|input| GL_Shapes.sphere(input[:radius]) }
                       )
@@ -49,7 +49,7 @@ class Object_Indirection
 
   def Object_Indirection.oi_cylinder(opts)
     cylinder = Object_Indirection.new
-    cylinder.add_compute( 
+    cylinder.add_compute(
                        inputs: {}.merge(opts),
                        compute: lambda {|input| GL_Shapes.cylinder(input[:f_length]) }
                       )
@@ -61,7 +61,7 @@ class Object_Indirection
   def Object_Indirection.oi_cube_corner_spheres(side_length: 20.0)
 
     sphere = Object_Indirection.oi_sphere({side_length: side_length})
-    
+
     ##### Make the set of (8) spheres for each corner of the box
     #
 
@@ -71,10 +71,10 @@ class Object_Indirection
 
     cube_corner_spheres = Object_Indirection.new
 
-    trs_matricies.each do |matrix| 
+    trs_matricies.each do |matrix|
 
       cube_corner_spheres.add_compute(
-        compute: Object_Indirection.add_computed_sub_object(), 
+        compute: Object_Indirection.add_computed_sub_object(),
         inputs: {trs_matrixes: [matrix], object_indirection: sphere},
       )
     end
@@ -88,7 +88,7 @@ class Object_Indirection
     oi = Object_Indirection.new
 
     oi.add_compute(
-      compute: Object_Indirection.add_computed_sub_object(), 
+      compute: Object_Indirection.add_computed_sub_object(),
       inputs: {trs_matrixes: [matrix_array], object_indirection: sub_oi},
     )
 
@@ -98,12 +98,12 @@ class Object_Indirection
   # Create new OI that aggregates multiple sub OI into one object
   #
   def Object_Indirection.oi_aggregate(sub_oi_array:)
-    #sub_oi_array: 
+    #sub_oi_array:
     oi = Object_Indirection.new
 
     sub_oi_array.each do |sub_oi|
       oi.add_compute(
-        compute: Object_Indirection.add_computed_sub_object(), 
+        compute: Object_Indirection.add_computed_sub_object(),
         inputs: {object_indirection: sub_oi},
       )
     end
@@ -127,7 +127,7 @@ class Object_Indirection
       Geo3d::Matrix.translation(x, y, -hl)
     end
 
-    square_of_cylinder_oi_array = t_matricies.map do |t_matrix| 
+    square_of_cylinder_oi_array = t_matricies.map do |t_matrix|
       Object_Indirection.oi_translate_rotate_scale_oi(matrix_array: [t_matrix], sub_oi: cylinder)
     end
 
@@ -145,7 +145,7 @@ class Object_Indirection
     square_of_cylinder_oi = Object_Indirection.oi_square(side_length: side_length)
 
     ##### Make the set of (12) cylinders for each edge of the box
-    #     3 sets of 4 
+    #     3 sets of 4
     #
     r_matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
@@ -153,7 +153,7 @@ class Object_Indirection
       Geo3d::Matrix.identity           # Version with centerline on z
     ]
 
-    cube_of_cylinders_oi_array = r_matricies.map do |matrix| 
+    cube_of_cylinders_oi_array = r_matricies.map do |matrix|
       Object_Indirection.oi_translate_rotate_scale_oi(matrix_array: [matrix], sub_oi: square_of_cylinder_oi)
     end
 
@@ -171,7 +171,7 @@ class Object_Indirection
   def Object_Indirection.oi_box_wire_2(side_length: 20.0)
 
     #####
-    
+
     cylinder = Object_Indirection.oi_cylinder(f_length: side_length)
 
 
@@ -185,17 +185,17 @@ class Object_Indirection
       Geo3d::Matrix.translation(x, y, -hl)
     end
 
-    t_matricies.each do |t_matrix| 
+    t_matricies.each do |t_matrix|
 
       four_cylinders_on_z.add_compute(
-        compute: Object_Indirection.add_computed_sub_object(), 
+        compute: Object_Indirection.add_computed_sub_object(),
         inputs: {trs_matrixes: [t_matrix], object_indirection: cylinder},
       )
 
     end
 
     ##### Make the set of (12) cylinders for each edge of the box
-    #     3 sets of 4 
+    #     3 sets of 4
     #
     r_matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
@@ -205,16 +205,16 @@ class Object_Indirection
 
     twelve_cylinders = Object_Indirection.new
 
-    r_matricies.each do |r_matrix| 
+    r_matricies.each do |r_matrix|
       twelve_cylinders.add_compute(
-        compute: Object_Indirection.add_computed_sub_object, 
+        compute: Object_Indirection.add_computed_sub_object,
         inputs: {trs_matrixes: [r_matrix], object_indirection: four_cylinders_on_z},
       )
     end
 
-    ##### 
+    #####
     #
-    twelve_cylinders 
+    twelve_cylinders
   end
 
 

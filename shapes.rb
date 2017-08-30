@@ -84,7 +84,7 @@ module GL_Shapes
     four_cylinders_on_z = merge_graphic_objects(objects)
 
     ##### Make the set of (12) cylinders for each edge of the box
-    #     3 sets of 4 
+    #     3 sets of 4
     #
     r_matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
@@ -104,11 +104,11 @@ module GL_Shapes
   #
   def GL_Shapes.arrow(line_start, line_stop, radius)
 
-    v = line_stop - line_start 
+    v = line_stop - line_start
 
     # line_start + v = line_stop
     # line_stop - v  = line_start
-    
+
     v_arrow = v.normalize * 8.0 * radius
 
     v_arrow_start = line_stop - v_arrow
@@ -133,7 +133,7 @@ module GL_Shapes
 
     # Generate the translation rotation matrix to get the line where we want it
     #
-    v_end = stop - start                                       # Vector for ending line 
+    v_end = stop - start                                       # Vector for ending line
     v_start  = Geo3d::Vector.new(0.0, 0.0, v_end.length.abs, 0.0)  # Vector for original cylinder
 
     v_perp   = v_start.cross(v_end).normalize
@@ -173,7 +173,7 @@ module GL_Shapes
     mesh = Mesh.new
 
     # Draw a cylinder. Much like gluCylinder
-    baseRadius, topRadius, fLength, numSlices, numStacks = 
+    baseRadius, topRadius, fLength, numSlices, numStacks =
       base_radius, top_radius, f_length, num_slices, num_stacks
 
     vVertex  = Array.new(4)
@@ -207,8 +207,8 @@ module GL_Shapes
       fNextZ    = i_next  * stack_delta
 
       # Rise over run...
-      zNormal = (baseRadius - topRadius) / fLength # /todo check this is right 
-      #zNormal = (baseRadius - topRadius) # /todo check this is right 
+      zNormal = (baseRadius - topRadius) / fLength # /todo check this is right
+      #zNormal = (baseRadius - topRadius) # /todo check this is right
       zNormal = 0.0 if(close_enough(zNormal, 0.0, 0.00001))
 
 
@@ -225,7 +225,7 @@ module GL_Shapes
         sNext = j_next * ds
         sNext = 1.0 if(_j_next == numSlices)
 
-        # 
+        #
         theyta     = fStepSizeSlice * j
         theytaNext = fStepSizeSlice * j_next
         theytaNext = 0.0 if(_j_next == numSlices)
@@ -241,7 +241,7 @@ module GL_Shapes
 
         # Outer First
         vVertex[0] = cylinder_vertex(fNextRadius, cos_theyta, sin_theyta, fNextZ, zNormal, s, tNext)
- 
+
         # Inner second
         vVertex[3] = cylinder_vertex(fCurrentRadius, cos_theytaNext, sin_theytaNext, fCurrentZ, zNormal, sNext, t)
 
@@ -272,7 +272,7 @@ module GL_Shapes
 
 
     dt = 1.0 / iStacks
-    t = 1.0	
+    t = 1.0
     s = 0.0
 
     #sphereBatch.BeginMesh(iSlices * iStacks * 6)
@@ -287,7 +287,7 @@ module GL_Shapes
       crhodrho = Math.cos(rho + drho)
 
       # Many sources of OpenGL sphere drawing code uses a triangle fan
-      # for the caps of the sphere. This however introduces texturing 
+      # for the caps of the sphere. This however introduces texturing
       # artifacts at the poles on some OpenGL implementations
       s = 0.0
       iSlices.times do |_j|
@@ -336,7 +336,7 @@ module GL_Shapes
       end
 
       t -= dt
-    end 
+    end
 
     #mesh.clamp_ranges
 
@@ -355,36 +355,36 @@ module GL_Shapes
       color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
     )
 
-    # show x axis 
+    # show x axis
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
       internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_y(radians(-90.0))),
-      color: Geo3d::Vector.new( 1.0, 0.0, 0.0, 1.0) 
+      color: Geo3d::Vector.new( 1.0, 0.0, 0.0, 1.0)
     )
 
-    # show y axis 
+    # show y axis
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
       internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0) * Geo3d::Matrix.rotation_x(radians(90.0))),
-      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
+      color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0)
     )
 
-    # show z axis 
+    # show z axis
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
       internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 1.0)),
-      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0)
     )
 
-    # show z axis 
+    # show z axis
     cpu_graphic_objects <<  Cpu_Graphic_Object.new(
       internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 0.6, base_radius: 0.2, top_radius: 0.0) },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 2.0)),
-      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0)
     )
 
     return cpu_graphic_objects

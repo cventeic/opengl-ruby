@@ -13,7 +13,7 @@ require 'ostruct'
 #   translate, rotate and scales sub components vertexes to the correct place in super-component's 3D space
 #
 # Object_Indirection.render adds content
-#   renders vertexes that can't be produced by aggregating sub-components 
+#   renders vertexes that can't be produced by aggregating sub-components
 #
 
 class Object_Indirection
@@ -43,15 +43,15 @@ class Object_Indirection
 
       oi = input.fetch(:object_indirection, nil)
 
-      # Render sub object 
+      # Render sub object
       computed_sub_object = oi.nil? ? nil : oi.render_object(inputs: input[:inputs])
 
       trs_matrix_array = input.fetch(:trs_matrixes, [])
 
       # Apply trs_matrixes to translate vertexes from sub-component space to super-component (this) space
-      trs_matrix_array.each {|matrix| 
+      trs_matrix_array.each {|matrix|
         puts "matrix = #{matrix.to_s}"
-        computed_sub_object.applyMatrix!(matrix) 
+        computed_sub_object.applyMatrix!(matrix)
       }
 
 
@@ -73,7 +73,7 @@ class Object_Indirection
       #
       trs_matrix_array = input.fetch(:trs_matrixes, [])
 
-      vertex_array_in_super_space = 
+      vertex_array_in_super_space =
         trs_matrix_array.inject(vertex_array_in_sub_space) do |vertex_array, trs_matrix|
 
         # translate, rotate, scale vertex into new "space"
@@ -97,7 +97,7 @@ class Object_Indirection
       trs_matrixes: trs_matrixes,
       inputs: inputs
     }
-    
+
     add_compute(name: name, compute: Object_Indirection.add_component_lambda, inputs: lambda_inputs)
   end
 
@@ -145,17 +145,17 @@ class BugTest < Minitest::Test
     oi_1_2 = Object_Indirection.new(name: "oi_1_2")
 
     # Directly generate vertex for this object
-    oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input| 
+    oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input|
                                                      Vertex.new(Geo3d::Vector.new(0,1,2))})
 
     # Directly generate vertex for this object
-    oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input| 
+    oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input|
                                                       Vertex.new(Geo3d::Vector.new(3,4,5))})
 
 
     # Composite sub-components
-    oi_1.add_compute(name: "sub1", 
-                     compute: Object_Indirection.add_component_lambda, 
+    oi_1.add_compute(name: "sub1",
+                     compute: Object_Indirection.add_component_lambda,
                      inputs: {trs_matrixes: [Geo3d::Matrix.translation(1,2,3)], object_indirection: oi_1_1}
                     )
 
@@ -178,11 +178,11 @@ class BugTest < Minitest::Test
     oi_1 = Object_Indirection.new(name: "oi_1")
 
     oi_1_1 = Object_Indirection.new(name: "oi_1_1")
-    oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input| 
+    oi_1_1.add_compute(name: "o_1_1", compute: lambda{|input|
                                                      Vertex.new(Geo3d::Vector.new(0,1,2))})
 
     oi_1_2 = Object_Indirection.new(name: "oi_1_2")
-    oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input| 
+    oi_1_2.add_compute(name: "o_1_2", compute: lambda{|input|
                                                       Vertex.new(Geo3d::Vector.new(3,4,5))})
 
     oi_1.add_component(name: "sub1", object_indirection: oi_1_1)

@@ -11,7 +11,7 @@ class Gpu
 
     @gpu_graphic_objects = Hash.new
 
-    @shader_attribute_location_cache = Hash.new {|hash,tag| 
+    @shader_attribute_location_cache = Hash.new {|hash,tag|
       program_id, attr_name = tag
       hash[tag] = Gl.getAttribLocation(program_id, attr_name.to_s)
     }
@@ -64,7 +64,7 @@ class Gpu
 
   def render_object(gpu_object_id)
     vertex_array_obj_id = gpu_object_id
-    
+
     #puts "render_object vertex_array_obj_id = #{vertex_array_obj_id}"
 
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]

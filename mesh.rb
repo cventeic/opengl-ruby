@@ -9,7 +9,7 @@ require './util/geo3d_matrix.rb'
 #
 #     A vertex_index referes to a vertex
 #
-#     A vertex is a position along with color, normal vector and texture coordinates. 
+#     A vertex is a position along with color, normal vector and texture coordinates.
 #
 #       position has x, y, z
 #       color    has r, g, b
@@ -22,7 +22,7 @@ class Vertex
   attr_accessor :position, :normal, :texcoord
 
   def initialize(position, normal = Geo3d::Vector.new(0.0, 0.0, 0.0), texcoord = Geo3d::Vector.new(0.0, 0.0))
-    @position = position 
+    @position = position
     @normal = normal
     @texcoord = texcoord
   end
@@ -59,7 +59,7 @@ class Mesh
   def initialize(mesh=nil)
     @triangles = Array.new
 
-    # Copy triangles from input mesh 
+    # Copy triangles from input mesh
     @triangles = mesh.triangles.map {|triangle| triangle.dup} unless mesh.nil?
   end
 
@@ -131,7 +131,7 @@ class Mesh
 
   def add_triangle(vertex_array)
 
-    @triangles << Triangle.new(vertex_array.first(3)) 
+    @triangles << Triangle.new(vertex_array.first(3))
 
     # /todo Note: perhapse we should be rounding our points here
     # /todo Note: should we be checking for duplicate (close enough) vertex
@@ -141,7 +141,7 @@ class Mesh
 
   # cv This needs fixed
   def load_wavefront(filename)
-    
+
     w = Wavefront::File.new filename
     mesh = w.compute_position_and_index_buffer
 

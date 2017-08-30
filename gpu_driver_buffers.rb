@@ -21,11 +21,11 @@ class Gpu
   def bind_buffer_to_vao(gpu_graphic_object, content_type)
     # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
     vao_key  = @mesh_to_gpu_mapping_info[content_type][:vao_key]
-    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type] 
-    
+    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type]
+
     assert {gl_bfr_id > 0}
 
-    Gl.glBindBuffer(vao_key, gl_bfr_id) 
+    Gl.glBindBuffer(vao_key, gl_bfr_id)
   end
 
   def unbind_buffer_to_vao(gpu_graphic_object, content_type)
@@ -34,17 +34,17 @@ class Gpu
     gpu_mapping_info = @mesh_to_gpu_mapping_info[content_type]
     vao_key  = gpu_mapping_info[:vao_key]
 
-    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type] 
+    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type]
     assert {gl_bfr_id > 0}
 
-    Gl.glBindBuffer(vao_key, 0) 
+    Gl.glBindBuffer(vao_key, 0)
   end
 
 
   ############### Routines to push buffers to GPU
   #
 
-  # Input is triangle array = 
+  # Input is triangle array =
   # [
   #   [vertex0, vertex1, vertex2],
   #   [vertex0, vertex1, vertex2],
@@ -103,7 +103,7 @@ class Gpu
     element_array = subcomponents[:position].each_index.map {|index| index}
     gl_ready_buffers[:index] = element_array.pack("L*")
 
-    gl_ready_buffers 
+    gl_ready_buffers
   end
 
   # Push set of buffers out to the GPU
@@ -121,7 +121,7 @@ class Gpu
 
       bind_buffer_to_vao(gpu_graphic_object, subcomponent)
 
-      gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[subcomponent] 
+      gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[subcomponent]
 
       check_for_gl_error()
 
@@ -135,7 +135,7 @@ class Gpu
 
       # todo: why does following cause nothing to be displayed?
       # unbind_buffer_to_vao(gpu_graphic_object, subcomponent)
-      
+
       check_for_gl_error()
     end
 
@@ -164,26 +164,26 @@ class Gpu
       Gl.vertexAttribPointer(attr_location, element_size, GL_FLOAT, 0, 0, 0)
       Gl.enableVertexAttribArray(attr_location)
     end
- 
+
     unbind_buffer_to_vao(go, attr_name)
   end
 
 
-  ############### 
+  ###############
   # Main routine in this file
   # Turn the cpu graphic object into gpu data
   #
 
   def push_oi(program_id, oi, gpu_object_id = -1)
     cpu_graphic_object = Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments| 
+      internal_proc: lambda { |named_arguments|
         state = oi.render
         mesh = state[:mesh]
-        named_arguments[:mesh] = mesh 
+        named_arguments[:mesh] = mesh
       },
       external_proc: lambda { |named_arguments| },
       model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0) 
+      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0)
     )
     push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id)
   end
@@ -191,7 +191,7 @@ class Gpu
 
   def push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
     # vertex_array_obj_id = gpu_object_id
-    
+
     assert{program_id > 0}
 
     if gpu_object_id < 0
@@ -213,15 +213,15 @@ class Gpu
 
     # Position the object in world space
     #cpu_graphic_object.external()
-    
+
     ##### Uniforms
     #
     gpu_graphic_object.model_matrix = cpu_graphic_object.model_matrix
     gpu_graphic_object.color        = cpu_graphic_object.color
 
-    # Setup a matrix to rotate normals from object space to world space 
+    # Setup a matrix to rotate normals from object space to world space
     # gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
-    
+
     matrix            = gpu_graphic_object.model_matrix.dup
     inverse           = matrix.inverse
     inverse_transpose = inverse.transpose
@@ -248,8 +248,8 @@ class Gpu
     check_for_gl_error()
 
     #map_attribute_to_buffer(gpu_graphic_object, program_id, :index, 1)
-    
-    # Number of elements to render 
+
+    # Number of elements to render
     # So far, each index is unique so #elements = #index
     # /todo reuse index if position, normal and texcoord are the same
     gpu_graphic_object.element_count = gl_ready_buffers[:index].size
@@ -258,6 +258,6 @@ class Gpu
   end
 
 end
- 
+
 
 

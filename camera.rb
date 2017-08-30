@@ -50,9 +50,9 @@ class Camera
     camera_transform_world_space = camera_to_world_matrix * camera_transform_camera_space
     puts "camera_transform_matrix_world = \n#{camera_transform_matrix_world.to_s_round}"
 =end
-    
-    #@world_to_camera_space = camera_transform_camera_space * @world_to_camera_space 
-    @world_to_camera_space = @world_to_camera_space * camera_transform_camera_space 
+
+    #@world_to_camera_space = camera_transform_camera_space * @world_to_camera_space
+    @world_to_camera_space = @world_to_camera_space * camera_transform_camera_space
 
     #move_in_world_space(camera_transform_matrix_world)
     puts "this is then new view matrix: "
@@ -66,7 +66,7 @@ class Camera
     matrix            = @world_to_camera_space.dup
     inverse           = matrix.inverse
     inverse_transpose = inverse.transpose
-  
+
     vec_camera_location_in_world_space = inverse_transpose * vec_camera_location_camera_space
 
     vec_camera_location_in_world_space.w  = 0.0
@@ -77,6 +77,6 @@ class Camera
   end
 
 
-end    
+end
 
 

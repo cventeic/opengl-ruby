@@ -12,7 +12,7 @@ class InputTracker
     # width, height = window width and height (apx 1920 x 1080)
     def initialize(camera, width, height)
         @arc_ball =  ArcBall.new(width, height)
-        @arc_ball_moving = false   
+        @arc_ball_moving = false
         @x=0
         @y=0
         @frame = false
@@ -33,7 +33,7 @@ class InputTracker
 
     def button_release()
 
-        @arc_ball_moving = false 
+        @arc_ball_moving = false
     end
 
     def cursor_position_callback(window, x, y)
@@ -51,7 +51,7 @@ class InputTracker
         # arcball
         @camera = @camera_before_arcball_touched.clone
 
-        # Rotate the camera space around origin (0.0, 0.0, 0.0) 
+        # Rotate the camera space around origin (0.0, 0.0, 0.0)
         @camera.move_camera_in_world_space(arc_ball_rotation_matrix)
       else
         @camera = camera

@@ -4,7 +4,7 @@ require './util/debug'
 #   Data (variables) that are not vertex specific for a model.
 #
 
-# Uniforms 
+# Uniforms
 #   have a variable name inside the shader code (gpu)
 #   have a location id in cpu space
 #
@@ -50,7 +50,7 @@ class Gpu
   end
 
   # Set uniforms in bulk from data structure of form
-  # 
+  #
   # uniform_variables_hash = {
   #   var_name: = {container: {:vector, :matrix}, data: actual_data},
   #   model:    = {container: :matrix, data: _matrix},

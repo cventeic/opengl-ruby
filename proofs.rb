@@ -9,20 +9,20 @@ class BugTest < Minitest::Test
 
     rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
     rotation_axis.w = 0 #  Zero Degrees
-    
+
     q = Geo3d::Quaternion.new(*rotation_axis)
 
-    assert Geo3d::Matrix.identity != q.to_matrix 
+    assert Geo3d::Matrix.identity != q.to_matrix
   end
 
   def test_quartenion_no_rotation
 
     rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
     radians = 0.0
-    
+
     q = Geo3d::Quaternion.from_axis(rotation_axis, radians)
 
-    assert_equal Geo3d::Matrix.identity, q.to_matrix 
+    assert_equal Geo3d::Matrix.identity, q.to_matrix
   end
 
   def test_quartenion_with_rotation
@@ -30,12 +30,12 @@ class BugTest < Minitest::Test
     rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
 
     radians = radians(rand(360)) # pick a random rotation
-    
+
     q = Geo3d::Quaternion.from_axis(rotation_axis, radians)
 
     expected_matrix = Geo3d::Matrix.rotation_y radians
 
-    assert_equal expected_matrix, q.to_matrix 
+    assert_equal expected_matrix, q.to_matrix
 
     test_vector = Geo3d::Vector.new(1.0, 0.0, 0.0)
 

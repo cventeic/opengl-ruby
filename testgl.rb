@@ -60,7 +60,7 @@ ctx.window.width = 1900
 #ctx.window.width = 4000
 ctx.window.height= (ctx.window.width / ctx.window.aspect_ratio).to_i
 ctx.window.x     = 0
-ctx.window.y     = 1080 
+ctx.window.y     = 1080
 
 puts "ctx = #{ctx}"
 
@@ -133,13 +133,13 @@ if false
 end
 
 
-if true 
+if true
   #/todo make this match actual light position
-  # show light 
+  # show light
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
     internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.cylinder(f_length: 3.0, base_radius: 3.0) },
     model_matrix: (Geo3d::Matrix.translation(0.0, 0.0, 20.0)),
-    color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0) 
+    color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
   )
 end
 
@@ -190,7 +190,7 @@ points.each_cons(2) do |p0,p1|
   cpu_graphic_objects <<  Cpu_Graphic_Object.new(
     # internal_proc: lambda { |named_arguments| named_arguments[:mesh] = GL_Shapes.arrow( p0, p1, 0.05)},
     mesh: GL_Shapes.arrow( p0, p1, 0.05 ),
-    #color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0) 
+    #color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0)
     color: new_color
   )
 end
@@ -258,7 +258,7 @@ loop do
         when SDL2::Key::DOWN
           camera_translation = Geo3d::Matrix.translation(0.0, -5.0, 0.0)
         end
- 
+
       when 64 # L control
         case ev.sym
         when SDL2::Key::UP
