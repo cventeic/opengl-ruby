@@ -32,6 +32,7 @@ class Cpu_Graphic_Object
     lambda.call(@named_arguments)
   end
 
+=begin
 
   # compute a a normal for each triangle
   # and add that normal to each vertex
@@ -49,5 +50,7 @@ class Cpu_Graphic_Object
       object
     end
   end
+
+=end
 
 end
