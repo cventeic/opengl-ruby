@@ -36,22 +36,6 @@ class Camera
     world_to_camera_matrix = @world_to_camera_space.dup
     puts "world_to_camera_space matrix= \n#{world_to_camera_matrix.to_s_round}"
 
-=begin
-    camera_to_world_matrix = world_to_camera_matrix.inverse
-    puts "camera_to_world_matrix inverse = \n#{camera_to_world_matrix.to_s_round}"
-
-    camera_to_world_matrix = camera_to_world_matrix.transpose
-    puts "camera_to_world_matrix inverse transpose= \n#{camera_to_world_matrix.to_s_round}"
-
-    puts "matrix for camera movement in camera space:"
-    puts "camera_transform_camera_space = \n#{camera_transform_camera_space.to_s_round}"
-
-    puts "this is the matrix to apply to view matrix:"
-    camera_transform_world_space = camera_to_world_matrix * camera_transform_camera_space
-    puts "camera_transform_matrix_world = \n#{camera_transform_matrix_world.to_s_round}"
-=end
-
-    #@world_to_camera_space = camera_transform_camera_space * @world_to_camera_space
     @world_to_camera_space = @world_to_camera_space * camera_transform_camera_space
 
     #move_in_world_space(camera_transform_matrix_world)
