@@ -1,3 +1,5 @@
+# Augment the Object_Indirection with some shapes
+#
 
 # Note: translate, rotate, scale --and-- aggregation of sub-objects can be
 # supported in a single OI instance.
