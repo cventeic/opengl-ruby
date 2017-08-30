@@ -54,7 +54,6 @@ class Object_Indirection
         computed_sub_object.applyMatrix!(matrix)
       }
 
-
       computed_sub_object
     }
   end
@@ -100,7 +99,6 @@ class Object_Indirection
 
     add_compute(name: name, compute: Object_Indirection.add_component_lambda, inputs: lambda_inputs)
   end
-
 
 
   def render_object(inputs: [])

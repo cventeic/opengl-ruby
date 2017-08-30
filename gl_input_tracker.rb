@@ -31,7 +31,6 @@ class InputTracker
   end
 
   def button_release()
-
     @arc_ball_moving = false
   end
 

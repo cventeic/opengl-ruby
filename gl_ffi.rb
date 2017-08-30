@@ -141,15 +141,12 @@ extern 'void glLoadIdentity()'
 
 
   extern 'void glViewport(	GLint , GLint , GLsizei , GLsizei )'
-
   def Gl.viewport(x, y, width, height)
     glViewport(	x, y, width, height)
   end
 
 
   extern 'void glGetBooleanv(	GLenum , GLboolean * )'
-
-
   def Gl.getBooleanv(	pname )
     buf = Fiddle::Pointer.malloc(8)
     glGetBooleanv(1, buf)
@@ -188,7 +185,6 @@ extern 'void glLoadIdentity()'
   end
 
   extern 'void glBindRenderbuffer(GLenum, GLuint)'
-
   def Gl.bindRenderbuffer(target_id, buffer_id)
     glBindRenderbuffer(target_id, buffer_id)
   end
@@ -199,7 +195,6 @@ extern 'void glLoadIdentity()'
   end
 
   extern 'void glGenFramebuffers(	GLsizei , GLuint * )'
-
   def Gl.genFramebuffer
     # Note there needs to be a window context before this is called or garbage
     # is returned
@@ -208,31 +203,22 @@ extern 'void glLoadIdentity()'
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
 
-
-
   extern 'void glBindFramebuffer(	GLenum , GLuint )'
-
   def Gl.bindFramebuffer(target_id, buffer_id)
     glBindFramebuffer(target_id, buffer_id)
   end
 
   extern 'void glFramebufferRenderbuffer( GLenum , GLenum , GLenum , GLuint )'
-
   def Gl.framebufferRenderbuffer( target, attachment, renderbuffertarget, renderbuffer)
     glFramebufferRenderbuffer( target, attachment, renderbuffertarget, renderbuffer)
   end
 
-
-
   extern 'void glDepthRange( GLdouble , GLdouble )'
-
   def Gl.depthRange( nearVal, farVal)
     glDepthRange( nearVal, farVal)
   end
 
-
   extern 'void glDepthFunc(	GLenum )'
-
   def Gl.depthFunc(	func)
     glDepthFunc(func)
   end
@@ -264,7 +250,6 @@ extern 'void glLoadIdentity()'
 
   # Returns a parameter from a shader object
   extern 'void glGetShaderiv(	GLuint , GLenum , GLint *)'
-
   def Gl.getShaderiv(	shader, pname )
 
     value_bits = [0].pack('i*')
@@ -277,7 +262,6 @@ extern 'void glLoadIdentity()'
 
   # glGetProgramInfoLog — return the information log for a program object
   extern 'void glGetProgramInfoLog(	GLuint, GLsizei, GLsizei *, GLchar *)'
-
   def Gl.getProgramInfoLog(program_id)
     # Fiddle will pack and unpack strings automatically
     # Might work on structs too...
@@ -296,10 +280,8 @@ extern 'void glLoadIdentity()'
     log.to_s
   end
 
-
   # Returns a parameter from a program object
   extern 'void glGetProgramiv(	GLuint , GLenum , GLint *)'
-
   def Gl.getProgramiv(	program, pname )
 
     value_bits = [0].pack('i*')
@@ -353,33 +335,28 @@ extern 'void glLoadIdentity()'
   end
 
   extern 'void glUniformMatrix4fv(GLint, GLsizei, GLboolean, const GLfloat *)'
-
   def Gl.uniformMatrix4fv(location, count, transpose, value)
     glUniformMatrix4fv(location, count, transpose, value)
   end
 
 
   extern 'GLint glGetUniformLocation(	GLuint , const GLchar *)'
-
   def Gl.getUniformLocation(program, name)
     glGetUniformLocation(program, name)
   end
 
   extern 'void glDrawElements(	GLenum, GLsizei, GLenum, const GLvoid *)'
-
   def Gl.drawElements(mode, count, type, indices)
     glDrawElements(mode, count, type, indices)
   end
 
   extern 'void glClear(GLbitfield)'
-
   def Gl.clear(mask)
     glClear(mask)
   end
 
 
   extern 'void glEnableVertexAttribArray(	GLuint )'
-
   def Gl.enableVertexAttribArray(	attr_index )
     glEnableVertexAttribArray(attr_index)
   end
@@ -387,22 +364,17 @@ extern 'void glLoadIdentity()'
 
   #extern 'GLint glGetAttribLocation(  GLuint program, const GLchar *name)'
   extern 'GLint glGetAttribLocation(GLuint, const GLchar *)'
-
   def Gl.getAttribLocation(program_id, attr_name)
     glGetAttribLocation(program_id, attr_name)
   end
 
 
   extern 'void glVertexAttribPointer(	GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *)'
-
   def Gl.vertexAttribPointer(index, size, type, normalized, stride, pointer)
     glVertexAttribPointer(index, size, type, normalized, stride, pointer)
   end
 
-
-
   extern 'void glBindBuffer(GLenum, GLuint)'
-
   def Gl.bindBuffer(target_id, buffer_id)
     glBindBuffer(target_id, buffer_id)
   end
@@ -411,7 +383,6 @@ extern 'void glLoadIdentity()'
   #   GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage);
   #
   extern 'void glBufferData(GLenum, int, const GLvoid *, GLenum)'
-
   def Gl.bufferData(target, size, data, usage)
     glBufferData(target, size, data, usage)
   end
@@ -425,35 +396,28 @@ extern 'void glLoadIdentity()'
   #end
 
 
-
-
   extern 'void glBindVertexArray(GLuint)'
-
   def Gl.bindVertexArray(vertex_array_id)
     glBindVertexArray(vertex_array_id)
   end
 
 
   extern 'void glUseProgram(GLuint)'
-
   def Gl.useProgram(program_id)
     glUseProgram(program_id)
   end
 
   extern 'void glLinkProgram(GLuint)'
-
   def Gl.linkProgram(program_id)
     glLinkProgram(program_id)
   end
 
   extern 'void glAttachShader(GLuint,GLuint)'
-
   def Gl.attachShader(program_id, shader_id)
     glAttachShader(program_id, shader_id)
   end
 
   extern 'void glCompileShader(GLuint)'
-
   def Gl.compileShader(vertex_shader_id)
     glCompileShader(vertex_shader_id)
   end
@@ -465,16 +429,12 @@ extern 'void glLoadIdentity()'
     glShaderSource(shader, count, pointers, lengths);
   end
 
-
   extern 'GLuint glCreateShader(GLenum)'
-
   def Gl.createShader(shaderType)
     glCreateShader(shaderType)
   end
 
-
   extern 'GLuint glCreateProgram()'
-
   def Gl.createProgram
     glCreateProgram()
   end
@@ -498,7 +458,6 @@ extern 'void glLoadIdentity()'
   #
   # glGenVertexArrays returns n vertex array object names in arrays.
   extern 'void glGenVertexArrays(int, unsigned *)'
-
   def Gl.genVertexArray
 
     # Note there needs to be a window context before this is called or garbage
@@ -507,8 +466,8 @@ extern 'void glLoadIdentity()'
     glGenVertexArrays(1, buf)
     id = buf.to_str.unpack('L').first.tap {|id| assert{id >= 0}}
   end
-
 end
+
 
 require 'minitest/autorun'
 
