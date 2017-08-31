@@ -11,7 +11,7 @@
   - bundle install
   - bundle exec ruby testgl.rb
 
-[![Alt text](https://img.youtube.com/vi/https://youtu.be/_8pJCWOsiIo/0.jpg)](https://www.youtube.com/watch?v=https://youtu.be/_8pJCWOsiIo)
+[![testgl.rb Screen Capture](https://img.youtube.com/vi/_8pJCWOsiIo/0.jpg)](https://www.youtube.com/watch?v=_8pJCWOsiIo "bundle exec ruby testgl.rb Screen Capture")
 
 # Install:
   - Prereqs: libsdl2-dev
