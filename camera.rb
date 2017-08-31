@@ -33,14 +33,14 @@ class Camera
 
   def move_camera_in_camera_space(camera_transform_camera_space)
 
-    world_to_camera_matrix = @world_to_camera_space.dup
-    puts "world_to_camera_space matrix= \n#{world_to_camera_matrix.to_s_round}"
+    puts
+    puts "move_camera_in_camera_space"
+    puts "  camera_transform_camera_space : \n#{camera_transform_camera_space}"
+    puts "  @world_to_camera_space v1: \n#{@world_to_camera_space}"
 
     @world_to_camera_space = @world_to_camera_space * camera_transform_camera_space
 
-    #move_in_world_space(camera_transform_matrix_world)
-    puts "this is then new view matrix: "
-    puts "view = \n#{@world_to_camera_space.to_s_round}"
+    puts "  @world_to_camera_space v2: \n#{@world_to_camera_space}"
   end
 
   def camera_location_in_world_space

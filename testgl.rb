@@ -1,6 +1,5 @@
 require 'sdl2'
 require 'color-generator'
-#require 'gl'
 
 require 'ostruct'
 
@@ -18,12 +17,14 @@ require './cpu_graphic_object'
 
 require 'stackprof'
 
-require 'json'
 
 require './oi_shapes'
 
 
 include Gl
+
+
+
 
 @color_generator = ColorGenerator.new saturation: 0.3, lightness: 0.75
 
@@ -37,8 +38,30 @@ def new_color
 
 end
 
-
 #StackProf.start(mode: :cpu, interval:100, raw: true)
+
+######################################################################
+#### Initialize Configuration Structure, Prep Camera
+######################################################################
+
+ctx = OpenStruct.new
+
+ctx.window = OpenStruct.new
+ctx.window.aspect_ratio = 1920.0 / 1080.0
+ctx.window.width = 1900
+#ctx.window.width = 4000
+ctx.window.height= (ctx.window.width / ctx.window.aspect_ratio).to_i
+ctx.window.x     = 0
+ctx.window.y     = 1080
+
+ctx.camera = Camera.new(aspect_ratio: ctx.window.aspect_ratio)
+
+puts "ctx = #{ctx}"
+
+
+######################################################################
+#### Prep X Window
+######################################################################
 
 SDL2.init(SDL2::INIT_EVERYTHING)
 SDL2::GL.set_attribute(SDL2::GL::RED_SIZE, 8)
@@ -51,26 +74,19 @@ SDL2::GL.set_attribute(SDL2::GL::DOUBLEBUFFER, 1)
 SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLEBUFFERS, 1)
 SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLESAMPLES, 2)
 
-
-ctx = OpenStruct.new
-
-ctx.window = OpenStruct.new
-ctx.window.aspect_ratio = 1920.0 / 1080.0
-ctx.window.width = 1900
-#ctx.window.width = 4000
-ctx.window.height= (ctx.window.width / ctx.window.aspect_ratio).to_i
-ctx.window.x     = 0
-ctx.window.y     = 1080
-
-puts "ctx = #{ctx}"
-
 window  = SDL2::Window.create("testgl", ctx.window.x, ctx.window.y, ctx.window.width, ctx.window.height, SDL2::Window::Flags::OPENGL)
 
-context = SDL2::GL::Context.create(window)
+SDL2::GL::Context.create(window)
+
+
+######################################################################
+#### Prep OpenGL
+######################################################################
 
 printf("OpenGL version %d.%d\n",
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MAJOR_VERSION),
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MINOR_VERSION))
+
 
 Gl.viewport( 0, 0, ctx.window.width, ctx.window.height)
 
@@ -80,30 +96,22 @@ Gl.loadIdentity( )
 Gl.matrixMode( GL_MODELVIEW )
 Gl.loadIdentity( )
 
-#glEnable(GL_DEPTH_TEST)
 Gl.enable(Gl::GL_DEPTH_TEST)
-
-#glDepthFunc(GL_LESS)
 Gl.depthFunc(Gl::GL_LESS)
-
 Gl.shadeModel(Gl::GL_SMOOTH)
-#Gl.shadeModel(Gl::GL_FLAT)
 
 
 
-ctx.camera = Camera.new(aspect_ratio: ctx.window.aspect_ratio)
+######################################################################
+#### Load Vertex and Fragment shaders from files and compile them ####
+######################################################################
 
-input_tracker = InputTracker.new(ctx.camera, ctx.window.width, ctx.window.height)
-
-gpu = Gpu.new()
-
-##################################################################
-##### Load Vertex and Fragment shaders from files and compile them
-#
 ctx.program_id      = Gl.glCreateProgram()
 
 shdr_vertex   = File.read("./shdr_vertex_basic.c")
 shdr_fragment = File.read("./shdr_frag_ads_sh.c")
+
+gpu = Gpu.new()
 
 ctx.vertex_shader_id   = gpu.push_shader(Gl::GL_VERTEX_SHADER, shdr_vertex)
 ctx.fragment_shader_id = gpu.push_shader(Gl::GL_FRAGMENT_SHADER, shdr_fragment)
@@ -120,18 +128,20 @@ puts "vertex shader_log   = #{Gl.getShaderInfoLog(ctx.vertex_shader_id)}"
 puts "fragment shader_log = #{Gl.getShaderInfoLog(ctx.fragment_shader_id)}"
 puts "program_log         = #{Gl.getProgramInfoLog(ctx.program_id)}"
 
+######################################################################
+###### Load lights
+######################################################################
 
-##################################################################
+# /todo pass in light data
+gpu.update_lights(ctx.program_id)
+
+
+######################################################################
 ###### Load objects
-#
+######################################################################
+
 cpu_graphic_objects = []
 oi_objects = []
-
-
-if false
-  generator.create_hex
-end
-
 
 if true
   #/todo make this match actual light position
@@ -142,7 +152,6 @@ if true
     color: Geo3d::Vector.new( 1.0, 1.0, 1.0, 1.0)
   )
 end
-
 
 #cpu_graphic_objects << GL_Shapes.file("/home/cventeic/teapot.obj")
 
@@ -202,10 +211,12 @@ points.each_cons(2) do |p0,p1|
   oi_objects << OI.directional_cylinder(start: p0, stop: p1)
 end
 
+######################################################################
+#### Push objects to GPU
+######################################################################
 
-#############
+# object_count = 1
 
-object_count = 1
 gpu_obj_ids = cpu_graphic_objects.map do |object|
   #puts "pushing object #{object_count} to gpu"
   #object_count += 1
@@ -219,16 +230,20 @@ gpu_obj_ids += oi_objects.map do |object|
 end
 
 
-# /todo pass in light data
-gpu.update_lights(ctx.program_id)
-
 #StackProf.stop
 #StackProf.results('./stackprof.dump')
 
-#############
-#
+
+
+
+######################################################################
+#### Enter interactive loop
+######################################################################
 
 state = SDL2::Mouse.state
+
+input_tracker = InputTracker.new(ctx.camera, ctx.window.width, ctx.window.height)
+
 input_tracker.cursor_position_callback(0,state.x,state.y)
 
 
@@ -239,6 +254,8 @@ loop do
 
     when SDL2::Event::KeyDown
       ev = event
+
+      puts
       puts "scancode: #{ev.scancode}(#{SDL2::Key::Scan.name_of(ev.scancode)})"
       puts "keycode: #{ev.sym}(#{SDL2::Key.name_of(ev.sym)})"
       puts "mod: #{ev.mod}"
@@ -247,7 +264,8 @@ loop do
       camera_translation = Geo3d::Matrix.identity
 
       case ev.mod
-      when 0
+      #when SDL2::Key::Mod::NONE
+      when 4096
         case ev.sym
         when SDL2::Key::LEFT
           camera_translation = Geo3d::Matrix.translation(-5.0, 0.0, 0.0)
@@ -259,7 +277,8 @@ loop do
           camera_translation = Geo3d::Matrix.translation(0.0, -5.0, 0.0)
         end
 
-      when 64 # L control
+      #when 64 # L control
+      when 4160 # L control
         case ev.sym
         when SDL2::Key::UP
           camera_translation = Geo3d::Matrix.translation(0.0, 0.0, 5.0)
@@ -267,7 +286,8 @@ loop do
           camera_translation = Geo3d::Matrix.translation(0.0, 0.0, -5.0)
         end
 
-      when 256 # L Alt
+      # when 256 # L Alt
+      when 4352 # L Alt
         case ev.sym
         when SDL2::Key::LEFT
           camera_translation = Geo3d::Matrix.translation(-5.0, 0.0, 0.0)
