@@ -112,27 +112,44 @@ class ArcBall
     @sphere_point_when[:mouse_draged] = window_to_sphere_space(window_point)
   end
 
+
+  # Dump sphere_point_info
+  #
+  def log_sphere_point_when(sphere_point_when)
+    puts "\n #{__method__.to_s} enter"
+
+    ap sphere_point_when
+
+    motion_vector = sphere_point_when[:mouse_draged] - sphere_point_when[:mouse_down]
+
+    puts "motion_vector #{motion_vector} \n"
+
+  end
+
   # Returns rotation matrix to
   #  rotate the unit sphere from the point where the touch was initiated
   #  to the current point being touched in the window
   #
   def compute_sphere_rotation_matrix
+    # puts "\n #{__method__.to_s} enter"
+    # log_sphere_point_when(@sphere_point_when)
 
     # Perp vector is the axis of rotation of the sphere
     #   as we roll the arcball from point A to point B
     #
-    #perp = @sphere_point_when[:mouse_down].cross(@sphere_point_when[:mouse_draged])
-    v_perp = @sphere_point_when[:mouse_draged].cross(@sphere_point_when[:mouse_down])
+    v_perp = @sphere_point_when[:mouse_down].cross(@sphere_point_when[:mouse_draged])
+
 
     # Just return the identity if we didn't move significantly
     #return Geo3d::Matrix.identity if (v_perp.length < EPSILON)
 
-    v_perp.normalize
 
     # In the quaternion values,
     #  w is cosine (theta / 2), where theta is rotation angle
     #
     v_perp.w = @sphere_point_when[:mouse_down].dot(@sphere_point_when[:mouse_draged])
+
+    v_perp.normalize!
 
     # Compute new rotation matrix
     q = Geo3d::Quaternion.new(v_perp.x, v_perp.y, v_perp.z, v_perp.w)
