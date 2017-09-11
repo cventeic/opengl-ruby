@@ -10,6 +10,8 @@ class InputTracker
 
   # width, height = window width and height (apx 1920 x 1080)
   def initialize(camera, width, height)
+    @width = width
+    @height = height
     @arc_ball =  ArcBall.new(width, height)
     @arc_ball_moving = false
     @x=0
@@ -37,7 +39,7 @@ class InputTracker
   def cursor_position_callback(window, x, y)
     @frame = true
     @x = x
-    @y = y
+    @y = @height - y  # Input Origin Upper Left, Arcball Origin Lower, Left
   end
 
   def update_camera(camera)
@@ -57,6 +59,7 @@ class InputTracker
     @camera
   end
 
+=begin
   def key_callback(window, key, code, action, mods)
     @frame = true
     case action
@@ -74,6 +77,7 @@ class InputTracker
       #when Glfw::KEY_D then [0, -motion]
     end
   end
+=end
 
   def end_frame
     @frame = false
