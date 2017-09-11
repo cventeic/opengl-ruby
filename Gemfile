@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'guard-shell'
+gem 'geo3d'
 #gem 'glfw3'
 gem 'ruby-sdl2'
 gem 'wavefront'
