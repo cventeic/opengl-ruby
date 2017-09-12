@@ -2,7 +2,8 @@ require './util/uniforms'
 require './util/Assert'
 require './util/debug'
 require './gl_ffi'
-require './gpu_object.rb'
+require './gpu_object'
+require './cpu_graphic_object'
 
 class Gpu
 
