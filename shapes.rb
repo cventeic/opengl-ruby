@@ -1,6 +1,5 @@
 require './util/gl_math_util'
-require './g_object'
-require './g_object_shapes'
+require './cpu_graphic_object'
 
 def merge_graphic_objects(objects=[])
   new_object = Mesh.new
