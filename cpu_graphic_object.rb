@@ -22,17 +22,20 @@ class Cpu_Graphic_Object
     @named_arguments[:mesh]
   end
 
+  # Render the object in object space
   def internal
     lambda = @named_arguments.fetch(:internal_proc, lambda {|named_arguments|})
     lambda.call(@named_arguments)
   end
 
+=begin
+
+  # Position the object in world space
   def external
     lambda = @named_arguments.fetch(:external_proc, lambda {|named_arguments|})
     lambda.call(@named_arguments)
   end
 
-=begin
 
   # compute a a normal for each triangle
   # and add that normal to each vertex
