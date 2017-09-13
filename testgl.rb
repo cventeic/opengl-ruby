@@ -92,6 +92,7 @@ def load_objects(gpu, ctx)
     )
   end
 
+=begin
   ####################
   # Draw connected line segments to random locations in box
   points = 10.times.map {rand_vector_in_box()}
@@ -103,6 +104,7 @@ def load_objects(gpu, ctx)
       color: new_color()
     )
   end
+=end
 
   ######################################################################
   #### Push objects to GPU
@@ -134,11 +136,44 @@ def load_objects_using_oi(gpu, ctx)
     oi_objects << OI.directional_cylinder(start: p0, stop: p1)
   end
 
+  ####################
+  # Draw connected line segments to random locations in box
+
+  meta_object = OI.new
+  new_c = new_color()
+
+  points = 10.times.map {rand_vector_in_box()}
+  points.each_cons(2) do |p0,p1|
+    arrow_obj = OI.arrow(start: p0, stop: p1, color: new_c)
+
+    meta_object.add(
+      symbol: :a_color,
+
+      computes: {
+        a_to_b:   lambda {|a_input| b_input  = a_input},
+        b_render: lambda {|b_input| b_output = arrow_obj.render },
+
+        b_to_a: lambda {|a_input, b_output|
+          a_output = OI.mesh_merge(a_input, b_output)
+        }
+      }
+
+    )
+  end
+
+  oi_objects << meta_object
+
+  ####################
+  ####################
+  ####################
 
   gpu_obj_ids = oi_objects.map do |object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
-    id = gpu.push_oi(ctx.program_id, object)
+
+    cpu_graphic_obj = object.to_cpu_graphic_object()
+
+    id = gpu.push_cpu_graphic_object(ctx.program_id, cpu_graphic_obj)
   end
 
   return gpu_obj_ids

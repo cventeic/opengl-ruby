@@ -101,7 +101,10 @@ module GL_Shapes
 
   # Draw arror between start and stop point
   #
-  def GL_Shapes.arrow(line_start, line_stop, radius)
+  #def GL_Shapes.arrow(line_start: 0, line_stop: 0, radius: 0)
+  def GL_Shapes.arrow(start:, stop:, radius: 0.05, **_)
+    line_start = start
+    line_stop  = stop
 
     v = line_stop - line_start
 

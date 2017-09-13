@@ -99,6 +99,27 @@ class OI
     cylinder
   end
 
+
+  def OI.arrow(**args)
+    arrow = OI.new(symbol: :arrow)
+
+    arrow.add(
+      symbol: :arrow_mesh,
+      computes: {
+        a_to_b:   lambda {|a_input|           b_input = a_input},
+        b_render: lambda {|b_input|           b_output = {
+                                                mesh: GL_Shapes.arrow(args.merge(b_input)),
+                                                color: args[:color]
+                                              }
+                         },
+        b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
+      }
+    )
+
+    arrow
+  end
+
+
   ############### Composite Shapes
 
   ##### Make the set of (8) spheres
