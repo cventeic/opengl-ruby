@@ -26,39 +26,42 @@ class OI
   ############### Helpers
 
   # Concatinate with world
-  #def OI.merge_mesh(a_input, b_output)
-  #  a_output = a_input
-  #  a_output[:mesh] = a_input.fetch(:mesh, Mesh.new) + b_output[:mesh]
-  #  a_output
+  #def OI.merge_mesh(sup_ctx_in, sub_ctx_out)
+  #  sup_ctx_out = sup_ctx_in
+  #  sup_ctx_out[:mesh] = sup_ctx_in.fetch(:mesh, Mesh.new) + sub_ctx_out[:mesh]
+  #  sup_ctx_out
   #end
 
-  def OI.mesh_merge(space_0, space_1)
-    space_0[:mesh] = space_0.fetch(:mesh, Mesh.new) + space_1.fetch(:mesh, Mesh.new)
-    space_0
+  # Merge triangle meshes from two contexts
+  #   Both contexts map to the exact same 3-Space without transforms
+  #
+  def OI.mesh_merge(context_0, context_1)
+    context_0[:mesh] = context_0.fetch(:mesh, Mesh.new) + context_1.fetch(:mesh, Mesh.new)
+    context_0
   end
 
 
   # Transform mesh in "b" space to mesh in "a" space
-  def OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
-    mesh_in_b = b_output.fetch(:mesh, Mesh.new)
+  def OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+    mesh_in_b = sub_ctx_out.fetch(:mesh, Mesh.new)
 
-    mesh_in_a = mesh_in_b.applyMatrix!(b_to_a_matrix)
+    mesh_in_a = mesh_in_b.applyMatrix!(sub_ctx_egress_matrix)
 
     {mesh: mesh_in_a}
   end
 
   ############### Base Shapes
 
-  def OI.sphere(a_input = {})
+  def OI.sphere(sup_ctx_in = {})
 
     sphere = OI.new(symbol: :sphere)
 
     sphere.add(
       symbol: :sphere_mesh,
       computes: {
-        a_to_b:   lambda {|a_input|           b_input  = {radius: 0.5}.merge(a_input)},
-        b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.sphere(b_input[:radius])} },
-        b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
+        sub_ctx_ingress:   lambda {|sup_ctx_in|           sub_ctx_in  = {radius: 0.5}.merge(sup_ctx_in)},
+        sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.sphere(sub_ctx_in[:radius])} },
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -71,11 +74,11 @@ class OI
     cylinder.add(
       symbol: :cylinder_mesh,
       computes: {
-        #b_render: lambda {|b_input| {mesh: GL_Shapes.cylinder(b_input[:f_length])} },
+        #sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
 
-        a_to_b:   lambda {|a_input|            b_input = a_input},
-        b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.cylinder(args.merge(b_input))} },
-        b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
+        sub_ctx_ingress:   lambda {|sup_ctx_in|            sub_ctx_in = sup_ctx_in},
+        sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in))} },
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -88,11 +91,11 @@ class OI
     cylinder.add(
       symbol: :cylinder_mesh,
       computes: {
-        #b_render: lambda {|b_input| {mesh: GL_Shapes.cylinder(b_input[:f_length])} },
+        #sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
 
-        a_to_b:   lambda {|a_input|            b_input = a_input},
-        b_render: lambda {|b_input|           b_output = {mesh: GL_Shapes.directional_cylinder(args.merge(b_input))} },
-        b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
+        sub_ctx_ingress:   lambda {|sup_ctx_in|            sub_ctx_in = sup_ctx_in},
+        sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in))} },
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -106,13 +109,13 @@ class OI
     arrow.add(
       symbol: :arrow_mesh,
       computes: {
-        a_to_b:   lambda {|a_input|           b_input = a_input},
-        b_render: lambda {|b_input|           b_output = {
-                                                mesh: GL_Shapes.arrow(args.merge(b_input)),
+        sub_ctx_ingress:   lambda {|sup_ctx_in|           sub_ctx_in = sup_ctx_in},
+        sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {
+                                                mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
                                                 color: args[:color]
                                               }
                          },
-        b_to_a:   lambda {|a_input, b_output| a_output = OI.mesh_merge(a_input, b_output) }
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -135,19 +138,19 @@ class OI
 
     spheres = OI.new
 
-    trs_matricies.each do |b_to_a_matrix|
+    trs_matricies.each do |sub_ctx_egress_matrix|
       spheres.add(
         symbol: :a_transform,
 
         computes: {
-          a_to_b:   lambda {|a_input| b_input  = a_input},
-          b_render: lambda {|b_input| b_output = sphere.render },
+          sub_ctx_ingress:   lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
+          sub_ctx_render: lambda {|sub_ctx_in| sub_ctx_out = sphere.render },
 
-          b_to_a: lambda {|a_input, b_output|
+          sub_ctx_egress: lambda {|sup_ctx_in, sub_ctx_out|
 
-            mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
+            mesh_in_a = OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
-            a_output = OI.mesh_merge(a_input, mesh_in_a)
+            sup_ctx_out = OI.mesh_merge(sup_ctx_in, mesh_in_a)
           }
         }
       )
@@ -158,32 +161,44 @@ class OI
 
   def OI.box_wire(side_length: 20.0, **args)
 
-    hl = side_length / 2.0
 
-    cylinder = OI.cylinder(f_length: side_length)
 
     ##### Make 4 parallel cylinders
+    #
+
+    parallel_cylinders = OI.new
+
+    hl = side_length / 2.0
+
+    # Translate, Rotate, Scale matrix for each cylinder
     #
     trs_matricies = [-hl, hl].product([-hl, hl]).map do |x,y|
       Geo3d::Matrix.translation(x, y, -hl)
     end
 
-    parallel_cylinders = OI.new
 
-    trs_matricies.each do |b_to_a_matrix|
+    trs_matricies.each do |trs_matrix|
+
+      cylinder = OI.cylinder(f_length: side_length)
+
       parallel_cylinders.add(
         symbol: :a_transform,
 
         computes: {
-          a_to_b:   lambda {|a_input| b_input  = a_input},
-          b_render: lambda {|b_input| b_output = cylinder.render },
+          sub_ctx_ingress: lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},        # sub context input = untransformed super context
 
-          b_to_a: lambda {|a_input, b_output|
+          sub_ctx_render:  lambda {|sub_ctx_in| sub_ctx_out = cylinder.render },  # sub context output = rendered object
 
-            mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
+          sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|                      # super context = super context + rendered object
 
-            a_output = OI.mesh_merge(a_input, mesh_in_a)
-          }
+
+                                    sup_ctx_out = sup_ctx_in
+
+                                    sup_ctx_out[:mesh] = sup_ctx_out.fetch(:mesh, Mesh.new)
+                                    sup_ctx_out[:mesh] += sub_ctx_out[:mesh].applyMatrix!(trs_matrix)
+
+                                    return sup_ctx_out
+                                  }
         }
       )
     end
@@ -199,19 +214,19 @@ class OI
 
     box = OI.new
 
-    matricies.each do |b_to_a_matrix|
+    matricies.each do |sub_ctx_egress_matrix|
       box.add(
         symbol: :a_transform,
 
         computes: {
-          a_to_b:   lambda {|a_input| b_input  = a_input},
-          b_render: lambda {|b_input| b_output = parallel_cylinders.render },
+          sub_ctx_ingress: lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
+          sub_ctx_render:  lambda {|sub_ctx_in| sub_ctx_out = parallel_cylinders.render },
 
-          b_to_a: lambda {|a_input, b_output|
+          sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|
 
-            mesh_in_a = OI.mesh_tranform_b_to_a(b_output, b_to_a_matrix)
+            mesh_in_a = OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
-            a_output = OI.mesh_merge(a_input, mesh_in_a)
+            sup_ctx_out = OI.mesh_merge(sup_ctx_in, mesh_in_a)
           }
         }
       )

@@ -150,11 +150,11 @@ def load_objects_using_oi(gpu, ctx)
       symbol: :a_color,
 
       computes: {
-        a_to_b:   lambda {|a_input| b_input  = a_input},
-        b_render: lambda {|b_input| b_output = arrow_obj.render },
+        sub_ctx_ingress:   lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
+        sub_ctx_render: lambda {|sub_ctx_in| sub_ctx_out = arrow_obj.render },
 
-        b_to_a: lambda {|a_input, b_output|
-          a_output = OI.mesh_merge(a_input, b_output)
+        sub_ctx_egress: lambda {|sup_ctx_in, sub_ctx_out|
+          sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out)
         }
       }
 
