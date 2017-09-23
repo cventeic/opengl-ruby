@@ -5,6 +5,7 @@ class Cpu_Graphic_Object
     @named_arguments = named_arguments
   end
 
+  # Translate Rotate Scale matrix to transform from this object space to world space
   def model_matrix=(matrix)
     @named_arguments[:model_matrix] = matrix
   end

@@ -26,6 +26,9 @@ class OI
     @joins = Hash.new(){ |hash,key| hash[key] = {} }
   end
 
+  def to_cpu_graphic_objects()
+  end
+
   def to_cpu_graphic_object()
     # puts "\n #{__method__.to_s} enter"
 
@@ -73,21 +76,16 @@ class OI
     @joins[guid] = computes
   end
 
-  # Render modified parent state (a)
-  #  by rendering and aggregating all child lambda (b) into parent domain.
+  # Render modified parent state (sup_ctx)
+  #  by rendering and aggregating all child lambda (sub_ctx) into parent domain.
   #
-  def render(**a_state_initial)
+  def render(**sup_ctx_initial)
 
-    # puts "render a_state_initial = #{a_state_initial}"
+    # puts "render sup_ctx_in = #{sup_ctx_in}"
 
-    new_a_state_final = @joins.each_pair.inject(a_state_initial) do |a_state_intermediate, join|
+    sup_ctx_final = @joins.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, join|
 
       join_symbol, join_computes = join
-
-      sup_ctx_in  = a_state_intermediate                            # a_state when we start this join
-
-      # puts "render a_state_intermediate= #{a_state_intermediate}"
-      # puts "render sup_ctx_in             = #{sup_ctx_in}"
 
       sub_ctx_in  = join_computes[:sub_ctx_ingress].call(sup_ctx_in)            # sub_ctx_ins extracted from a_state
       sub_ctx_out = join_computes[:sub_ctx_render].call(sub_ctx_in)          # sub_ctx_out rendered by lambda
@@ -97,7 +95,7 @@ class OI
       sup_ctx_out
     end
 
-    new_a_state_final
+   sup_ctx_final
   end
 end
 
