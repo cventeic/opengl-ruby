@@ -175,10 +175,8 @@ class Gpu
   # Turn the cpu graphic object into gpu data
   #
 
-  def new_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
+  def new_graphic_object(gpu_object_id = -1)
     # vertex_array_obj_id = gpu_object_id
-
-    assert{program_id > 0}
 
     if gpu_object_id < 0
       gpu_graphic_object = GPU_Graphic_Object.new()
@@ -190,6 +188,11 @@ class Gpu
     end
 
     assert{gpu_object_id > 0}
+
+    gpu_object_id
+  end
+
+  def update_graphic_object(cpu_graphic_object, gpu_object_id)
 
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
 

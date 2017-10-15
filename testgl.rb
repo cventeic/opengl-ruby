@@ -112,13 +112,15 @@ def load_objects(gpu, ctx)
 
   # object_count = 1
 
-  gpu_obj_ids = cpu_graphic_objects.map do |object|
+  gpu_obj_ids = cpu_graphic_objects.map do |cpu_object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
-    gpu_object_id  = gpu.new_graphic_object(ctx.program_id, object)
-    gpu.push_graphic_object(ctx.program_id, gpu_object_id)
+    gpu_object_id  = gpu.new_graphic_object()
 
+    gpu.update_graphic_object(cpu_object, gpu_object_id)
+
+    gpu.push_graphic_object(ctx.program_id, gpu_object_id)
 
   end
 
@@ -177,8 +179,12 @@ def load_objects_using_oi(gpu, ctx)
 
     cpu_graphic_obj = object.to_cpu_graphic_object()
 
-    gpu_object_id  = gpu.new_graphic_object(ctx.program_id, cpu_graphic_obj)
+    gpu_object_id  = gpu.new_graphic_object()
+
+    gpu.update_graphic_object(cpu_graphic_obj, gpu_object_id)
+
     gpu.push_graphic_object(ctx.program_id, gpu_object_id)
+
 
   end
 
