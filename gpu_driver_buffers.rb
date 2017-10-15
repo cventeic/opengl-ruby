@@ -175,7 +175,7 @@ class Gpu
   # Turn the cpu graphic object into gpu data
   #
 
-  def push_cpu_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
+  def new_graphic_object(program_id, cpu_graphic_object, gpu_object_id = -1)
     # vertex_array_obj_id = gpu_object_id
 
     assert{program_id > 0}
@@ -192,7 +192,6 @@ class Gpu
     assert{gpu_object_id > 0}
 
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
-    gpu_graphic_object.program_id = program_id
 
     # Render the object in object space
     cpu_graphic_object.internal()
@@ -201,9 +200,24 @@ class Gpu
     #cpu_graphic_object.external()
 
     ##### Uniforms
-    #
     gpu_graphic_object.model_matrix = cpu_graphic_object.model_matrix
     gpu_graphic_object.color        = cpu_graphic_object.color
+
+    # Mesh
+    gpu_graphic_object.mesh         = cpu_graphic_object.mesh
+
+    gpu_object_id
+
+  end
+
+
+  def push_graphic_object(program_id, gpu_object_id)
+
+    assert{gpu_object_id > 0}
+
+    gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
+
+    gpu_graphic_object.program_id = program_id
 
     # Setup a matrix to rotate normals from object space to world space
     # gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
@@ -213,8 +227,6 @@ class Gpu
     inverse_transpose = inverse.transpose
     gpu_graphic_object.model_matrix_for_normals = inverse_transpose
 
-
-    gpu_graphic_object.mesh         = cpu_graphic_object.mesh
 
     # Establish set of buffers that are ready to go into GPU
     gl_ready_buffers = scatter_triangles_into_packed_subcomponent_buffers(gpu_graphic_object.mesh.triangles)
