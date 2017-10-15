@@ -192,25 +192,18 @@ class Gpu
     gpu_object_id
   end
 
-  def update_graphic_object(cpu_graphic_object, gpu_object_id)
+  def update_graphic_object(gpu_object_id, model_matrix, color, mesh)
 
     gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
 
-    # Render the object in object space
-    cpu_graphic_object.internal()
-
-    # Position the object in world space
-    #cpu_graphic_object.external()
-
     ##### Uniforms
-    gpu_graphic_object.model_matrix = cpu_graphic_object.model_matrix
-    gpu_graphic_object.color        = cpu_graphic_object.color
+    gpu_graphic_object.model_matrix = model_matrix
+    gpu_graphic_object.color        = color
 
     # Mesh
-    gpu_graphic_object.mesh         = cpu_graphic_object.mesh
+    gpu_graphic_object.mesh         = mesh
 
     gpu_object_id
-
   end
 
 
