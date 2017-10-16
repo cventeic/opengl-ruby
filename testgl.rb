@@ -112,7 +112,7 @@ def load_objects(gpu, ctx)
 
   # object_count = 1
 
-  gpu_objs = cpu_graphic_objects.map do |cpu_graphic_object|
+  gpu_mesh_jobs = cpu_graphic_objects.map do |cpu_graphic_object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
@@ -122,17 +122,17 @@ def load_objects(gpu, ctx)
     # Position the object in world space
     #cpu_graphic_object.external()
 
-    gpu_graphic_object = GPU_Graphic_Object.new(
+    gpu_mesh_job = GPU_Mesh_Job.new(
       model_matrix: cpu_graphic_object.model_matrix,
       color: cpu_graphic_object.color,
       mesh: cpu_graphic_object.mesh)
 
-    gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
+    gpu.push_mesh_job(ctx.program_id, gpu_mesh_job)
 
-    gpu_graphic_object
+    gpu_mesh_job
   end
 
-  return gpu_objs
+  return gpu_mesh_jobs
 
 end
 
@@ -181,7 +181,7 @@ def load_objects_using_oi(gpu, ctx)
   ####################
   ####################
 
-  gpu_objs = oi_objects.map do |object|
+  gpu_mesh_jobs = oi_objects.map do |object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
@@ -195,17 +195,17 @@ def load_objects_using_oi(gpu, ctx)
 
 
 
-    gpu_graphic_object = GPU_Graphic_Object.new(
+    gpu_mesh_job = GPU_Mesh_Job.new(
                           model_matrix: cpu_graphic_object.model_matrix,
                           color: cpu_graphic_object.color,
                           mesh: cpu_graphic_object.mesh)
 
-    gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
+    gpu.push_mesh_job(ctx.program_id, gpu_mesh_job)
 
-    gpu_graphic_object
+    gpu_mesh_job
   end
 
-  return gpu_objs
+  return gpu_mesh_jobs
 end
 
 
@@ -311,9 +311,9 @@ gpu.update_lights(ctx.program_id)
 ###### Load objects
 ######################################################################
 
-gpu_objs  = []
-gpu_objs += load_objects(gpu, ctx)
-gpu_objs += load_objects_using_oi(gpu, ctx)
+gpu_mesh_jobs  = []
+gpu_mesh_jobs += load_objects(gpu, ctx)
+gpu_mesh_jobs += load_objects_using_oi(gpu, ctx)
 
 
 
@@ -425,8 +425,8 @@ loop do
 
   #### Draw / Update objects
   #
-  gpu_objs.each do |obj|
-    gpu.render_object(obj)
+  gpu_mesh_jobs.each do |job|
+    gpu.render_object(job)
   end
 
   window.gl_swap

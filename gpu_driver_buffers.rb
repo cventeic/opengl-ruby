@@ -10,7 +10,7 @@ class Gpu
   def initialize_buffer_mapping
 
     # fixed parameters for each mesh data set
-    @mesh_to_gpu_mapping_info = {
+    @gpu_param_mapping_info = {
      # variable name: {}
       position: {vao_key: Gl::GL_ARRAY_BUFFER,         indicies: 3},
       normal:   {vao_key: Gl::GL_ARRAY_BUFFER,         indicies: 3},
@@ -19,23 +19,23 @@ class Gpu
     }
   end
 
-  def bind_buffer_to_vao(gpu_graphic_object, content_type)
+  def bind_buffer_to_vao(gpu_mesh_job, content_type)
     # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
-    vao_key  = @mesh_to_gpu_mapping_info[content_type][:vao_key]
-    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type]
+    vao_key  = @gpu_param_mapping_info[content_type][:vao_key]
+    gl_bfr_id = gpu_mesh_job.mesh_to_gpu_buffer_id_map[content_type]
 
     assert {gl_bfr_id > 0}
 
     Gl.glBindBuffer(vao_key, gl_bfr_id)
   end
 
-  def unbind_buffer_to_vao(gpu_graphic_object, content_type)
+  def unbind_buffer_to_vao(gpu_mesh_job, content_type)
     # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
 
-    gpu_mapping_info = @mesh_to_gpu_mapping_info[content_type]
+    gpu_mapping_info = @gpu_param_mapping_info[content_type]
     vao_key  = gpu_mapping_info[:vao_key]
 
-    gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[content_type]
+    gl_bfr_id = gpu_mesh_job.mesh_to_gpu_buffer_id_map[content_type]
     assert {gl_bfr_id > 0}
 
     Gl.glBindBuffer(vao_key, 0)
@@ -86,7 +86,7 @@ class Gpu
     # pack data for each subcomponent to be ready for gpu
     #
     subcomponents.each_pair do |subcomponent, vector_array|
-      content_config = @mesh_to_gpu_mapping_info[subcomponent]
+      content_config = @gpu_param_mapping_info[subcomponent]
 
       vao_key  = content_config[:vao_key] # GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, etc.
       indicies = content_config[:indicies]
@@ -109,24 +109,24 @@ class Gpu
 
   # Push set of buffers out to the GPU
   #
-  def write_mesh_data_to_gpu(gpu_graphic_object, gl_ready_buffers)
-    assert{gpu_graphic_object.vertex_array_obj_id > 0}
+  def write_mesh_data_to_gpu(gpu_mesh_job, gl_ready_buffers)
+    assert{gpu_mesh_job.vertex_array_obj_id > 0}
 
     # Vertex Array instance has pointers to the buffers were loading
     # Bind opengl context / gl functions to the vertex array instance
-    Gl.glBindVertexArray(gpu_graphic_object.vertex_array_obj_id)
+    Gl.glBindVertexArray(gpu_mesh_job.vertex_array_obj_id)
 
     check_for_gl_error()
 
     gl_ready_buffers.each_pair do |subcomponent, packed_buffer|
 
-      bind_buffer_to_vao(gpu_graphic_object, subcomponent)
+      bind_buffer_to_vao(gpu_mesh_job, subcomponent)
 
-      gl_bfr_id = gpu_graphic_object.mesh_to_gpu_buffer_id_map[subcomponent]
+      gl_bfr_id = gpu_mesh_job.mesh_to_gpu_buffer_id_map[subcomponent]
 
       check_for_gl_error()
 
-      vao_key  = @mesh_to_gpu_mapping_info[subcomponent][:vao_key]
+      vao_key  = @gpu_param_mapping_info[subcomponent][:vao_key]
 
       #Gl::glBufferData(vao_key, packed_buffer.size, packed_buffer, Gl::GL_DYNAMIC_DRAW) # Gl::GL_STATIC_DRAW
 
@@ -135,7 +135,7 @@ class Gpu
       check_for_gl_error()
 
       # todo: why does following cause nothing to be displayed?
-      # unbind_buffer_to_vao(gpu_graphic_object, subcomponent)
+      # unbind_buffer_to_vao(gpu_mesh_job, subcomponent)
 
       check_for_gl_error()
     end
@@ -175,52 +175,44 @@ class Gpu
   # Turn the cpu graphic object into gpu data
   #
 
-  def push_graphic_object(program_id, gpu_graphic_object)
+  def push_mesh_job(program_id, gpu_mesh_job)
 
-    gpu_object_id = gpu_graphic_object.vertex_array_obj_id
-
-    assert{gpu_object_id > 0}
-
-    #@gpu_graphic_objects[gpu_object_id] = gpu_graphic_object
-
-    #gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
-
-    gpu_graphic_object.program_id = program_id
+    gpu_mesh_job.program_id = program_id
 
     # Setup a matrix to rotate normals from object space to world space
-    # gpu_graphic_object.model_matrix_for_normals = gpu_graphic_object.model_matrix.remove_translation_component
+    # gpu_mesh_job.model_matrix_for_normals = gpu_mesh_job.model_matrix.remove_translation_component
 
-    matrix            = gpu_graphic_object.model_matrix.dup
+    matrix            = gpu_mesh_job.model_matrix.dup
     inverse           = matrix.inverse
     inverse_transpose = inverse.transpose
-    gpu_graphic_object.model_matrix_for_normals = inverse_transpose
+    gpu_mesh_job.model_matrix_for_normals = inverse_transpose
 
 
     # Establish set of buffers that are ready to go into GPU
-    gl_ready_buffers = scatter_triangles_into_packed_subcomponent_buffers(gpu_graphic_object.mesh.triangles)
+    gl_ready_buffers = scatter_triangles_into_packed_subcomponent_buffers(gpu_mesh_job.mesh.triangles)
 
     check_for_gl_error()
 
     # Push the data buffers to the GPU
-    write_mesh_data_to_gpu(gpu_graphic_object, gl_ready_buffers)
+    write_mesh_data_to_gpu(gpu_mesh_job, gl_ready_buffers)
 
     check_for_gl_error()
 
     # Map per vertex inputs to shader (attributes) to gpu buffers
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :position)
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :normal)
-    map_attribute_to_buffer(gpu_graphic_object, program_id, :texcoord, 2)
+    map_attribute_to_buffer(gpu_mesh_job, program_id, :position)
+    map_attribute_to_buffer(gpu_mesh_job, program_id, :normal)
+    map_attribute_to_buffer(gpu_mesh_job, program_id, :texcoord, 2)
 
     check_for_gl_error()
 
-    #map_attribute_to_buffer(gpu_graphic_object, program_id, :index, 1)
+    #map_attribute_to_buffer(gpu_mesh_job, program_id, :index, 1)
 
     # Number of elements to render
     # So far, each index is unique so #elements = #index
     # /todo reuse index if position, normal and texcoord are the same
-    gpu_graphic_object.element_count = gl_ready_buffers[:index].size
+    gpu_mesh_job.element_count = gl_ready_buffers[:index].size
 
-    gpu_object_id
+    gpu_mesh_job
   end
 
 end

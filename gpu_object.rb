@@ -3,7 +3,7 @@ require "geo3d"
 require './util/geo3d_vector.rb'
 
 
-class GPU_Graphic_Object
+class GPU_Mesh_Job
   attr_accessor :mesh, :vertex_array_obj_id, :element_count, :mesh_to_gpu_buffer_id_map, :program_id, :uniform_variables
 
   def initialize( model_matrix: , color: , mesh:)
@@ -24,7 +24,7 @@ class GPU_Graphic_Object
   end
 
   def to_s
-    puts "GPU_Graphic_Object"
+    puts "GPU_Mesh_Job"
     puts "@vertex_array_obj_id: #{(@vertex_array_obj_id).inspect}"
 
     puts "@mesh_to_gpu_buffer_id_map: #{(@mesh_to_gpu_buffer_id_map).inspect}"
