@@ -17,7 +17,7 @@ require './cpu_graphic_object'
 #   renders vertexes that can't be produced by aggregating sub-components
 #
 
-class OI
+class Cpu_G_Obj_Job
   attr_reader :joins
 
   def initialize(symbol: "")

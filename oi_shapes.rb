@@ -1,32 +1,32 @@
 require './oi'
 
 # Note: translate, rotate, scale --and-- aggregation of sub-objects can be
-# supported in a single OI instance.
+# supported in a single Cpu_G_Obj_Job instance.
 #
-# OI_1 = Aggregates {
-#          TRS matrix_1.1 applied to OI_1.1,
-#          TRS matrix_1.2 applied to OI_1.2,
-#          TRS matrix_1.3 applied to OI_1.3,
+# Cpu_G_Obj_Job_1 = Aggregates {
+#          TRS matrix_1.1 applied to Cpu_G_Obj_Job_1.1,
+#          TRS matrix_1.2 applied to Cpu_G_Obj_Job_1.2,
+#          TRS matrix_1.3 applied to Cpu_G_Obj_Job_1.3,
 #        }
 #
-# However below we are often layering with an added OI for clarity of code
+# However below we are often layering with an added Cpu_G_Obj_Job for clarity of code
 #
-# OI_1 = Aggregates {
-#          OI_1.1 = { TRS matrix_1.1 applied to OI_1.1.1 }
-#          OI_1.2 = { TRS matrix_1.2 applied to OI_1.2.1 }
-#          OI_1.3 = { TRS matrix_1.3 applied to OI_1.3.1 }
+# Cpu_G_Obj_Job_1 = Aggregates {
+#          Cpu_G_Obj_Job_1.1 = { TRS matrix_1.1 applied to Cpu_G_Obj_Job_1.1.1 }
+#          Cpu_G_Obj_Job_1.2 = { TRS matrix_1.2 applied to Cpu_G_Obj_Job_1.2.1 }
+#          Cpu_G_Obj_Job_1.3 = { TRS matrix_1.3 applied to Cpu_G_Obj_Job_1.3.1 }
 #        }
 #
-# In this case OI_1.1, OI_1.2, OI_1.3 are extra OI for purpose of code clarity
+# In this case Cpu_G_Obj_Job_1.1, Cpu_G_Obj_Job_1.2, Cpu_G_Obj_Job_1.3 are extra Cpu_G_Obj_Job for purpose of code clarity
 #
 
 
-class OI
+class Cpu_G_Obj_Job
 
   ############### Helpers
 
   # Concatinate with world
-  #def OI.merge_mesh(sup_ctx_in, sub_ctx_out)
+  #def Cpu_G_Obj_Job.merge_mesh(sup_ctx_in, sub_ctx_out)
   #  sup_ctx_out = sup_ctx_in
   #  sup_ctx_out[:mesh] = sup_ctx_in.fetch(:mesh, Mesh.new) + sub_ctx_out[:mesh]
   #  sup_ctx_out
@@ -35,14 +35,14 @@ class OI
   # Merge triangle meshes from two contexts
   #   Both contexts map to the exact same 3-Space without transforms
   #
-  def OI.mesh_merge(context_0, context_1)
+  def Cpu_G_Obj_Job.mesh_merge(context_0, context_1)
     context_0[:mesh] = context_0.fetch(:mesh, Mesh.new) + context_1.fetch(:mesh, Mesh.new)
     context_0
   end
 
 
   # Transform mesh in "b" space to mesh in "a" space
-  def OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+  def Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
     mesh_in_b = sub_ctx_out.fetch(:mesh, Mesh.new)
 
     mesh_in_a = mesh_in_b.applyMatrix!(sub_ctx_egress_matrix)
@@ -52,24 +52,24 @@ class OI
 
   ############### Base Shapes
 
-  def OI.sphere(sup_ctx_in = {})
+  def Cpu_G_Obj_Job.sphere(sup_ctx_in = {})
 
-    sphere = OI.new(symbol: :sphere)
+    sphere = Cpu_G_Obj_Job.new(symbol: :sphere)
 
     sphere.add(
       symbol: :sphere_mesh,
       computes: {
         sub_ctx_ingress:   lambda {|sup_ctx_in|           sub_ctx_in  = {radius: 0.5}.merge(sup_ctx_in)},
         sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.sphere(sub_ctx_in[:radius])} },
-        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
     sphere
   end
 
-  def OI.cylinder(**args)
-    cylinder = OI.new(symbol: :cylinder)
+  def Cpu_G_Obj_Job.cylinder(**args)
+    cylinder = Cpu_G_Obj_Job.new(symbol: :cylinder)
 
     cylinder.add(
       symbol: :cylinder_mesh,
@@ -78,15 +78,15 @@ class OI
 
         sub_ctx_ingress:   lambda {|sup_ctx_in|            sub_ctx_in = sup_ctx_in},
         sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in))} },
-        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
     cylinder
   end
 
-  def OI.directional_cylinder(**args)
-    cylinder = OI.new(symbol: :directional_cylinder)
+  def Cpu_G_Obj_Job.directional_cylinder(**args)
+    cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
 
     cylinder.add(
       symbol: :cylinder_mesh,
@@ -95,7 +95,7 @@ class OI
 
         sub_ctx_ingress:   lambda {|sup_ctx_in|            sub_ctx_in = sup_ctx_in},
         sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in))} },
-        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -103,8 +103,8 @@ class OI
   end
 
 
-  def OI.arrow(**args)
-    arrow = OI.new(symbol: :arrow)
+  def Cpu_G_Obj_Job.arrow(**args)
+    arrow = Cpu_G_Obj_Job.new(symbol: :arrow)
 
     arrow.add(
       symbol: :arrow_mesh,
@@ -115,7 +115,7 @@ class OI
                                                 color: args[:color]
                                               }
                          },
-        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -128,15 +128,15 @@ class OI
   ##### Make the set of (8) spheres
   # on sphere for each corner of the box
   #
-  def OI.cube_corner_spheres(side_length: 20.0)
+  def Cpu_G_Obj_Job.cube_corner_spheres(side_length: 20.0)
 
     trs_matricies = [-10.0, 10.0].product( [-10.0, 10.0], [-10.0, 10.0]).map do |x,y,z|
       Geo3d::Matrix.translation(x,y,z)
     end
 
-    sphere  = OI.sphere({side_length: side_length})
+    sphere  = Cpu_G_Obj_Job.sphere({side_length: side_length})
 
-    spheres = OI.new
+    spheres = Cpu_G_Obj_Job.new
 
     trs_matricies.each do |sub_ctx_egress_matrix|
       spheres.add(
@@ -148,9 +148,9 @@ class OI
 
           sub_ctx_egress: lambda {|sup_ctx_in, sub_ctx_out|
 
-            mesh_in_a = OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            mesh_in_a = Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
-            sup_ctx_out = OI.mesh_merge(sup_ctx_in, mesh_in_a)
+            sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
           }
         }
       )
@@ -159,14 +159,14 @@ class OI
     spheres
   end
 
-  def OI.box_wire(side_length: 20.0, **args)
+  def Cpu_G_Obj_Job.box_wire(side_length: 20.0, **args)
 
 
 
     ##### Make 4 parallel cylinders
     #
 
-    parallel_cylinders = OI.new
+    parallel_cylinders = Cpu_G_Obj_Job.new
 
     hl = side_length / 2.0
 
@@ -179,7 +179,7 @@ class OI
 
     trs_matricies.each do |trs_matrix|
 
-      cylinder = OI.cylinder(f_length: side_length)
+      cylinder = Cpu_G_Obj_Job.cylinder(f_length: side_length)
 
       parallel_cylinders.add(
         symbol: :a_transform,
@@ -212,7 +212,7 @@ class OI
       Geo3d::Matrix.identity           # Version with centerline on z
     ]
 
-    box = OI.new
+    box = Cpu_G_Obj_Job.new
 
     matricies.each do |sub_ctx_egress_matrix|
       box.add(
@@ -224,9 +224,9 @@ class OI
 
           sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|
 
-            mesh_in_a = OI.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            mesh_in_a = Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
-            sup_ctx_out = OI.mesh_merge(sup_ctx_in, mesh_in_a)
+            sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
           }
         }
       )

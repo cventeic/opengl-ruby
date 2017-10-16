@@ -142,35 +142,35 @@ end
 def load_objects_using_oi(gpu, ctx)
 
   oi_objects = []
-  oi_objects << OI.box_wire()
+  oi_objects << Cpu_G_Obj_Job.box_wire()
 
 
   ####################
   # Draw 5 connected line segments to random locations in box
   points = 20.times.map {rand_vector_in_box()}
   points.each_cons(2) do |p0,p1|
-    oi_objects << OI.directional_cylinder(start: p0, stop: p1)
+    oi_objects << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1)
   end
 
   ####################
   # Draw connected line segments to random locations in box
 
-  meta_object = OI.new
+  meta_object = Cpu_G_Obj_Job.new
   new_c = new_color()
 
   points = 10.times.map {rand_vector_in_box()}
   points.each_cons(2) do |p0,p1|
-    arrow_obj = OI.arrow(start: p0, stop: p1, color: new_c)
+    arrow_obj = Cpu_G_Obj_Job.arrow(start: p0, stop: p1, color: new_c)
 
     meta_object.add(
       symbol: :a_color,
 
       computes: {
-        sub_ctx_ingress:   lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
-        sub_ctx_render: lambda {|sub_ctx_in| sub_ctx_out = arrow_obj.render },
+        sub_ctx_ingress: lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
+        sub_ctx_render:  lambda {|sub_ctx_in| sub_ctx_out = arrow_obj.render },
 
-        sub_ctx_egress: lambda {|sup_ctx_in, sub_ctx_out|
-          sup_ctx_out = OI.mesh_merge(sup_ctx_in, sub_ctx_out)
+        sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|
+          sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out)
         }
       }
 
