@@ -181,9 +181,9 @@ class Gpu
 
     assert{gpu_object_id > 0}
 
-    @gpu_graphic_objects[gpu_object_id] = gpu_graphic_object
+    #@gpu_graphic_objects[gpu_object_id] = gpu_graphic_object
 
-    gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
+    #gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
 
     gpu_graphic_object.program_id = program_id
 

@@ -112,7 +112,7 @@ def load_objects(gpu, ctx)
 
   # object_count = 1
 
-  gpu_obj_ids = cpu_graphic_objects.map do |cpu_graphic_object|
+  gpu_objs = cpu_graphic_objects.map do |cpu_graphic_object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
@@ -123,14 +123,16 @@ def load_objects(gpu, ctx)
     #cpu_graphic_object.external()
 
     gpu_graphic_object = GPU_Graphic_Object.new(
-                          model_matrix: cpu_graphic_object.model_matrix,
-                          color: cpu_graphic_object.color,
-                          mesh: cpu_graphic_object.mesh)
+      model_matrix: cpu_graphic_object.model_matrix,
+      color: cpu_graphic_object.color,
+      mesh: cpu_graphic_object.mesh)
 
     gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
+
+    gpu_graphic_object
   end
 
-  return gpu_obj_ids
+  return gpu_objs
 
 end
 
@@ -179,7 +181,7 @@ def load_objects_using_oi(gpu, ctx)
   ####################
   ####################
 
-  gpu_obj_ids = oi_objects.map do |object|
+  gpu_objs = oi_objects.map do |object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
@@ -199,9 +201,11 @@ def load_objects_using_oi(gpu, ctx)
                           mesh: cpu_graphic_object.mesh)
 
     gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
+
+    gpu_graphic_object
   end
 
-  return gpu_obj_ids
+  return gpu_objs
 end
 
 
@@ -307,9 +311,9 @@ gpu.update_lights(ctx.program_id)
 ###### Load objects
 ######################################################################
 
-gpu_obj_ids  = []
-gpu_obj_ids += load_objects(gpu, ctx)
-gpu_obj_ids += load_objects_using_oi(gpu, ctx)
+gpu_objs  = []
+gpu_objs += load_objects(gpu, ctx)
+gpu_objs += load_objects_using_oi(gpu, ctx)
 
 
 
@@ -421,8 +425,8 @@ loop do
 
   #### Draw / Update objects
   #
-  gpu_obj_ids.each do |obj_id|
-    gpu.render_object(obj_id)
+  gpu_objs.each do |obj|
+    gpu.render_object(obj)
   end
 
   window.gl_swap

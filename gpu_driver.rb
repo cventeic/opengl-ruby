@@ -9,8 +9,6 @@ class Gpu
   def initialize
     @uniformsLocationCache = Uniforms_Location_Cache.new()
 
-    @gpu_graphic_objects = Hash.new
-
     @shader_attribute_location_cache = Hash.new {|hash,tag|
       program_id, attr_name = tag
       hash[tag] = Gl.getAttribLocation(program_id, attr_name.to_s)
@@ -62,12 +60,11 @@ class Gpu
     set_uniforms_in_bulk(program_id, uniform_variables_hash)
   end
 
-  def render_object(gpu_object_id)
-    vertex_array_obj_id = gpu_object_id
+  def render_object(gpu_graphic_object)
+    vertex_array_obj_id = gpu_graphic_object.vertex_array_obj_id
 
     #puts "render_object vertex_array_obj_id = #{vertex_array_obj_id}"
 
-    gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
 
     # Bind VAO to gpu context
     Gl.glBindVertexArray(vertex_array_obj_id)
