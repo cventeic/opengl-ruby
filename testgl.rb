@@ -122,13 +122,12 @@ def load_objects(gpu, ctx)
     # Position the object in world space
     #cpu_graphic_object.external()
 
+    gpu_graphic_object = GPU_Graphic_Object.new(
+                          model_matrix: cpu_graphic_object.model_matrix,
+                          color: cpu_graphic_object.color,
+                          mesh: cpu_graphic_object.mesh)
 
-    gpu_object_id  = gpu.new_graphic_object()
-
-    gpu.update_graphic_object(gpu_object_id, cpu_graphic_object.model_matrix, cpu_graphic_object.color, cpu_graphic_object.mesh)
-
-    gpu.push_graphic_object(ctx.program_id, gpu_object_id)
-
+    gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
   end
 
   return gpu_obj_ids
@@ -194,13 +193,12 @@ def load_objects_using_oi(gpu, ctx)
 
 
 
-    gpu_object_id  = gpu.new_graphic_object()
+    gpu_graphic_object = GPU_Graphic_Object.new(
+                          model_matrix: cpu_graphic_object.model_matrix,
+                          color: cpu_graphic_object.color,
+                          mesh: cpu_graphic_object.mesh)
 
-    gpu.update_graphic_object(gpu_object_id, cpu_graphic_object.model_matrix, cpu_graphic_object.color, cpu_graphic_object.mesh)
-
-    gpu.push_graphic_object(ctx.program_id, gpu_object_id)
-
-
+    gpu.push_graphic_object(ctx.program_id, gpu_graphic_object)
   end
 
   return gpu_obj_ids

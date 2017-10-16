@@ -6,7 +6,13 @@ require './util/geo3d_vector.rb'
 class GPU_Graphic_Object
   attr_accessor :mesh, :vertex_array_obj_id, :element_count, :mesh_to_gpu_buffer_id_map, :program_id, :uniform_variables
 
-  def initialize()
+  def initialize( model_matrix: , color: , mesh:)
+    @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
+
+    @uniform_variables[:model] = {data: model_matrix}
+    @uniform_variables[:surface_color] = {data: color}
+    @mesh  = mesh
+
     @vertex_array_obj_id = Gl.genVertexArray
 
     # Retrieve or allocate gl bfr id for this data type
@@ -15,8 +21,6 @@ class GPU_Graphic_Object
     @element_count  = 0  # number of elements (vertex) to render
 
     @program_id = 0
-
-    @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
   end
 
   def to_s
