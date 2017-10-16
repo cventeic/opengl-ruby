@@ -26,29 +26,6 @@ class OI
     @joins = Hash.new(){ |hash,key| hash[key] = {} }
   end
 
-  def to_cpu_graphic_objects()
-  end
-
-  def to_cpu_graphic_object()
-    # puts "\n #{__method__.to_s} enter"
-
-    cpu_graphic_object = Cpu_Graphic_Object.new(
-      internal_proc: lambda { |named_arguments|
-        render_state = self.render
-        mesh = render_state[:mesh]
-        named_arguments[:mesh] = mesh
-      },
-      external_proc: lambda { |named_arguments| },
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: Geo3d::Vector.new( 0.0, 0.0, 1.0, 1.0)
-    )
-
-    # puts "\n #{__method__.to_s} exit"
-
-    return cpu_graphic_object
-  end
-
-
   # Add a sub-component to to this super-component
   #
   # Embedded Subcomponent(s)

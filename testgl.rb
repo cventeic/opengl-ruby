@@ -183,24 +183,20 @@ def load_objects_using_oi(gpu, ctx)
   ####################
   ####################
 
+  oi_objects_color = new_color()
+
   gpu_mesh_jobs = oi_objects.map do |object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
-    cpu_graphic_object = object.to_cpu_graphic_object()
-
-    # Render the object in object space
-    cpu_graphic_object.internal()
-
-    # Position the object in world space
-    #cpu_graphic_object.external()
-
-
+    render_state = object.render
+    mesh = render_state[:mesh]
 
     gpu_mesh_job = GPU_Mesh_Job.new(
-      model_matrix: cpu_graphic_object.model_matrix,
-      color: cpu_graphic_object.color,
-      mesh: cpu_graphic_object.mesh,
+      model_matrix: (Geo3d::Matrix.identity()),
+      #color: new_color(),
+      color: oi_objects_color,
+      mesh: mesh,
       gl_program_id: ctx.gl_program_id
     )
 
