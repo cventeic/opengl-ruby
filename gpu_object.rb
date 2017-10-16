@@ -4,9 +4,9 @@ require './util/geo3d_vector.rb'
 
 
 class GPU_Mesh_Job
-  attr_accessor :mesh, :vertex_array_obj_id, :element_count, :mesh_to_gpu_buffer_id_map, :program_id, :uniform_variables
+  attr_accessor :mesh, :vertex_array_obj_id, :element_count, :mesh_to_gpu_buffer_id_map, :gl_program_id, :uniform_variables
 
-  def initialize( model_matrix: , color: , mesh:)
+  def initialize( model_matrix: , color: , mesh:, gl_program_id:)
     @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
 
     @uniform_variables[:model] = {data: model_matrix}
@@ -20,7 +20,7 @@ class GPU_Mesh_Job
 
     @element_count  = 0  # number of elements (vertex) to render
 
-    @program_id = 0
+    @gl_program_id = gl_program_id
   end
 
   def to_s
@@ -31,7 +31,7 @@ class GPU_Mesh_Job
 
     puts "@element_count: #{(@element_count).inspect}"
 
-    puts "@program_id: #{(@program_id).inspect}"
+    puts "@gl_program_id: #{(@gl_program_id).inspect}"
 
     puts "@uniform_variables : #{(@uniform_variables ).inspect}"
   end

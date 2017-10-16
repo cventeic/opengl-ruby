@@ -125,9 +125,11 @@ def load_objects(gpu, ctx)
     gpu_mesh_job = GPU_Mesh_Job.new(
       model_matrix: cpu_graphic_object.model_matrix,
       color: cpu_graphic_object.color,
-      mesh: cpu_graphic_object.mesh)
+      mesh: cpu_graphic_object.mesh,
+      gl_program_id: ctx.gl_program_id
+    )
 
-    gpu.push_mesh_job(ctx.program_id, gpu_mesh_job)
+    gpu.push_mesh_job_to_gpu(gpu_mesh_job)
 
     gpu_mesh_job
   end
@@ -196,11 +198,13 @@ def load_objects_using_oi(gpu, ctx)
 
 
     gpu_mesh_job = GPU_Mesh_Job.new(
-                          model_matrix: cpu_graphic_object.model_matrix,
-                          color: cpu_graphic_object.color,
-                          mesh: cpu_graphic_object.mesh)
+      model_matrix: cpu_graphic_object.model_matrix,
+      color: cpu_graphic_object.color,
+      mesh: cpu_graphic_object.mesh,
+      gl_program_id: ctx.gl_program_id
+    )
 
-    gpu.push_mesh_job(ctx.program_id, gpu_mesh_job)
+    gpu.push_mesh_job_to_gpu(gpu_mesh_job)
 
     gpu_mesh_job
   end
@@ -277,7 +281,7 @@ Gl.shadeModel(Gl::GL_SMOOTH)
 #### Load Vertex and Fragment shaders from files and compile them ####
 ######################################################################
 
-ctx.program_id      = Gl.glCreateProgram()
+ctx.gl_program_id      = Gl.glCreateProgram()
 
 shdr_vertex   = File.read("./shdr_vertex_basic.c")
 shdr_fragment = File.read("./shdr_frag_ads_sh.c")
@@ -288,23 +292,23 @@ ctx.vertex_shader_id   = gpu.push_shader(Gl::GL_VERTEX_SHADER, shdr_vertex)
 ctx.fragment_shader_id = gpu.push_shader(Gl::GL_FRAGMENT_SHADER, shdr_fragment)
 
 
-Gl.glAttachShader(ctx.program_id, ctx.vertex_shader_id)
-Gl.glAttachShader(ctx.program_id, ctx.fragment_shader_id)
+Gl.glAttachShader(ctx.gl_program_id, ctx.vertex_shader_id)
+Gl.glAttachShader(ctx.gl_program_id, ctx.fragment_shader_id)
 
-Gl.glLinkProgram(ctx.program_id)
-Gl.glUseProgram(ctx.program_id)
+Gl.glLinkProgram(ctx.gl_program_id)
+Gl.glUseProgram(ctx.gl_program_id)
 
 
 puts "vertex shader_log   = #{Gl.getShaderInfoLog(ctx.vertex_shader_id)}"
 puts "fragment shader_log = #{Gl.getShaderInfoLog(ctx.fragment_shader_id)}"
-puts "program_log         = #{Gl.getProgramInfoLog(ctx.program_id)}"
+puts "program_log         = #{Gl.getProgramInfoLog(ctx.gl_program_id)}"
 
 ######################################################################
 ###### Load lights
 ######################################################################
 
 # /todo pass in light data
-gpu.update_lights(ctx.program_id)
+gpu.update_lights(ctx.gl_program_id)
 
 
 ######################################################################
@@ -393,7 +397,7 @@ loop do
 
 
       ctx.camera.move_camera_in_camera_space(camera_translation)
-      gpu.update_camera_view(ctx.program_id, ctx.camera)
+      gpu.update_camera_view(ctx.gl_program_id, ctx.camera)
 
 
       #when SDL2::Event::Quit, SDL2::Event::KeyDown
@@ -420,7 +424,7 @@ loop do
   #
   if input_tracker.updated?  || (ctx.camera != input_tracker.camera)
     ctx.camera = input_tracker.update_camera(ctx.camera)
-    gpu.update_camera_view(ctx.program_id, ctx.camera)
+    gpu.update_camera_view(ctx.gl_program_id, ctx.camera)
   end
 
   #### Draw / Update objects

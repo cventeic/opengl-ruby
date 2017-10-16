@@ -10,15 +10,15 @@ class Gpu
     @uniformsLocationCache = Uniforms_Location_Cache.new()
 
     @shader_attribute_location_cache = Hash.new {|hash,tag|
-      program_id, attr_name = tag
-      hash[tag] = Gl.getAttribLocation(program_id, attr_name.to_s)
+      gl_program_id, attr_name = tag
+      hash[tag] = Gl.getAttribLocation(gl_program_id, attr_name.to_s)
     }
 
     self.initialize_buffer_mapping()
   end
 
-  def get_attribute_location(program_id, attribute_name)
-    attr_location = @shader_attribute_location_cache[[program_id, attribute_name]]
+  def get_attribute_location(gl_program_id, attribute_name)
+    attr_location = @shader_attribute_location_cache[[gl_program_id, attribute_name]]
   end
 
   # compile and push shader to gpu
@@ -39,17 +39,17 @@ class Gpu
     shader_id
   end
 
-  def update_camera_view(program_id, camera)
+  def update_camera_view(gl_program_id, camera)
 
-    #set_uniform_matrix(program_id, :view,         camera.view)
-    set_uniform_matrix(program_id, :view,         camera.world_to_camera_space)
-    set_uniform_matrix(program_id, :projection,   camera.perspective)
-    set_uniform_vector(program_id, :vEyePosition, camera.camera_location_in_world_space)
+    #set_uniform_matrix(gl_program_id, :view,         camera.view)
+    set_uniform_matrix(gl_program_id, :view,         camera.world_to_camera_space)
+    set_uniform_matrix(gl_program_id, :projection,   camera.perspective)
+    set_uniform_vector(gl_program_id, :vEyePosition, camera.camera_location_in_world_space)
 
     check_for_gl_error()
   end
 
-  def update_lights(program_id)
+  def update_lights(gl_program_id)
 
     uniform_variables_hash = {
       'light.position' => {elements: 3, data: Geo3d::Vector.new(0.0, 0.0, 20.0)},    # in world space
@@ -57,7 +57,7 @@ class Gpu
       #'material.specular' => 1,
     }
 
-    set_uniforms_in_bulk(program_id, uniform_variables_hash)
+    set_uniforms_in_bulk(gl_program_id, uniform_variables_hash)
   end
 
   def render_object(gpu_graphic_object)
@@ -70,7 +70,7 @@ class Gpu
     Gl.glBindVertexArray(vertex_array_obj_id)
 
     # Set graphic object specific uniforms
-    set_uniforms_in_bulk(gpu_graphic_object.program_id, gpu_graphic_object.uniform_variables)
+    set_uniforms_in_bulk(gpu_graphic_object.gl_program_id, gpu_graphic_object.uniform_variables)
 
     Gl.drawElements(Gl::GL_TRIANGLES, gpu_graphic_object.element_count, Gl::GL_UNSIGNED_INT, 0)
   end

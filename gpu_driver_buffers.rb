@@ -144,20 +144,20 @@ class Gpu
 
   ############### Routines to Map per vertex inputs to shader (attributes) to gpu buffers
   #
-  def map_attribute_to_buffer(go, program_id, attr_name, element_size=3)
+  def map_attribute_to_buffer(gpu_mesh_job, attr_name, element_size=3)
 
-    assert{go.vertex_array_obj_id > 0}
+    assert{gpu_mesh_job.vertex_array_obj_id > 0}
 
     # Bind VAO to gpu context
     # /todo don't do this if already done
-    Gl.glBindVertexArray(go.vertex_array_obj_id)
+    Gl.glBindVertexArray(gpu_mesh_job.vertex_array_obj_id)
 
     # Bind the buffer with the vertex locations (x,y,z) to the VAO
     # and map attribute to the buffer
-    bind_buffer_to_vao(go, attr_name)
+    bind_buffer_to_vao(gpu_mesh_job, attr_name)
 
-    #attr_location = Gl.getAttribLocation(program_id, attr_name.to_s)
-    attr_location = get_attribute_location(program_id, attr_name)
+    #attr_location = Gl.getAttribLocation(gpu_mesh_job.gl_program_id, attr_name.to_s)
+    attr_location = get_attribute_location(gpu_mesh_job.gl_program_id, attr_name)
 
     if attr_location >= 0 then
       # Note: Attribute --actually used-- in shader code if attr_location >= 0
@@ -166,7 +166,7 @@ class Gpu
       Gl.enableVertexAttribArray(attr_location)
     end
 
-    unbind_buffer_to_vao(go, attr_name)
+    unbind_buffer_to_vao(gpu_mesh_job, attr_name)
   end
 
 
@@ -175,9 +175,7 @@ class Gpu
   # Turn the cpu graphic object into gpu data
   #
 
-  def push_mesh_job(program_id, gpu_mesh_job)
-
-    gpu_mesh_job.program_id = program_id
+  def push_mesh_job_to_gpu(gpu_mesh_job)
 
     # Setup a matrix to rotate normals from object space to world space
     # gpu_mesh_job.model_matrix_for_normals = gpu_mesh_job.model_matrix.remove_translation_component
@@ -199,13 +197,13 @@ class Gpu
     check_for_gl_error()
 
     # Map per vertex inputs to shader (attributes) to gpu buffers
-    map_attribute_to_buffer(gpu_mesh_job, program_id, :position)
-    map_attribute_to_buffer(gpu_mesh_job, program_id, :normal)
-    map_attribute_to_buffer(gpu_mesh_job, program_id, :texcoord, 2)
+    map_attribute_to_buffer(gpu_mesh_job, :position)
+    map_attribute_to_buffer(gpu_mesh_job, :normal)
+    map_attribute_to_buffer(gpu_mesh_job, :texcoord, 2)
 
     check_for_gl_error()
 
-    #map_attribute_to_buffer(gpu_mesh_job, program_id, :index, 1)
+    #map_attribute_to_buffer(gpu_mesh_job, gl_program_id, :index, 1)
 
     # Number of elements to render
     # So far, each index is unique so #elements = #index
