@@ -175,21 +175,6 @@ class Gpu
   # Turn the cpu graphic object into gpu data
   #
 
-  def update_graphic_object(gpu_object_id, model_matrix, color, mesh)
-
-    gpu_graphic_object = @gpu_graphic_objects[gpu_object_id]
-
-    ##### Uniforms
-    gpu_graphic_object.model_matrix = model_matrix
-    gpu_graphic_object.color        = color
-
-    # Mesh
-    gpu_graphic_object.mesh         = mesh
-
-    gpu_object_id
-  end
-
-
   def push_graphic_object(program_id, gpu_graphic_object)
 
     gpu_object_id = gpu_graphic_object.vertex_array_obj_id
