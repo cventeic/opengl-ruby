@@ -141,15 +141,15 @@ end
 
 def load_objects_using_oi(gpu, ctx)
 
-  oi_objects = []
-  oi_objects << Cpu_G_Obj_Job.box_wire()
+  cpu_g_objs = []
+  cpu_g_objs << Cpu_G_Obj_Job.box_wire()
 
 
   ####################
   # Draw 5 connected line segments to random locations in box
   points = 20.times.map {rand_vector_in_box()}
   points.each_cons(2) do |p0,p1|
-    oi_objects << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1)
+    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1)
   end
 
   ####################
@@ -177,15 +177,15 @@ def load_objects_using_oi(gpu, ctx)
     )
   end
 
-  oi_objects << meta_object
+  cpu_g_objs << meta_object
 
   ####################
   ####################
   ####################
 
-  oi_objects_color = new_color()
+  cpu_g_objs_color = new_color()
 
-  gpu_mesh_jobs = oi_objects.map do |object|
+  gpu_mesh_jobs = cpu_g_objs.map do |object|
     #puts "pushing object #{object_count} to gpu"
     #object_count += 1
 
@@ -195,7 +195,7 @@ def load_objects_using_oi(gpu, ctx)
     gpu_mesh_job = GPU_Mesh_Job.new(
       model_matrix: (Geo3d::Matrix.identity()),
       #color: new_color(),
-      color: oi_objects_color,
+      color: cpu_g_objs_color,
       mesh: mesh,
       gl_program_id: ctx.gl_program_id
     )
