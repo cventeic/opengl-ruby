@@ -60,13 +60,23 @@ class Cpu_G_Obj_Job
 
     # puts "render sup_ctx_in = #{sup_ctx_in}"
 
+
+
+    # Render meshes for each sub object
+    #
     sup_ctx_final = @joins.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, join|
 
-      join_symbol, join_computes = join
+      join_symbol, sub_computes = join
 
-      sub_ctx_in  = join_computes[:sub_ctx_ingress].call(sup_ctx_in)            # sub_ctx_ins extracted from a_state
-      sub_ctx_out = join_computes[:sub_ctx_render].call(sub_ctx_in)          # sub_ctx_out rendered by lambda
-      sup_ctx_out = join_computes[:sub_ctx_egress].call(sup_ctx_in, sub_ctx_out)  # new a_state integrating b_ouput
+      # Compute the input sub context from the input super context
+      #   The sub context knows what information it needs from the super
+      #   context and extracts it here.
+      #
+      sub_ctx_in  = sub_computes[:sub_ctx_ingress].call(sup_ctx_in)            # sub_ctx_ins extracted from a_state
+
+      # Do the compute to render the meshes from the sub object
+      sub_ctx_out = sub_computes[:sub_ctx_render].call(sub_ctx_in)          # sub_ctx_out rendered by lambda
+      sup_ctx_out = sub_computes[:sub_ctx_egress].call(sup_ctx_in, sub_ctx_out)  # new a_state integrating b_ouput
 
       # Return super context
       sup_ctx_out

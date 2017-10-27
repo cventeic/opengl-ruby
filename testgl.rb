@@ -153,15 +153,21 @@ def load_objects_using_oi(gpu, ctx)
   end
 
   ####################
-  # Draw connected line segments to random locations in box
+  # Create a single job to render meshes for a set of multiple arrows between points
+  #
 
   meta_object = Cpu_G_Obj_Job.new
-  new_c = new_color()
 
   points = 10.times.map {rand_vector_in_box()}
+
   points.each_cons(2) do |p0,p1|
+    new_c = new_color()
+
+    # Define a sub-job to render arrow between two points
+    #
     arrow_obj = Cpu_G_Obj_Job.arrow(start: p0, stop: p1, color: new_c)
 
+    # Add the sub-job to the meta-job to render all the arrows
     meta_object.add(
       symbol: :a_color,
 
@@ -185,16 +191,16 @@ def load_objects_using_oi(gpu, ctx)
 
   cpu_g_objs_color = new_color()
 
-  gpu_mesh_jobs = cpu_g_objs.map do |object|
-    #puts "pushing object #{object_count} to gpu"
+  gpu_mesh_jobs = cpu_g_objs.map do |cpu_g_obj|
+    #puts "pushing cpu_obj #{object_count} to gpu"
     #object_count += 1
 
-    render_state = object.render
+    render_state = cpu_g_obj.render
+
     mesh = render_state[:mesh]
 
     gpu_mesh_job = GPU_Mesh_Job.new(
       model_matrix: (Geo3d::Matrix.identity()),
-      #color: new_color(),
       color: cpu_g_objs_color,
       mesh: mesh,
       gl_program_id: ctx.gl_program_id
