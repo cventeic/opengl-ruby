@@ -170,7 +170,7 @@ module GL_Shapes
   #
 
   #def GL_Shapes.cylinder(f_length = 6.0, base_radius = 0.1, top_radius=0.1, num_slices=16, num_stacks = 16)
-  def GL_Shapes.cylinder(f_length: 6.0, base_radius: 0.1, top_radius: 0.1, num_slices: 16, num_stacks: 16)
+  def GL_Shapes.cylinder(f_length: 6.0, base_radius: 0.1, top_radius: 0.1, num_slices: 16, num_stacks: 16, **args)
 
     mesh = Mesh.new
 
