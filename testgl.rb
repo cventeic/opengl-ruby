@@ -184,38 +184,44 @@ def load_objects_using_oi(gpu, ctx)
   end
 
   cpu_g_objs << meta_object
+=end
 
   ####################
   ####################
   ####################
 
-  cpu_g_objs_color = new_color()
+  gpu_mesh_jobs = []
 
-  gpu_mesh_jobs = cpu_g_objs.map do |cpu_g_obj|
+  cpu_g_objs.each do |cpu_g_obj|
     #puts "pushing cpu_obj #{object_count} to gpu"
     #object_count += 1
 
-    render_state = cpu_g_obj.render
+    objs = cpu_g_obj.render
 
-    mesh = render_state[:mesh]
 
-    gpu_mesh_job = GPU_Mesh_Job.new(
-      model_matrix: (Geo3d::Matrix.identity()),
-      color: cpu_g_objs_color,
-      mesh: mesh,
-      gl_program_id: ctx.gl_program_id
-    )
+    objs[:gpu_objs].each do |obj|
 
-    gpu.push_mesh_job_to_gpu(gpu_mesh_job)
+      mesh = obj[:mesh]
+      color = obj[:color]
 
-    gpu_mesh_job
+      gpu_mesh_job = GPU_Mesh_Job.new(
+        model_matrix: (Geo3d::Matrix.identity()),
+        color: color,
+        mesh: mesh,
+        gl_program_id: ctx.gl_program_id
+      )
+
+      gpu.push_mesh_job_to_gpu(gpu_mesh_job)
+
+      gpu_mesh_jobs << gpu_mesh_job
+    end
   end
 
   return gpu_mesh_jobs
 end
 
 
-#StackProf.start(mode: :cpu, interval:100, raw: true)
+StackProf.start(mode: :cpu, interval:100, raw: true)
 
 ######################################################################
 #### Initialize Configuration Structure, Prep Camera
