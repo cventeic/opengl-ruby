@@ -82,7 +82,8 @@ class Cpu_G_Obj_Job
       sup_ctx_out
     end
 
-   sup_ctx_final
+    # We have an array with one element per sub context we rendered.
+    sup_ctx_final
   end
 end
 
