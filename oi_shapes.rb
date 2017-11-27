@@ -1,5 +1,7 @@
 require './oi'
 
+require "awesome_print"
+
 # Note: translate, rotate, scale --and-- aggregation of sub-objects can be
 # supported in a single Cpu_G_Obj_Job instance.
 #
@@ -42,12 +44,28 @@ class Cpu_G_Obj_Job
 
 
   # Transform mesh in "b" space to mesh in "a" space
-  def Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+  def Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+    puts
+    puts "def Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)"
+
+    ap sub_ctx_out
+    
     mesh_in_b = sub_ctx_out.fetch(:mesh, Mesh.new)
 
     mesh_in_a = mesh_in_b.applyMatrix!(sub_ctx_egress_matrix)
 
     {mesh: mesh_in_a}
+  end
+
+
+
+
+  def Cpu_G_Obj_Job.std_join_ctx(ctx_in, ctx_out)
+
+    ctx_in[:gpu_objs]  = [] unless ctx_in.has_key?(:gpu_objs)
+    ctx_in[:gpu_objs] += ctx_out[:gpu_objs]
+
+    ctx_in
   end
 
   ############### Base Shapes
@@ -59,9 +77,14 @@ class Cpu_G_Obj_Job
     sphere.add(
       symbol: :sphere_mesh,
       computes: {
-        sub_ctx_ingress:   lambda {|sup_ctx_in|           sub_ctx_in  = {radius: 0.5}.merge(sup_ctx_in)},
-        sub_ctx_render: lambda {|sub_ctx_in|           sub_ctx_out = {mesh: GL_Shapes.sphere(sub_ctx_in[:radius])} },
-        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_ingress:  lambda {|sup_ctx_in|
+                                   sub_ctx_in  = {radius: 0.5}.merge(sup_ctx_in)},
+
+        sub_ctx_render:   lambda {|sub_ctx_in|
+                                   sub_ctx_out = {mesh: GL_Shapes.sphere(sub_ctx_in[:radius])} },
+
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out|
+                                               sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
     )
 
@@ -84,6 +107,36 @@ class Cpu_G_Obj_Job
 
     cylinder
   end
+
+  def Cpu_G_Obj_Job.directional_cylinder_aa(**args)
+    cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
+
+    cylinder.add(
+      symbol: :cylinder_mesh,
+      computes: {
+
+        sub_ctx_ingress:   lambda {|sup_ctx_in| 
+          sub_ctx_in = sup_ctx_in
+        },
+
+        sub_ctx_render: lambda {|sub_ctx_in| 
+          sub_ctx_out = {
+            gpu_objs: [{
+              mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)),
+              color: args[:color]
+            }] 
+          }
+        },
+
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| 
+          Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
+        }
+      }
+    )
+
+    cylinder
+  end
+
 
   def Cpu_G_Obj_Job.directional_cylinder(**args)
     cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
@@ -148,7 +201,7 @@ class Cpu_G_Obj_Job
 
           sub_ctx_egress: lambda {|sup_ctx_in, sub_ctx_out|
 
-            mesh_in_a = Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
             sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
           }
@@ -160,7 +213,6 @@ class Cpu_G_Obj_Job
   end
 
   def Cpu_G_Obj_Job.box_wire(side_length: 20.0, **args)
-
 
 
     ##### Make 4 parallel cylinders
@@ -194,8 +246,11 @@ class Cpu_G_Obj_Job
 
                                     sup_ctx_out = sup_ctx_in
 
-                                    sup_ctx_out[:mesh] = sup_ctx_out.fetch(:mesh, Mesh.new)
-                                    sup_ctx_out[:mesh] += sub_ctx_out[:mesh].applyMatrix!(trs_matrix)
+                                    sup_ctx_out[:mesh]  = sup_ctx_out.fetch(:mesh, Mesh.new)
+
+                                    puts "aaa sup_ctx_out = #{sup_ctx_out}"
+
+                                    # sup_ctx_out[:mesh] += sub_ctx_out[:mesh].applyMatrix!(trs_matrix)
 
                                     return sup_ctx_out
                                   }
@@ -222,11 +277,17 @@ class Cpu_G_Obj_Job
           sub_ctx_ingress: lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
           sub_ctx_render:  lambda {|sub_ctx_in| sub_ctx_out = parallel_cylinders.render },
 
-          sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|
+          sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out_array|
 
-            mesh_in_a = Cpu_G_Obj_Job.mesh_tranform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            sup_ctx_out_array = sub_ctx_out_array.map {|sub_ctx|
+              #mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx, 
+              #sub_ctx_egress_matrix)
+              Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx, sub_ctx_egress_matrix)
 
-            sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
+              #sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
+            }
+
+            return sup_ctx_out_array
           }
         }
       )
