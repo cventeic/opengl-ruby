@@ -3,6 +3,7 @@ require 'color-generator'
 
 require 'ostruct'
 
+require './render_context'
 require './util/Assert'
 require './util/debug'
 require './util/gl_math_util'
@@ -240,19 +241,23 @@ StackProf.start(mode: :cpu, interval: 100, raw: true)
 ######################################################################
 #### Initialize Configuration Structure, Prep Camera
 ######################################################################
-
-ctx = OpenStruct.new
-
-ctx.window = OpenStruct.new
-ctx.window.aspect_ratio = 1920.0 / 1080.0
-ctx.window.width = 1900
+window = OpenStruct.new
+window.aspect_ratio = 1920.0 / 1080.0
+window.width = 1900
 # ctx.window.width = 4000
-ctx.window.height = (ctx.window.width / ctx.window.aspect_ratio).to_i
-ctx.window.x     = 0
-ctx.window.y     = 0
+window.height = (window.width / window.aspect_ratio).to_i
+window.x     = 0
+window.y     = 0
 
-ctx.camera = Camera.new(aspect_ratio: ctx.window.aspect_ratio)
+camera = Camera.new(aspect_ratio: window.aspect_ratio)
+=begin
+ctx = OpenStruct.new
+ctx.window = window
+ctx.camera = camera
+=end
 
+
+ctx = RenderContext.new(window: window, camera: camera)
 puts "ctx = #{ctx}"
 
 ######################################################################
