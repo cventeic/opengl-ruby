@@ -20,6 +20,7 @@ require 'stackprof'
 
 require './oi_shapes'
 
+require "awesome_print"
 
 include Gl
 
@@ -142,14 +143,14 @@ end
 def load_objects_using_oi(gpu, ctx)
 
   cpu_g_objs = []
-  cpu_g_objs << Cpu_G_Obj_Job.box_wire()
-
+  # cpu_g_objs << Cpu_G_Obj_Job.box_wire()
 
   ####################
   # Draw 5 connected line segments to random locations in box
-  points = 20.times.map {rand_vector_in_box()}
+  points = 10.times.map {rand_vector_in_box()}
+
   points.each_cons(2) do |p0,p1|
-    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1)
+    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder_aa(start: p0, stop: p1, color: new_color())
   end
 
   ####################
@@ -158,7 +159,7 @@ def load_objects_using_oi(gpu, ctx)
 
   meta_object = Cpu_G_Obj_Job.new
 
-  points = 10.times.map {rand_vector_in_box()}
+  points = 50.times.map {rand_vector_in_box()}
 
   points.each_cons(2) do |p0,p1|
     new_c = new_color()
@@ -173,10 +174,25 @@ def load_objects_using_oi(gpu, ctx)
 
       computes: {
         sub_ctx_ingress: lambda {|sup_ctx_in| sub_ctx_in  = sup_ctx_in},
-        sub_ctx_render:  lambda {|sub_ctx_in| sub_ctx_out = arrow_obj.render },
 
-        sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out|
-          sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out)
+        sub_ctx_render:  lambda {|sub_ctx_in| 
+
+          objs = arrow_obj.render
+
+          sub_ctx_out = {
+            gpu_objs: [{
+              #mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)),
+              mesh: GL_Shapes.directional_cylinder(start: p0, stop: p1, color: new_c),
+              color: new_c 
+              #mesh: arrow_obj.render 
+              #color: args[:color]
+            }] 
+
+          }
+        },
+
+        sub_ctx_egress:   lambda {|sup_ctx_in, sub_ctx_out| 
+          Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
         }
       }
 
@@ -184,6 +200,7 @@ def load_objects_using_oi(gpu, ctx)
   end
 
   cpu_g_objs << meta_object
+=begin
 =end
 
   ####################
@@ -235,7 +252,7 @@ ctx.window.width = 1900
 #ctx.window.width = 4000
 ctx.window.height= (ctx.window.width / ctx.window.aspect_ratio).to_i
 ctx.window.x     = 0
-ctx.window.y     = 1080
+ctx.window.y     = 0
 
 ctx.camera = Camera.new(aspect_ratio: ctx.window.aspect_ratio)
 
@@ -324,15 +341,16 @@ gpu.update_lights(ctx.gl_program_id)
 ######################################################################
 
 gpu_mesh_jobs  = []
-gpu_mesh_jobs += load_objects(gpu, ctx)
+#gpu_mesh_jobs += load_objects(gpu, ctx)
 gpu_mesh_jobs += load_objects_using_oi(gpu, ctx)
 
 
 
-#StackProf.stop
-#StackProf.results('./stackprof.dump')
+StackProf.stop
+StackProf.results('./stackprof.dump')
 
-
+puts
+puts "Loading Done"
 
 
 ######################################################################
