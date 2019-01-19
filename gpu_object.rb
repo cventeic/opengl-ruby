@@ -1,53 +1,50 @@
-require "./gl_ffi"
-require "geo3d"
+require './gl_ffi'
+require 'geo3d'
 require './util/geo3d_vector.rb'
-
 
 class GPU_Mesh_Job
   attr_accessor :mesh, :vertex_array_obj_id, :element_count, :mesh_to_gpu_buffer_id_map, :gl_program_id, :uniform_variables
 
-  def initialize( model_matrix: , color: , mesh:, gl_program_id:)
-    @uniform_variables = Hash.new(){|hash,key| hash[key] = {} }
+  def initialize(model_matrix:, color:, mesh:, gl_program_id:)
+    @uniform_variables = Hash.new { |hash, key| hash[key] = {} }
 
-    @uniform_variables[:model] = {data: model_matrix}
-    @uniform_variables[:surface_color] = {data: color}
-    @mesh  = mesh
+    @uniform_variables[:model] = { data: model_matrix }
+    @uniform_variables[:surface_color] = { data: color }
+    @mesh = mesh
 
     @vertex_array_obj_id = Gl.genVertexArray
 
     # Retrieve or allocate gl bfr id for this data type
-    @mesh_to_gpu_buffer_id_map = Hash.new(){ |hash,key| hash[key] = Gl.genBuffer() }
+    @mesh_to_gpu_buffer_id_map = Hash.new { |hash, key| hash[key] = Gl.genBuffer }
 
-    @element_count  = 0  # number of elements (vertex) to render
+    @element_count = 0 # number of elements (vertex) to render
 
     @gl_program_id = gl_program_id
   end
 
   def to_s
-    puts "GPU_Mesh_Job"
-    puts "@vertex_array_obj_id: #{(@vertex_array_obj_id).inspect}"
+    puts 'GPU_Mesh_Job'
+    puts "@vertex_array_obj_id: #{@vertex_array_obj_id.inspect}"
 
-    puts "@mesh_to_gpu_buffer_id_map: #{(@mesh_to_gpu_buffer_id_map).inspect}"
+    puts "@mesh_to_gpu_buffer_id_map: #{@mesh_to_gpu_buffer_id_map.inspect}"
 
-    puts "@element_count: #{(@element_count).inspect}"
+    puts "@element_count: #{@element_count.inspect}"
 
-    puts "@gl_program_id: #{(@gl_program_id).inspect}"
+    puts "@gl_program_id: #{@gl_program_id.inspect}"
 
-    puts "@uniform_variables : #{(@uniform_variables ).inspect}"
+    puts "@uniform_variables : #{@uniform_variables.inspect}"
   end
 
-
   def model_matrix_for_normals=(_matrix = Geo3d::Matrix.identity)
-    @uniform_variables[:model_matrix_for_normals] = {data: _matrix}
+    @uniform_variables[:model_matrix_for_normals] = { data: _matrix }
   end
 
   def model_matrix_for_normals
     @uniform_variables[:model_matrix_for_normals][:data]
   end
 
-
   def model_matrix=(_matrix = Geo3d::Matrix.identity)
-    @uniform_variables[:model] = {data: _matrix}
+    @uniform_variables[:model] = { data: _matrix }
   end
 
   def model_matrix
@@ -55,7 +52,7 @@ class GPU_Mesh_Job
   end
 
   def color=(_color = Geo3d::Vector.new(0.0, 0.0, 0.0, 1.0))
-    @uniform_variables[:surface_color] = {data: _color}
+    @uniform_variables[:surface_color] = { data: _color }
   end
 
   def color

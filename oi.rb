@@ -4,7 +4,6 @@ require './util/geo3d_matrix.rb'
 require 'ostruct'
 require './cpu_graphic_object'
 
-
 # Object_Indirection encapsulates the builder for an independent object
 #
 # Object_Indirection.render outputs a vertex array of vertexes in that object's 3D space
@@ -20,10 +19,10 @@ require './cpu_graphic_object'
 class Cpu_G_Obj_Job
   attr_reader :joins
 
-  def initialize(symbol: "")
+  def initialize(symbol: '')
     @symbol = symbol
 
-    @joins = Hash.new(){ |hash,key| hash[key] = {} }
+    @joins = Hash.new { |hash, key| hash[key] = {} }
   end
 
   # Add a sub-component to to this super-component
@@ -40,43 +39,38 @@ class Cpu_G_Obj_Job
   #
   #  /todo clarify and document
   #
-    def add( symbol: "",
-             computes: {
-               sub_ctx_ingress: lambda {|sup_ctx_in|               sub_ctx_in = sup_ctx_in}, # Default: pass untransformed super context to sub context
-               sub_ctx_render:  lambda {|sub_ctx_in|              sub_ctx_out = sub_ctx_in}, # Default:
-               sub_ctx_egress:  lambda {|sup_ctx_in, sub_ctx_out| sup_ctx_out = sup_ctx_in}  # Default: don't transform super context
-             }
-         )
+  def add(symbol: '',
+          computes: {
+            sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in }, # Default: pass untransformed super context to sub context
+            sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
+            sub_ctx_egress: ->(sup_ctx_in, _sub_ctx_out) { sup_ctx_out = sup_ctx_in } # Default: don't transform super context
+          })
 
-    guid = [symbol,@joins.size]
+    guid = [symbol, @joins.size]
 
     @joins[guid] = computes
-  end
+end
 
   # Render modified parent state (sup_ctx)
   #  by rendering and aggregating all child lambda (sub_ctx) into parent domain.
   #
   def render(**sup_ctx_initial)
-
     # puts "render sup_ctx_in = #{sup_ctx_in}"
-
-
 
     # Render meshes for each sub object
     #
     sup_ctx_final = @joins.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, join|
-
       join_symbol, sub_computes = join
 
       # Compute the input sub context from the input super context
       #   The sub context knows what information it needs from the super
       #   context and extracts it here.
       #
-      sub_ctx_in  = sub_computes[:sub_ctx_ingress].call(sup_ctx_in)            # sub_ctx_ins extracted from a_state
+      sub_ctx_in  = sub_computes[:sub_ctx_ingress].call(sup_ctx_in) # sub_ctx_ins extracted from a_state
 
       # Do the compute to render the meshes from the sub object
-      sub_ctx_out = sub_computes[:sub_ctx_render].call(sub_ctx_in)          # sub_ctx_out rendered by lambda
-      sup_ctx_out = sub_computes[:sub_ctx_egress].call(sup_ctx_in, sub_ctx_out)  # new a_state integrating b_ouput
+      sub_ctx_out = sub_computes[:sub_ctx_render].call(sub_ctx_in) # sub_ctx_out rendered by lambda
+      sup_ctx_out = sub_computes[:sub_ctx_egress].call(sup_ctx_in, sub_ctx_out) # new a_state integrating b_ouput
 
       # Return super context
       sup_ctx_out
@@ -87,9 +81,7 @@ class Cpu_G_Obj_Job
   end
 end
 
-
 require 'minitest/autorun'
 
 class BugTest < Minitest::Test
 end
-

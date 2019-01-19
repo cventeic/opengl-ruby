@@ -4,10 +4,8 @@ require './util/gl_math_util.rb'
 require 'minitest/autorun'
 
 class BugTest < Minitest::Test
-
   def test_quaternion_x_y_z_w_cant_be_initialized_directly
-
-    rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
+    rotation_axis = Geo3d::Vector.new(0.0, 1.0, 0.0)
     rotation_axis.w = 0 #  Zero Degrees
 
     q = Geo3d::Quaternion.new(*rotation_axis)
@@ -16,8 +14,7 @@ class BugTest < Minitest::Test
   end
 
   def test_quartenion_no_rotation
-
-    rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
+    rotation_axis = Geo3d::Vector.new(0.0, 1.0, 0.0)
     radians = 0.0
 
     q = Geo3d::Quaternion.from_axis(rotation_axis, radians)
@@ -26,8 +23,7 @@ class BugTest < Minitest::Test
   end
 
   def test_quartenion_with_rotation
-
-    rotation_axis  = Geo3d::Vector.new(0.0, 1.0, 0.0)
+    rotation_axis = Geo3d::Vector.new(0.0, 1.0, 0.0)
 
     radians = radians(rand(360)) # pick a random rotation
 
@@ -51,11 +47,8 @@ class BugTest < Minitest::Test
     v_y = Geo3d::Vector.new(0.0, 1.0, 0.0)
     v_z = Geo3d::Vector.new(0.0, 0.0, 1.0)
 
-    v_perp   = v_z.cross(v_x) # thumb rule... z -> x == y
+    v_perp = v_z.cross(v_x) # thumb rule... z -> x == y
 
     assert_equal v_y, v_perp
   end
-
 end
-
-

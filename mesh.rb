@@ -1,7 +1,6 @@
-require "ap"
+require 'ap'
 require './util/Assert'
 require './util/geo3d_matrix.rb'
-
 
 # Mesh has many triangles
 #
@@ -17,7 +16,6 @@ require './util/geo3d_matrix.rb'
 #       texture  has x, y
 #
 
-
 class Vertex
   attr_accessor :position, :normal, :texcoord
 
@@ -28,11 +26,9 @@ class Vertex
   end
 
   def to_hash
-    { position: @position, normal: @normal, texcoord: @texcoord}
+    { position: @position, normal: @normal, texcoord: @texcoord }
   end
-
 end
-
 
 class Triangle
   attr_accessor :vertex_array
@@ -44,41 +40,38 @@ class Triangle
   def initialize_copy(other)
     super # Call superclass initialize_copy
 
-    @vertex_array = @vertex_array.map {|vertex| vertex.dup}
+    @vertex_array = @vertex_array.map(&:dup)
   end
-
 end
 
 require 'json'
 
 ##############################################
 class Mesh
-  #attr_accessor :triangles
+  # attr_accessor :triangles
   attr_reader :triangles
 
-  def initialize(mesh=nil)
-    @triangles = Array.new
+  def initialize(mesh = nil)
+    @triangles = []
 
     # Copy triangles from input mesh
-    @triangles = mesh.triangles.map {|triangle| triangle.dup} unless mesh.nil?
+    @triangles = mesh.triangles.map(&:dup) unless mesh.nil?
   end
 
   def initialize_copy(other)
     super # Call superclass initialize_copy
 
-    @triangles = @triangles.map {|triangle| triangle.dup}
+    @triangles = @triangles.map(&:dup)
   end
 
   def applyMatrix!(matrix)
-
     # For Normal Rotation w/o translation
-    #matrix_no_t = matrix.clone
+    # matrix_no_t = matrix.clone
     matrix_no_t = matrix.dup
     matrix_no_t._41 = matrix_no_t._42 = matrix_no_t._43 = 0
 
     @triangles = @triangles.map do |triangle|
       triangle.vertex_array = triangle.vertex_array.map do |vertex|
-
         # Vertex Position: rotate, translate, scale the vertex postion
         vertex.position.w = 1.0
         position = matrix * vertex.position
@@ -109,11 +102,11 @@ class Mesh
   end
 
   def add_mesh!(mesh)
-    assert{!mesh.nil?}
-    assert{!mesh.triangles.nil?}
-    assert{mesh.triangles.size > 0}
-    self.concat(mesh)
-    #@triangles += mesh.triangles
+    assert { !mesh.nil? }
+    assert { !mesh.triangles.nil? }
+    assert { !mesh.triangles.empty? }
+    concat(mesh)
+    # @triangles += mesh.triangles
   end
 
   def concat(other)
@@ -125,32 +118,24 @@ class Mesh
     Mesh.new(self).concat(other)
   end
 
-  def triangles=(triangle_array)
-    @triangles = triangle_array
-  end
+  attr_writer :triangles
 
   def add_triangle(vertex_array)
-
     @triangles << Triangle.new(vertex_array.first(3))
 
     # /todo Note: perhapse we should be rounding our points here
     # /todo Note: should we be checking for duplicate (close enough) vertex
     # /todo Note: check here to use index to elimiate some close points
-
   end
 
   # cv This needs fixed
   def load_wavefront(filename)
-
     w = Wavefront::File.new filename
     mesh = w.compute_position_and_index_buffer
 
-    @data_sets[:position]   = mesh[:position_buffer].map {|v| q=v.position; [q.x, q.y, q.z] }
-    @data_sets[:normal]   = mesh[:position_buffer].map {|v| q=v.normal;   q.nil? ? q : [q.x, q.y, q.z]}
-    @data_sets[:texcoord] = mesh[:position_buffer].map {|v| v.nil? ? v : [v.tex]}
-    @data_sets[:index]    = mesh[:index_buffer].map {|i| [i]}
+    @data_sets[:position] = mesh[:position_buffer].map { |v| q = v.position; [q.x, q.y, q.z] }
+    @data_sets[:normal]   = mesh[:position_buffer].map { |v| q = v.normal; q.nil? ? q : [q.x, q.y, q.z] }
+    @data_sets[:texcoord] = mesh[:position_buffer].map { |v| v.nil? ? v : [v.tex] }
+    @data_sets[:index]    = mesh[:index_buffer].map { |i| [i] }
   end
-
 end
-
-

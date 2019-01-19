@@ -1,7 +1,7 @@
 require 'geo3d'
 
 require './camera'
-require "./util/arcball"
+require './util/arcball'
 
 #######################################################
 # Simple input tracking class
@@ -12,10 +12,10 @@ class InputTracker
   def initialize(camera, width, height)
     @width = width
     @height = height
-    @arc_ball =  ArcBall.new(width, height)
+    @arc_ball = ArcBall.new(width, height)
     @arc_ball_moving = false
-    @x=0
-    @y=0
+    @x = 0
+    @y = 0
     @frame = false
     @camera = camera
   end
@@ -24,27 +24,27 @@ class InputTracker
     @frame
   end
 
-  def button_press()
+  def button_press
     @arc_ball_moving = true
 
-    @arc_ball.mouse_pressed(@x,@y)
+    @arc_ball.mouse_pressed(@x, @y)
 
     @camera_before_arcball_touched = @camera.clone
   end
 
-  def button_release()
+  def button_release
     @arc_ball_moving = false
   end
 
-  def cursor_position_callback(window, x, y)
+  def cursor_position_callback(_window, x, y)
     @frame = true
     @x = x
-    @y = @height - y  # Input Origin Upper Left, Arcball Origin Lower, Left
+    @y = @height - y # Input Origin Upper Left, Arcball Origin Lower, Left
   end
 
   def update_camera(camera)
-    if(@arc_ball_moving == true)
-      @arc_ball.mouse_dragged(@x,@y)
+    if @arc_ball_moving == true
+      @arc_ball.mouse_dragged(@x, @y)
       arc_ball_rotation_matrix = @arc_ball.compute_sphere_rotation_matrix
 
       # All movements are delta on the position when we first touched the
@@ -59,28 +59,25 @@ class InputTracker
     @camera
   end
 
-=begin
-  def key_callback(window, key, code, action, mods)
-    @frame = true
-    case action
-      #when Glfw::PRESS then 1
-    when Glfw::RELEASE then @arc_ball.select_axis(-1)
-    end
-
-    case key
-    when Glfw::KEY_X then @arc_ball.select_axis(X)
-    when Glfw::KEY_Y then @arc_ball.select_axis(Y)
-    when Glfw::KEY_Z then @arc_ball.select_axis(Z)
-      #when Glfw::KEY_W then [2,  motion]
-      #when Glfw::KEY_S then [2, -motion]
-      #when Glfw::KEY_A then [0,  motion]
-      #when Glfw::KEY_D then [0, -motion]
-    end
-  end
-=end
+  #   def key_callback(window, key, code, action, mods)
+  #     @frame = true
+  #     case action
+  #       #when Glfw::PRESS then 1
+  #     when Glfw::RELEASE then @arc_ball.select_axis(-1)
+  #     end
+  #
+  #     case key
+  #     when Glfw::KEY_X then @arc_ball.select_axis(X)
+  #     when Glfw::KEY_Y then @arc_ball.select_axis(Y)
+  #     when Glfw::KEY_Z then @arc_ball.select_axis(Z)
+  #       #when Glfw::KEY_W then [2,  motion]
+  #       #when Glfw::KEY_S then [2, -motion]
+  #       #when Glfw::KEY_A then [0,  motion]
+  #       #when Glfw::KEY_D then [0, -motion]
+  #     end
+  #   end
 
   def end_frame
     @frame = false
   end
 end
-
