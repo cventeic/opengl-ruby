@@ -300,9 +300,6 @@ Gl.shadeModel(Gl::GL_SMOOTH)
 ######################################################################
 #### Load Vertex and Fragment shaders from files and compile them ####
 ######################################################################
-
-ctx.gl_program_id = Gl.glCreateProgram
-
 shdr_vertex   = File.read('./shdr_vertex_basic.c')
 shdr_fragment = File.read('./shdr_frag_ads_sh.c')
 
@@ -310,6 +307,8 @@ gpu = Gpu.new
 
 ctx.vertex_shader_id   = gpu.push_shader(Gl::GL_VERTEX_SHADER, shdr_vertex)
 ctx.fragment_shader_id = gpu.push_shader(Gl::GL_FRAGMENT_SHADER, shdr_fragment)
+
+ctx.gl_program_id = Gl.glCreateProgram
 
 Gl.glAttachShader(ctx.gl_program_id, ctx.vertex_shader_id)
 Gl.glAttachShader(ctx.gl_program_id, ctx.fragment_shader_id)
