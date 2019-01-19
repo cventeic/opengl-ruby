@@ -249,11 +249,6 @@ window.x     = 0
 window.y     = 0
 
 camera = Camera.new(aspect_ratio: window.aspect_ratio)
-=begin
-ctx = OpenStruct.new
-ctx.window = window
-ctx.camera = camera
-=end
 
 ctx = RenderContext.new(camera: camera)
 puts "ctx = #{ctx}"
