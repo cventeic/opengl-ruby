@@ -244,7 +244,6 @@ StackProf.start(mode: :cpu, interval: 100, raw: true)
 window = OpenStruct.new
 window.aspect_ratio = 1920.0 / 1080.0
 window.width = 1900
-# ctx.window.width = 4000
 window.height = (window.width / window.aspect_ratio).to_i
 window.x     = 0
 window.y     = 0
@@ -256,8 +255,7 @@ ctx.window = window
 ctx.camera = camera
 =end
 
-
-ctx = RenderContext.new(window: window, camera: camera)
+ctx = RenderContext.new(camera: camera)
 puts "ctx = #{ctx}"
 
 ######################################################################
@@ -275,14 +273,14 @@ SDL2::GL.set_attribute(SDL2::GL::DOUBLEBUFFER, 1)
 SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLEBUFFERS, 1)
 SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLESAMPLES, 2)
 
-window = SDL2::Window.create(
+window.gl_window = SDL2::Window.create(
   'testgl',
-  ctx.window.x, ctx.window.y,
-  ctx.window.width, ctx.window.height,
+  window.x, window.y,
+  window.width, window.height,
   SDL2::Window::Flags::OPENGL
 )
 
-SDL2::GL::Context.create(window)
+SDL2::GL::Context.create(window.gl_window)
 
 ######################################################################
 #### Prep OpenGL
@@ -292,7 +290,7 @@ printf("OpenGL version %d.%d\n",
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MAJOR_VERSION),
        SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MINOR_VERSION))
 
-Gl.viewport(0, 0, ctx.window.width, ctx.window.height)
+Gl.viewport(0, 0, window.width, window.height)
 
 Gl.matrixMode(GL_PROJECTION)
 Gl.loadIdentity
@@ -356,7 +354,7 @@ puts 'Loading Done'
 state = SDL2::Mouse.state
 
 input_tracker = InputTracker.new(ctx.camera,
-                                 ctx.window.width, ctx.window.height)
+                                 window.width, window.height)
 
 input_tracker.cursor_position_callback(0, state.x, state.y)
 
@@ -452,7 +450,7 @@ loop do
     gpu.render_object(job)
   end
 
-  window.gl_swap
+  window.gl_window.gl_swap
 
   # break if window.should_close?
 
