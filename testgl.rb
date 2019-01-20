@@ -416,9 +416,10 @@ loop do
       # when Glfw::KEY_Z then @arc_ball.select_axis(Z)
 
       ctx.camera.move_camera_in_camera_space(camera_translation)
-      gpu.update_camera_view(ctx.gl_program_id, ctx.camera)
 
-      # when SDL2::Event::Quit, SDL2::Event::KeyDown
+      # end key down case
+
+    # when SDL2::Event::Quit, SDL2::Event::KeyDown
     when SDL2::Event::Quit
       exit
 
@@ -433,17 +434,20 @@ loop do
     end
   end
 
+  #### Move camera if input changed
+  #
+  ctx.camera = input_tracker.update_camera(ctx.camera) if input_tracker.updated?
+
+  #### Render
+  #
   check_for_gl_error
 
   Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
   Gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-  #### Move camera if input changed
-  #
-  if input_tracker.updated? || (ctx.camera != input_tracker.camera)
-    ctx.camera = input_tracker.update_camera(ctx.camera)
-    gpu.update_camera_view(ctx.gl_program_id, ctx.camera)
-  end
+  Gl.glUseProgram(ctx.gl_program_id) # select the program for use
+
+  gpu.update_camera_view(ctx.gl_program_id, ctx.camera) if ctx.camera != ctx.camera_last_render
 
   #### Draw / Update objects
   #
@@ -454,6 +458,7 @@ loop do
   window.gl_window.gl_swap
 
   # break if window.should_close?
+  ctx.camera_last_render = ctx.camera.clone
 
   input_tracker.end_frame
 end

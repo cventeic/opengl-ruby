@@ -1,7 +1,7 @@
 require 'ostruct'
 
 class RenderContext
-  attr_accessor :window, :camera, :gl_program_id, :vertex_shader_id, :fragment_shader_id
+  attr_accessor :window, :camera, :camera_last_render, :gl_program_id, :vertex_shader_id, :fragment_shader_id
 
   def initialize(params = {})
     @window = params.fetch(:window, OpenStruct.new)
@@ -10,6 +10,7 @@ class RenderContext
     @gl_program_id = params.fetch(:gl_program_id, -1)
     @vertex_shader_id = params.fetch(:vertex_shader_id, -1)
     @fragment_shader_id = params.fetch(:fragment_shader_id, -1)
+    @camera_last_render = nil
   end
 
 end

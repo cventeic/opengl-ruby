@@ -56,4 +56,14 @@ class Camera
 
     vec_camera_location_in_world_space
   end
+
+  def ==(other)
+    !other.nil? &&
+    self.world_to_camera_space == other.world_to_camera_space &&
+    self.perspective == other.perspective
+  end
+
+  def to_s
+    self.inspect
+  end
 end
