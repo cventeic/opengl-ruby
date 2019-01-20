@@ -144,7 +144,7 @@ def load_objects(gpu, ctx)
   gpu_mesh_jobs
 end
 
-def load_objects_using_oi(gpu, ctx)
+def load_objects_using_oi(gpu, gl_program_id)
   cpu_g_objs = []
   # cpu_g_objs << Cpu_G_Obj_Job.box_wire()
 
@@ -224,7 +224,7 @@ def load_objects_using_oi(gpu, ctx)
         model_matrix: Geo3d::Matrix.identity,
         color: color,
         mesh: mesh,
-        gl_program_id: ctx.gl_program_id
+        gl_program_id: gl_program_id
       )
 
       gpu.push_mesh_job_to_gpu(gpu_mesh_job)
@@ -303,11 +303,13 @@ def compile_link_shaders(params = {})
 end
 
 gpu = Gpu.new
-ctx.gl_program_id = Gl.glCreateProgram
+
+ctx.gl_program_ids = {}
+ctx.gl_program_ids[:objects] = Gl.glCreateProgram
 
 compile_link_shaders(
   gpu: gpu,
-  gl_program_id: ctx.gl_program_id,
+  gl_program_id: ctx.gl_program_ids[:objects],
   vertex_shader: './shdr_vertex_basic.c',
   fragment_shader: './shdr_frag_ads_sh.c'
 )
@@ -318,7 +320,7 @@ compile_link_shaders(
 ######################################################################
 
 # /todo pass in light data
-gpu.update_lights(ctx.gl_program_id)
+gpu.update_lights(ctx.gl_program_ids[:objects])
 
 ######################################################################
 ###### Load objects
@@ -326,7 +328,7 @@ gpu.update_lights(ctx.gl_program_id)
 
 gpu_mesh_jobs  = []
 # gpu_mesh_jobs += load_objects(gpu, ctx)
-gpu_mesh_jobs += load_objects_using_oi(gpu, ctx)
+gpu_mesh_jobs += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
 
 StackProf.stop
 StackProf.results('./stackprof.dump')
@@ -458,9 +460,9 @@ loop do
   Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
   Gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-  Gl.glUseProgram(ctx.gl_program_id) # select the program for use
+  Gl.glUseProgram(ctx.gl_program_ids[:objects]) # select the program for use
 
-  gpu.update_camera_view(ctx.gl_program_id, ctx.camera) if ctx.camera != ctx.camera_last_render
+  gpu.update_camera_view(ctx.gl_program_ids[:objects], ctx.camera) if ctx.camera != ctx.camera_last_render
 
   #### Draw / Update objects
   #
