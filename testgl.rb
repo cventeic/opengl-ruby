@@ -307,6 +307,7 @@ end
 gpu = Gpu.new
 
 ctx.gl_program_ids = {}
+
 ctx.gl_program_ids[:objects] = Gl.glCreateProgram
 
 compile_link_shaders(
@@ -316,21 +317,29 @@ compile_link_shaders(
   fragment_shader: './shdr_frag_ads_sh.c'
 )
 
+ctx.gl_program_ids[:text] = Gl.glCreateProgram
 
-######################################################################
-###### Load lights
-######################################################################
+compile_link_shaders(
+  gpu: gpu,
+  gl_program_id: ctx.gl_program_ids[:text],
+  vertex_shader: './shdr_vertex_basic.c',
+  fragment_shader: './shdr_frag_ads_sh.c'
+)
 
-# /todo pass in light data
-gpu.update_lights(ctx.gl_program_ids[:objects])
+program_groups = [:objects, :text]
 
 ######################################################################
 ###### Load objects
 ######################################################################
 
 gpu_mesh_jobs = {}
+
 gpu_mesh_jobs[:objects] = []
 gpu_mesh_jobs[:objects] += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
+
+gpu_mesh_jobs[:text] = []
+gpu_mesh_jobs[:text] += load_objects_using_oi(gpu, ctx.gl_program_ids[:text])
+
 
 StackProf.stop
 StackProf.results('./stackprof.dump')
@@ -357,6 +366,16 @@ Gl.loadIdentity
 Gl.enable(Gl::GL_DEPTH_TEST)
 Gl.depthFunc(Gl::GL_LESS)
 Gl.shadeModel(Gl::GL_SMOOTH)
+
+######################################################################
+###### Load lights
+######################################################################
+
+# /todo pass in light data
+program_groups.each do |pg|
+  gpu.update_lights(ctx.gl_program_ids[pg])
+end
+
 
 ######################################################################
 #### Enter interactive loop
@@ -462,14 +481,16 @@ loop do
   Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
   Gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-  Gl.glUseProgram(ctx.gl_program_ids[:objects]) # select the program for use
+  program_groups.each do |pg|
+    Gl.glUseProgram(ctx.gl_program_ids[pg]) # select the program for use
 
-  gpu.update_camera_view(ctx.gl_program_ids[:objects], ctx.camera) if ctx.camera != ctx.camera_last_render
+    gpu.update_camera_view(ctx.gl_program_ids[pg], ctx.camera) if ctx.camera != ctx.camera_last_render
 
-  #### Draw / Update objects
-  #
-  gpu_mesh_jobs[:objects].each do |job|
-    gpu.render_object(job)
+    #### Draw / Update objects
+    #
+    gpu_mesh_jobs[pg].each do |job|
+      gpu.render_object(job)
+    end
   end
 
   window.gl_window.gl_swap
