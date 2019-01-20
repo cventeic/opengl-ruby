@@ -40,6 +40,7 @@ end
 ###### Load objects
 ######################################################################
 
+=begin
 def load_objects(gpu, ctx)
   cpu_graphic_objects = []
 
@@ -143,6 +144,7 @@ def load_objects(gpu, ctx)
 
   gpu_mesh_jobs
 end
+=end
 
 def load_objects_using_oi(gpu, gl_program_id)
   cpu_g_objs = []
@@ -329,7 +331,6 @@ gpu.update_lights(ctx.gl_program_ids[:objects])
 gpu_mesh_jobs = {}
 gpu_mesh_jobs[:objects] = []
 gpu_mesh_jobs[:objects] += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
-
 
 StackProf.stop
 StackProf.results('./stackprof.dump')
