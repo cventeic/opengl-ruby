@@ -326,9 +326,10 @@ gpu.update_lights(ctx.gl_program_ids[:objects])
 ###### Load objects
 ######################################################################
 
-gpu_mesh_jobs  = []
-# gpu_mesh_jobs += load_objects(gpu, ctx)
-gpu_mesh_jobs += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
+gpu_mesh_jobs = {}
+gpu_mesh_jobs[:objects] = []
+gpu_mesh_jobs[:objects] += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
+
 
 StackProf.stop
 StackProf.results('./stackprof.dump')
@@ -466,7 +467,7 @@ loop do
 
   #### Draw / Update objects
   #
-  gpu_mesh_jobs.each do |job|
+  gpu_mesh_jobs[:objects].each do |job|
     gpu.render_object(job)
   end
 
