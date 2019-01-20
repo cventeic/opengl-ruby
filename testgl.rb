@@ -314,7 +314,6 @@ Gl.glAttachShader(ctx.gl_program_id, ctx.vertex_shader_id)
 Gl.glAttachShader(ctx.gl_program_id, ctx.fragment_shader_id)
 
 Gl.glLinkProgram(ctx.gl_program_id)
-Gl.glUseProgram(ctx.gl_program_id)
 
 puts "vertex shader_log   = #{Gl.getShaderInfoLog(ctx.vertex_shader_id)}"
 puts "fragment shader_log = #{Gl.getShaderInfoLog(ctx.fragment_shader_id)}"
