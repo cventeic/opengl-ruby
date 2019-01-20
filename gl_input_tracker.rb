@@ -17,7 +17,7 @@ class InputTracker
     @x = 0
     @y = 0
     @frame = false
-    @camera = camera
+    @camera = camera.clone
   end
 
   def updated?
@@ -54,7 +54,7 @@ class InputTracker
       # Rotate the camera space around origin (0.0, 0.0, 0.0)
       @camera.move_camera_in_world_space(arc_ball_rotation_matrix)
     else
-      @camera = camera
+      @camera = camera.clone
     end
     @camera
   end
@@ -79,5 +79,9 @@ class InputTracker
 
   def end_frame
     @frame = false
+  end
+
+  def to_s
+    self.inspect
   end
 end
