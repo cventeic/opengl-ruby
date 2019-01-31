@@ -35,18 +35,19 @@ class Gpu
     d = data.to_a.flatten.pack("f*")
     Gl.uniformMatrix4fv(location, 1, Gl::GL_FALSE, d)
 
-    check_for_gl_error(uniform_name: uniform_name)
+    check_for_gl_error(uniform_name: uniform_name, gl_program_id: program_id)
   end
 
   def set_uniform_vector(program_id, uniform_name, data, element_count=4)
     location = @uniformsLocationCache.uniform_location(program_id, uniform_name)
     data_array = data.to_a.first(element_count)
+
     d = data_array.pack("f*")
 
     Gl.uniform3f(location, *data_array) if element_count == 3
     Gl.uniform4fv(location, 1, d) if element_count == 4
 
-    check_for_gl_error(uniform_name: uniform_name)
+    check_for_gl_error(uniform_name: uniform_name, gl_program_id: program_id)
   end
 
   # Set uniforms in bulk from data structure of form

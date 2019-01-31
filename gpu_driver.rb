@@ -45,7 +45,7 @@ class Gpu
     set_uniform_matrix(gl_program_id, :projection,   camera.perspective)
     set_uniform_vector(gl_program_id, :vEyePosition, camera.camera_location_in_world_space)
 
-    check_for_gl_error
+    check_for_gl_error(gl_program_id: gl_program_id)
   end
 
   def update_lights(gl_program_id)

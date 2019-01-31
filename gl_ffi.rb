@@ -43,6 +43,7 @@ module Gl
   GL_DYNAMIC_DRAW                                               = 0x88E8
 
   GL_INFO_LOG_LENGTH                                            = 0x8B84
+  GL_ATTACHED_SHADERS                                           = 0x8B85
 
   # Depth buffer
   GL_NEVER = 0x0200
@@ -76,6 +77,7 @@ module Gl
 
   GL_SMOOTH = 0x1D01
   GL_FLAT = 0x1D00
+
 
   extern 'void glBindAttribLocation(GLuint, GLuint, const GLchar *)'
 
@@ -230,7 +232,7 @@ module Gl
 
     glGetShaderInfoLog(shader_id, log_len, out_len_bits, log_ptr) if log_len > 0
 
-    log_ptr.to_s
+    log_ptr.to_s + " (expected log length: #{log_len})"
   end
 
   # Returns a parameter from a shader object
@@ -241,6 +243,17 @@ module Gl
     value = value_bits.unpack('i*')
 
     value[0]
+  end
+
+  # Returns id's of attached shaders
+  #extern 'void glGetAttachedShaders(	GLuint program, GLsizei maxCount, GLsizei *count, GLuint *shaders)'
+  extern 'void glGetAttachedShaders(GLuint program, GLsizei , GLsizei *, GLuint *)'
+  def self.getAttachedShaders(program_id)
+    num_shaders = Gl.getProgramiv(program_id, Gl::GL_ATTACHED_SHADERS)
+    returned_num_shaders = [0].pack('i*')
+    shader_ids = Array.new(num_shaders, 0).pack('I*')
+    glGetAttachedShaders(program_id, num_shaders, returned_num_shaders, shader_ids)
+    shader_ids.unpack('I*')
   end
 
   # glGetProgramInfoLog — return the information log for a program object
@@ -258,7 +271,7 @@ module Gl
 
     glGetProgramInfoLog(program_id, log_len, out_len_bits, log) if log_len > 0
 
-    log.to_s
+    log.to_s + " (expected log length: #{log_len})"
   end
 
   # Returns a parameter from a program object
