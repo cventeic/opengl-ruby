@@ -165,7 +165,7 @@ def load_objects_using_oi(gpu, gl_program_id)
 
   meta_object = Cpu_G_Obj_Job.new
 
-  points = 50.times.map { rand_vector_in_box }
+  points = 5.times.map { rand_vector_in_box }
 
   points.each_cons(2) do |p0, p1|
     new_c = new_color
@@ -323,7 +323,7 @@ compile_link_shaders(
   gpu: gpu,
   gl_program_id: ctx.gl_program_ids[:text],
   vertex_shader: './shdr_vertex_basic.c',
-  fragment_shader: './shdr_frag_ads_sh.c'
+  fragment_shader: './shdr_frag_font.c'
 )
 
 program_groups = [:objects, :text]
