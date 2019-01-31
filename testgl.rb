@@ -476,7 +476,6 @@ loop do
 
   #### Render
   #
-  check_for_gl_error
 
   Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
   Gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -491,6 +490,8 @@ loop do
     gpu_mesh_jobs[pg].each do |job|
       gpu.render_object(job)
     end
+
+    check_for_gl_error(gl_program_id: ctx.gl_program_ids[pg])
   end
 
   window.gl_window.gl_swap
