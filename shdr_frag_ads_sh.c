@@ -25,18 +25,16 @@ struct Light {
     vec3 position;
 };
 
-uniform vec4 surface_color;
-uniform Light light;
+// Uniforms are constant for all fragments (pixels) in object
+uniform vec4 surface_color; //
+uniform Light light;        // Position of light in world space
+uniform vec4 vEyePosition;  // Position of camera in world space
 
-uniform vec4 vEyePosition; // Location of the "Camera" in world space
+// Inputs are specific to fragment (pixel)
+in vec4 vFragPositionInWorldSpace; // Fragment Position in world space
+in vec4 vFragNormalInWorldSpace; // Vertex Normal in World Space
 
-in vec4 vFragPosition; // Fragment Position in world space
-
-in vec4 vNormalInWorldSpace; // Vertex Normal in World Space
-                             // Fragment Normal entering frag shader (after interpolation)
- 
-// Final color of the vertex we pass on to the next stage
-out vec4 vVaryingColor;
+out vec4 vVaryingColor; // Final color of the fragment (pixel)
 
 
 // Returns the specular component of the color
@@ -123,9 +121,9 @@ void main(void)
 {
   vec4 vLightPosition = vec4(light.position, 0.0f);
 
-  vec4 diffuseMagnitudes  = GetDiffuseColorSphericalHarmonics(vFragPosition, vNormalInWorldSpace);
+  vec4 diffuseMagnitudes  = GetDiffuseColorSphericalHarmonics(vFragPositionInWorldSpace, vFragNormalInWorldSpace);
 
-  vec4 specularMagnitudes = GetSpecularColor(vFragPosition, vNormalInWorldSpace, vLightPosition, vEyePosition);
+  vec4 specularMagnitudes = GetSpecularColor(vFragPositionInWorldSpace, vFragNormalInWorldSpace, vLightPosition, vEyePosition);
 
   float DiffusePercent  = 0.75; //0.5;
   float SpecularPercent = 0.75;
