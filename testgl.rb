@@ -237,11 +237,6 @@ window.height = (window.width / window.aspect_ratio).to_i
 window.x     = 0
 window.y     = 0
 
-camera = Camera.new(aspect_ratio: window.aspect_ratio)
-
-ctx = RenderContext.new(camera: camera)
-puts "ctx = #{ctx}"
-
 ######################################################################
 #### Prep X Window
 ######################################################################
@@ -293,8 +288,10 @@ end
 
 gpu = Gpu.new
 
-ctx.gl_program_ids = {}
+camera = Camera.new(aspect_ratio: window.aspect_ratio)
 
+ctx = RenderContext.new(camera: camera)
+ctx.gl_program_ids = {}
 ctx.gl_program_ids[:objects] = Gl.glCreateProgram
 
 compile_link_shaders(
