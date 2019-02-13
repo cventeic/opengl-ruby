@@ -55,4 +55,28 @@ def sdl_context(args)
   return gl_window
 end
 
+######################################################################
+#### Prep OpenGL
+######################################################################
+def prep_opengl(args)
+  defaults = {x: 0, y:0, w: 1920, h: 1080}
+  args = OpenStruct.new(defaults.merge(args))
+
+  printf("OpenGL version %d.%d\n",
+         SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MAJOR_VERSION),
+         SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MINOR_VERSION))
+
+  Gl.viewport(0, 0, args.w, args.h)
+
+  Gl.matrixMode(GL_PROJECTION)
+  Gl.loadIdentity
+
+  Gl.matrixMode(GL_MODELVIEW)
+  Gl.loadIdentity
+
+  Gl.enable(Gl::GL_DEPTH_TEST)
+  Gl.depthFunc(Gl::GL_LESS)
+  Gl.shadeModel(Gl::GL_SMOOTH)
+end
+
 

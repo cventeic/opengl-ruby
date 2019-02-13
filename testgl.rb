@@ -287,25 +287,8 @@ StackProf.results('./stackprof.dump')
 puts
 puts 'Loading Done'
 
-######################################################################
 #### Prep OpenGL
-######################################################################
-
-printf("OpenGL version %d.%d\n",
-       SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MAJOR_VERSION),
-       SDL2::GL.get_attribute(SDL2::GL::CONTEXT_MINOR_VERSION))
-
-Gl.viewport(0, 0, window.width, window.height)
-
-Gl.matrixMode(GL_PROJECTION)
-Gl.loadIdentity
-
-Gl.matrixMode(GL_MODELVIEW)
-Gl.loadIdentity
-
-Gl.enable(Gl::GL_DEPTH_TEST)
-Gl.depthFunc(Gl::GL_LESS)
-Gl.shadeModel(Gl::GL_SMOOTH)
+prep_opengl(w: window.width, h: window.height)
 
 ######################################################################
 ###### Load lights
