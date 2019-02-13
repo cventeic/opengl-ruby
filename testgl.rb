@@ -1,5 +1,4 @@
 require 'sdl2'
-require 'color-generator'
 
 require 'ostruct'
 
@@ -23,18 +22,6 @@ require './oi_shapes'
 require 'awesome_print'
 
 include Gl
-
-@color_generator = ColorGenerator.new saturation: 0.3, lightness: 0.75
-
-def new_color
-  r, g, b = @color_generator.create_rgb.map { |c| c.to_f / 255.0 }
-
-  assert { r >= 0.0 && r <= 1.0 }
-
-  color = Geo3d::Vector.new(r, g, b, 1.0)
-
-  color
-end
 
 ######################################################################
 ###### Load objects
@@ -78,7 +65,7 @@ def load_objects(gpu, ctx)
       #                      base_radius: base_radius,
       #                      top_radius: top_radius) },
       model_matrix: Geo3d::Matrix.translation(vec.x, vec.y, vec.z),
-      color: new_color
+      color: get_new_color
     )
   end
 
@@ -97,7 +84,7 @@ def load_objects(gpu, ctx)
       # color: Geo3d::Vector.new( ((vec.x+10.0)/40.0)+0.5,
       #                           ((vec.y+10.0)/40.0)+0.5,
       #                           ((vec.z+10.0)/40.0)+0.5, 1.0 )
-      color: new_color
+      color: get_new_color
     )
   end
 
@@ -110,7 +97,7 @@ def load_objects(gpu, ctx)
   #                                 GL_Shapes.arrow( p0, p1, 0.05)},
   #       mesh: GL_Shapes.arrow( p0, p1, 0.05 ),
   #       #color: Geo3d::Vector.new( 0.0, 1.0, 0.0, 1.0)
-  #       color: new_color()
+  #       color: get_new_color()
   #     )
   #   end
 
@@ -156,7 +143,7 @@ def load_objects_using_oi(gpu, gl_program_id)
 
   points.each_cons(2) do |p0, p1|
     cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder_aa(start: p0, stop: p1,
-                                                        color: new_color)
+                                                        color: get_new_color)
   end
 
   ####################
@@ -168,7 +155,7 @@ def load_objects_using_oi(gpu, gl_program_id)
   points = 5.times.map { rand_vector_in_box }
 
   points.each_cons(2) do |p0, p1|
-    new_c = new_color
+    new_c = get_new_color
 
     # Define a sub-job to render arrow between two points
     #
