@@ -20,6 +20,35 @@
   <defs
      id="defs2">
     <marker
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="marker4938"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lend">
+      <path
+         transform="scale(1.1) rotate(180) translate(1,0)"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         id="path4936" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker4786"
+       style="overflow:visible;"
+       inkscape:isstock="true"
+       inkscape:collect="always">
+      <path
+         id="path4784"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
        inkscape:stockid="Arrow2Lend"
        orient="auto"
        refY="0.0"
@@ -290,17 +319,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="312.16018"
-     inkscape:cy="423.15286"
+     inkscape:cx="554.62686"
+     inkscape:cy="626.64129"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      units="mm"
-     inkscape:window-width="1920"
-     inkscape:window-height="1172"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1325"
+     inkscape:window-height="904"
+     inkscape:window-x="140"
+     inkscape:window-y="93"
+     inkscape:window-maximized="0"
      inkscape:snap-bbox="true"
      inkscape:lockguides="true">
     <inkscape:grid
@@ -319,7 +348,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -491,7 +520,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.3499999px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332">Per-Sample Operations</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-       d="m 60.002258,37.366631 0,19.633361"
+       d="M 59.473091,37.366631 V 56.999992"
        id="path6294"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -499,7 +528,7 @@
        inkscape:connection-end="#rect3734-9" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7655)"
-       d="M 60.002258,96.999992 V 116.63335"
+       d="M 59.473091,96.999992 V 116.63335"
        id="path7373"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -507,7 +536,7 @@
        inkscape:connection-end="#rect3734-9-5" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7395)"
-       d="m 60.002258,126.63335 v 20.36663"
+       d="m 59.473091,126.63335 v 20.36663"
        id="path7375"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -515,7 +544,7 @@
        inkscape:connection-end="#rect3734-0" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7435)"
-       d="m 60.002258,156.99998 v 19.63337"
+       d="m 59.473091,156.99998 v 19.63337"
        id="path7377"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -523,7 +552,7 @@
        inkscape:connection-end="#rect3734-9-3" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7481)"
-       d="m 60.002258,186.63335 0,20.52916"
+       d="m 59.473091,186.63335 v 20.52916"
        id="path7379"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -531,7 +560,7 @@
        inkscape:connection-end="#rect3734-2-1" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7533)"
-       d="m 60.002258,217.16251 v 20.16252"
+       d="m 59.473091,217.16251 0,20.16252"
        id="path7381"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -539,7 +568,7 @@
        inkscape:connection-end="#rect3734-9-5-0" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 60.002258,247.32503 0,19.67497"
+       d="M 59.473091,247.32503 V 267"
        id="path7383"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -547,7 +576,7 @@
        inkscape:connection-end="#rect3734-9-5-0-1" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7591)"
-       d="m 60.002258,247.32503 0,19.67497"
+       d="M 59.473091,247.32503 V 267"
        id="path7385"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -555,7 +584,7 @@
        inkscape:connection-end="#rect3734-9-5-0-1" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker7739)"
-       d="m 60.002258,66.999992 v 20"
+       d="m 59.473091,66.999992 v 20"
        id="path7729"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
@@ -624,7 +653,7 @@
            height="151.18111"
            x="529.13385"
            y="102.04721" /></flowRegion><flowPara
-         id="flowPara8260"></flowPara></flowRoot>    <text
+         id="flowPara8260" /></flowRoot>    <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:0.5em;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="112.39008"
@@ -731,7 +760,7 @@
          id="tspan8599"
          x="140"
          y="232.0388"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;line-height:0.5em;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -803,25 +832,20 @@
          x="121.62894"
          y="259.39059"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:0.5em;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="tspan8541-6-4" /><tspan
+         id="tspan3845">out vec4 vVaryingColor; // Final color of the fragment (pixel)</tspan><tspan
          sodipodi:role="line"
          x="121.62894"
          y="262.91837"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:0.5em;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="tspan8714-2">out vec4 vVaryingColor; // Final color of the fragment (pixel)</tspan><tspan
-         sodipodi:role="line"
-         x="121.62894"
-         y="266.44614"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:0.5em;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
          id="tspan8716-7" /><tspan
          sodipodi:role="line"
          x="121.62894"
-         y="269.97394"
+         y="266.44617"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:0.5em;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
          id="tspan8720-7" /><tspan
          sodipodi:role="line"
          x="121.62894"
-         y="273.50171"
+         y="269.97394"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:0.5em;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
          id="tspan7825-1-4-3-9" /></text>
     <path
@@ -873,5 +897,100 @@
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="3"
        inkscape:connection-end="#rect3734-9-5-0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.59399748px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="101.85715"
+       y="243.9762"
+       id="text3857"><tspan
+         sodipodi:role="line"
+         id="tspan3855"
+         x="101.85715"
+         y="243.9762"
+         style="stroke-width:0.26458332">Called  for every visible pixel of all triangles</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.59399748px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="103.57439"
+       y="63.327374"
+       id="text3861"><tspan
+         sodipodi:role="line"
+         id="tspan3859"
+         x="103.57439"
+         y="63.327374"
+         style="stroke-width:0.26458332">Called for every vertex of all triangles</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="88.25"
+       y="199.12798"
+       id="text3865"><tspan
+         sodipodi:role="line"
+         id="tspan3863"
+         x="88.25"
+         y="199.12798"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"> Each individual Primitive is broken down into Fragments, </tspan><tspan
+         sodipodi:role="line"
+         x="88.25"
+         y="204.41965"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan3867">based on the sample coverage of the primitive.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker4786)"
+       d="M 89.999999,197 69.539668,207.16251"
+       id="path3869"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="3"
+       inkscape:connection-end="#rect3734-2-1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="105.84225"
+       y="100.19643"
+       id="text4910"><tspan
+         sodipodi:role="line"
+         id="tspan4908"
+         x="105.84225"
+         y="100.19643"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"> tessellation involves subdividing a patch of some type, </tspan><tspan
+         sodipodi:role="line"
+         x="105.84225"
+         y="105.48809"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4912">then computing new vertex values </tspan><tspan
+         sodipodi:role="line"
+         x="105.84225"
+         y="110.77976"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4916">   (position, color, texture coordinates, etc.) </tspan><tspan
+         sodipodi:role="line"
+         x="105.84225"
+         y="116.07143"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
+         id="tspan4914">for each of the vertices generated by this process</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4918"
+       style="fill:black;fill-opacity:1;stroke:none;font-family:Arial;font-style:normal;font-weight:normal;font-size:21.14266713px;line-height:1.25;letter-spacing:0px;word-spacing:0px;-inkscape-font-specification:'Arial, Normal';font-stretch:normal;font-variant:normal;text-anchor:start;text-align:start;writing-mode:lr;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal"><flowRegion
+         id="flowRegion4920"><rect
+           id="rect4922"
+           width="453.5433"
+           height="151.18111"
+           x="415.74802"
+           y="366.61417" /></flowRegion><flowPara
+         id="flowPara4924"></flowPara></flowRoot>    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker4938)"
+       d="M 110,107 76.315386,96.999992"
+       id="path4926"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="3"
+       inkscape:connection-end="#rect3734-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 89.999965,96.999992 3.4e-5,6e-6"
+       id="path4928"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="3"
+       inkscape:connection-start="#rect3734-2" />
   </g>
 </svg>
