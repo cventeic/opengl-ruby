@@ -341,7 +341,7 @@ loop do
   #### Render
   #
 
-  Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+  #Gl.glClearColor(0.0, 0.0, 0.0, 1.0)
   Gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
   program_groups.each do |pg|
