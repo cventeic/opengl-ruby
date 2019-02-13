@@ -80,3 +80,61 @@ def prep_opengl(args)
 end
 
 
+def key_to_camera_translation(ev)
+  puts
+  puts "scancode: #{ev.scancode}(#{SDL2::Key::Scan.name_of(ev.scancode)})"
+  puts "keycode: #{ev.sym}(#{SDL2::Key.name_of(ev.sym)})"
+  puts "mod: #{ev.mod}"
+  puts "mod(SDL2::Key::Mod.state): #{SDL2::Key::Mod.state}"
+
+  camera_translation = Geo3d::Matrix.identity
+
+  case ev.mod
+  when SDL2::Key::Mod::NONE, 4096
+    case ev.sym
+    when SDL2::Key::LEFT
+      puts "L"
+      camera_translation = Geo3d::Matrix.translation(-5.0, 0.0, 0.0)
+    when SDL2::Key::RIGHT
+      puts "R"
+      camera_translation = Geo3d::Matrix.translation(+5.0, 0.0, 0.0)
+    when SDL2::Key::UP
+      puts "U"
+      camera_translation = Geo3d::Matrix.translation(0.0, 5.0, 0.0)
+    when SDL2::Key::DOWN
+      puts "D"
+      camera_translation = Geo3d::Matrix.translation(0.0, -5.0, 0.0)
+    end
+
+  when 64,4160 # L control
+    case ev.sym
+    when SDL2::Key::UP
+      puts "Ctrl U"
+      camera_translation = Geo3d::Matrix.translation(0.0, 0.0, 5.0)
+    when SDL2::Key::DOWN
+      puts "Ctrl D"
+      camera_translation = Geo3d::Matrix.translation(0.0, 0.0, -5.0)
+    end
+
+  when 256,4352 # L Alt
+    case ev.sym
+    when SDL2::Key::LEFT
+      puts "Alt L"
+      camera_translation = Geo3d::Matrix.translation(-5.0, 0.0, 0.0)
+    when SDL2::Key::RIGHT
+      puts "Alt R"
+      camera_translation = Geo3d::Matrix.translation(+5.0, 0.0, 0.0)
+    when SDL2::Key::UP
+      puts "Alt U"
+      camera_translation = Geo3d::Matrix.translation(0.0, 5.0, 0.0)
+    when SDL2::Key::DOWN
+      puts "Alt D"
+      camera_translation = Geo3d::Matrix.translation(0.0, -5.0, 0.0)
+    end
+  end
+
+  return camera_translation
+end
+
+
+
