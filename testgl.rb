@@ -312,14 +312,13 @@ input_tracker = InputTracker.new(ctx.camera,
 input_tracker.cursor_position_callback(0, state.x, state.y)
 
 loop do
+  camera_translation = nil
+
   while event = SDL2::Event.poll
     case event
-
     when SDL2::Event::KeyDown
       camera_translation = key_to_camera_translation(event)
-      ctx.camera.move_camera_in_camera_space(camera_translation)
 
-    # when SDL2::Event::Quit, SDL2::Event::KeyDown
     when SDL2::Event::Quit
       exit
 
@@ -334,8 +333,9 @@ loop do
     end
   end
 
-  #### Move camera if input changed
+  #### Move camera based on input
   #
+  ctx.camera.move_camera_in_camera_space(camera_translation) unless camera_translation.nil?
   ctx.camera = input_tracker.update_camera(ctx.camera) if input_tracker.updated?
 
   #### Render
