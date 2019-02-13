@@ -239,29 +239,8 @@ window.height = (window.width / window.aspect_ratio).to_i
 window.x     = 0
 window.y     = 0
 
-######################################################################
 #### Prep X Window
-######################################################################
-
-SDL2.init(SDL2::INIT_EVERYTHING)
-SDL2::GL.set_attribute(SDL2::GL::RED_SIZE, 8)
-SDL2::GL.set_attribute(SDL2::GL::GREEN_SIZE, 8)
-SDL2::GL.set_attribute(SDL2::GL::BLUE_SIZE, 8)
-SDL2::GL.set_attribute(SDL2::GL::ALPHA_SIZE, 8)
-SDL2::GL.set_attribute(SDL2::GL::DOUBLEBUFFER, 1)
-
-# For Antialiasing
-SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLEBUFFERS, 1)
-SDL2::GL.set_attribute(SDL2::GL::MULTISAMPLESAMPLES, 2)
-
-window.gl_window = SDL2::Window.create(
-  'testgl',
-  window.x, window.y,
-  window.width, window.height,
-  SDL2::Window::Flags::OPENGL
-)
-
-SDL2::GL::Context.create(window.gl_window)
+window.gl_window = sdl_context(x: window.x, y: window.y, w: window.width, h: window.height)
 
 gpu = Gpu.new
 
