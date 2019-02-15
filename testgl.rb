@@ -207,7 +207,7 @@ def load_objects_using_oi(gpu, gl_program_id)
 
     objs = cpu_g_obj.render
 
-    objs[:gpu_objs].each do |obj|
+    objs.fetch(:gpu_objs,[]).each do |obj|
       mesh = obj[:mesh]
       color = obj[:color]
 
