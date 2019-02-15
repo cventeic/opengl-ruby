@@ -90,7 +90,7 @@ class Aggregate
 
     sphere = Aggregate.new(symbol: :sphere)
 
-    sphere.add(
+    sphere.add_element(
       symbol: :sphere_mesh,
       computes: {
         sub_ctx_render: lambda { |sub_ctx_in|
@@ -110,7 +110,7 @@ class Aggregate
   def self.cylinder(**args)
     cylinder = Aggregate.new(symbol: :cylinder)
 
-    cylinder.add(
+    cylinder.add_element(
       symbol: :cylinder_mesh,
       computes: {
         sub_ctx_render: ->(sub_ctx_in) {
@@ -130,7 +130,7 @@ class Aggregate
   def self.directional_cylinder(**args)
     cylinder = Aggregate.new(symbol: :directional_cylinder)
 
-    cylinder.add(
+    cylinder.add_element(
       symbol: :directional_cylinder_mesh,
       computes: {
         sub_ctx_render: lambda { |sub_ctx_in|
@@ -150,7 +150,7 @@ class Aggregate
   def self.arrow(**args)
     arrow = Aggregate.new(symbol: :arrow)
 
-    arrow.add(
+    arrow.add_element(
       symbol: :arrow_mesh,
       computes: {
         sub_ctx_render: lambda { |sub_ctx_in|
@@ -186,7 +186,7 @@ class Aggregate
     spheres = Aggregate.new
 
     trs_matricies.each do |sub_ctx_egress_matrix|
-      spheres.add(
+      spheres.add_element(
         symbol: :a_transform,
 
         computes: {
@@ -224,7 +224,7 @@ class Aggregate
     trs_matricies.each do |_trs_matrix|
       cylinder = Aggregate.cylinder(f_length: side_length)
 
-      parallel_cylinders.add(
+      parallel_cylinders.add_element(
         symbol: :a_transform,
 
         computes: {
@@ -257,7 +257,7 @@ class Aggregate
     box = Aggregate.new
 
     matricies.each do |sub_ctx_egress_matrix|
-      box.add(
+      box.add_element(
         symbol: :a_transform,
 
         computes: {

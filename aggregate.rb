@@ -41,7 +41,7 @@ class Aggregate
   #
   #  /todo clarify and document
   #
-  def add(**args)
+  def add_element(**args)
     defaults = {
       symbol: '',
       computes: {

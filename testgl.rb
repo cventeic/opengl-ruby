@@ -164,7 +164,7 @@ def load_objects_using_aggregate(gpu, gl_program_id)
     arrow_obj = Aggregate.arrow(start: p0, stop: p1, color: new_c)
 
     # Add the sub-job to the meta-job to render all the arrows
-    meta_object.add(
+    meta_object.add_element(
       symbol: :a_color,
 
       computes: {
