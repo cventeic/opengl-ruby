@@ -17,7 +17,7 @@ require './cpu_graphic_object'
 
 require 'stackprof'
 
-require './oi_shapes'
+require './aggregate_shapes'
 
 require './app_common'
 
@@ -135,16 +135,16 @@ def load_objects(gpu, ctx)
 end
 =end
 
-def load_objects_using_oi(gpu, gl_program_id)
+def load_objects_using_aggregate(gpu, gl_program_id)
   cpu_g_objs = []
-  # cpu_g_objs << Cpu_G_Obj_Job.box_wire()
+  # cpu_g_objs << Aggregate.box_wire()
 
   ####################
   # Draw 5 connected line segments to random locations in box
   points = 10.times.map { rand_vector_in_box }
 
   points.each_cons(2) do |p0, p1|
-    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1,
+    cpu_g_objs << Aggregate.directional_cylinder(start: p0, stop: p1,
                                                         color: get_new_color)
   end
 
@@ -152,7 +152,7 @@ def load_objects_using_oi(gpu, gl_program_id)
   # Create a single job to render meshes
   #   for a set of multiple arrows between points
 
-  meta_object = Cpu_G_Obj_Job.new
+  meta_object = Aggregate.new
 
   points = 5.times.map { rand_vector_in_box }
 
@@ -161,7 +161,7 @@ def load_objects_using_oi(gpu, gl_program_id)
 
     # Define a sub-job to render arrow between two points
     #
-    arrow_obj = Cpu_G_Obj_Job.arrow(start: p0, stop: p1, color: new_c)
+    arrow_obj = Aggregate.arrow(start: p0, stop: p1, color: new_c)
 
     # Add the sub-job to the meta-job to render all the arrows
     meta_object.add(
@@ -187,7 +187,7 @@ def load_objects_using_oi(gpu, gl_program_id)
         },
 
         sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
-          Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
+          Aggregate.std_join_ctx(sup_ctx_in, sub_ctx_out)
         }
       }
     )
@@ -275,10 +275,10 @@ program_groups = [:objects, :text]
 gpu_mesh_jobs = {}
 
 gpu_mesh_jobs[:objects] = []
-gpu_mesh_jobs[:objects] += load_objects_using_oi(gpu, ctx.gl_program_ids[:objects])
+gpu_mesh_jobs[:objects] += load_objects_using_aggregate(gpu, ctx.gl_program_ids[:objects])
 
 gpu_mesh_jobs[:text] = []
-gpu_mesh_jobs[:text] += load_objects_using_oi(gpu, ctx.gl_program_ids[:text])
+gpu_mesh_jobs[:text] += load_objects_using_aggregate(gpu, ctx.gl_program_ids[:text])
 
 
 StackProf.stop

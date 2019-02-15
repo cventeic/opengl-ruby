@@ -18,11 +18,11 @@
 
 # Data Structures
 
-  Cpu_G_Obj_Job:
+  Aggregate:
   - Job to perform on the CPU to produce a set of meshes used by the GPU to render a specific
       graphical object.
   - Each mesh can have different colors or textures or be rendered by a different shader.
-  - The Cpu_G_Obj_Job encapsulates other Cpu_G_Obj_Jobs to render a composite
+  - The Aggregate encapsulates other Aggregates to render a composite
       object.
 
   Gpu_Mesh_Job:
@@ -31,7 +31,7 @@
 
 
   Cpu_Graphical_Object:
-  - Depricated.  Original representation for Cpu_G_Obj_Job.
+  - Depricated.  Original representation for Aggregate.
   - Does not support compositing of objects from parts.
 
 

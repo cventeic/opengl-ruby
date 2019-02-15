@@ -1,32 +1,32 @@
-require './oi'
+require './aggregate'
 
 require 'awesome_print'
 
 # Note: translate, rotate, scale --and-- aggregation of sub-objects can be
-# supported in a single Cpu_G_Obj_Job instance.
+# supported in a single Aggregate instance.
 #
-# Cpu_G_Obj_Job_1 = Aggregates {
-#          TRS matrix_1.1 applied to Cpu_G_Obj_Job_1.1,
-#          TRS matrix_1.2 applied to Cpu_G_Obj_Job_1.2,
-#          TRS matrix_1.3 applied to Cpu_G_Obj_Job_1.3,
+# Aggregate_1 = Aggregates {
+#          TRS matrix_1.1 applied to Aggregate_1.1,
+#          TRS matrix_1.2 applied to Aggregate_1.2,
+#          TRS matrix_1.3 applied to Aggregate_1.3,
 #        }
 #
-# However below we are often layering with an added Cpu_G_Obj_Job for clarity of code
+# However below we are often layering with an added Aggregate for clarity of code
 #
-# Cpu_G_Obj_Job_1 = Aggregates {
-#          Cpu_G_Obj_Job_1.1 = { TRS matrix_1.1 applied to Cpu_G_Obj_Job_1.1.1 }
-#          Cpu_G_Obj_Job_1.2 = { TRS matrix_1.2 applied to Cpu_G_Obj_Job_1.2.1 }
-#          Cpu_G_Obj_Job_1.3 = { TRS matrix_1.3 applied to Cpu_G_Obj_Job_1.3.1 }
+# Aggregate_1 = Aggregates {
+#          Aggregate_1.1 = { TRS matrix_1.1 applied to Aggregate_1.1.1 }
+#          Aggregate_1.2 = { TRS matrix_1.2 applied to Aggregate_1.2.1 }
+#          Aggregate_1.3 = { TRS matrix_1.3 applied to Aggregate_1.3.1 }
 #        }
 #
-# In this case Cpu_G_Obj_Job_1.1, Cpu_G_Obj_Job_1.2, Cpu_G_Obj_Job_1.3 are extra Cpu_G_Obj_Job for purpose of code clarity
+# In this case Aggregate_1.1, Aggregate_1.2, Aggregate_1.3 are extra Aggregate for purpose of code clarity
 #
 
-class Cpu_G_Obj_Job
+class Aggregate
   ############### Helpers
 
   # Concatinate with world
-  # def Cpu_G_Obj_Job.merge_mesh(sup_ctx_in, sub_ctx_out)
+  # def Aggregate.merge_mesh(sup_ctx_in, sub_ctx_out)
   #  sup_ctx_out = sup_ctx_in
   #  sup_ctx_out[:mesh] = sup_ctx_in.fetch(:mesh, Mesh.new) + sub_ctx_out[:mesh]
   #  sup_ctx_out
@@ -63,7 +63,7 @@ class Cpu_G_Obj_Job
   # Transform mesh in "b" space to mesh in "a" space
   def self.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
     puts
-    puts 'def Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)'
+    puts 'def Aggregate.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)'
 
     ap sub_ctx_out
 
@@ -88,7 +88,7 @@ class Cpu_G_Obj_Job
     defaults = { radius: 0.5 }
     args= defaults.merge(args)
 
-    sphere = Cpu_G_Obj_Job.new(symbol: :sphere)
+    sphere = Aggregate.new(symbol: :sphere)
 
     sphere.add(
       symbol: :sphere_mesh,
@@ -108,7 +108,7 @@ class Cpu_G_Obj_Job
   end
 
   def self.cylinder(**args)
-    cylinder = Cpu_G_Obj_Job.new(symbol: :cylinder)
+    cylinder = Aggregate.new(symbol: :cylinder)
 
     cylinder.add(
       symbol: :cylinder_mesh,
@@ -128,7 +128,7 @@ class Cpu_G_Obj_Job
   end
 
   def self.directional_cylinder(**args)
-    cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
+    cylinder = Aggregate.new(symbol: :directional_cylinder)
 
     cylinder.add(
       symbol: :directional_cylinder_mesh,
@@ -148,7 +148,7 @@ class Cpu_G_Obj_Job
   end
 
   def self.arrow(**args)
-    arrow = Cpu_G_Obj_Job.new(symbol: :arrow)
+    arrow = Aggregate.new(symbol: :arrow)
 
     arrow.add(
       symbol: :arrow_mesh,
@@ -181,9 +181,9 @@ class Cpu_G_Obj_Job
       Geo3d::Matrix.translation(x, y, z)
     end
 
-    sphere  = Cpu_G_Obj_Job.sphere(side_length: args[:side_length])
+    sphere  = Aggregate.sphere(side_length: args[:side_length])
 
-    spheres = Cpu_G_Obj_Job.new
+    spheres = Aggregate.new
 
     trs_matricies.each do |sub_ctx_egress_matrix|
       spheres.add(
@@ -195,10 +195,10 @@ class Cpu_G_Obj_Job
           sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
             # Were going to translate the mesh
             # Error here...
-            mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            mesh_in_a = Aggregate.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
             # Combine with the other meshes
-            sup_ctx_out = Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, mesh_in_a)
+            sup_ctx_out = Aggregate.std_join_ctx(sup_ctx_in, mesh_in_a)
           }
         }
       )
@@ -211,7 +211,7 @@ class Cpu_G_Obj_Job
     ##### Make 4 parallel cylinders
     #
 
-    parallel_cylinders = Cpu_G_Obj_Job.new
+    parallel_cylinders = Aggregate.new
 
     hl = side_length / 2.0
 
@@ -222,7 +222,7 @@ class Cpu_G_Obj_Job
     end
 
     trs_matricies.each do |_trs_matrix|
-      cylinder = Cpu_G_Obj_Job.cylinder(f_length: side_length)
+      cylinder = Aggregate.cylinder(f_length: side_length)
 
       parallel_cylinders.add(
         symbol: :a_transform,
@@ -254,7 +254,7 @@ class Cpu_G_Obj_Job
       Geo3d::Matrix.identity # Version with centerline on z
     ]
 
-    box = Cpu_G_Obj_Job.new
+    box = Aggregate.new
 
     matricies.each do |sub_ctx_egress_matrix|
       box.add(
@@ -265,9 +265,9 @@ class Cpu_G_Obj_Job
 
           sub_ctx_egress: lambda { |_sup_ctx_in, sub_ctx_out_array|
             sup_ctx_out_array = sub_ctx_out_array.map do |sub_ctx|
-              # mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx,
+              # mesh_in_a = Aggregate.mesh_transform_sub_ctx_egress(sub_ctx,
               # sub_ctx_egress_matrix)
-              Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx, sub_ctx_egress_matrix)
+              Aggregate.mesh_transform_sub_ctx_egress(sub_ctx, sub_ctx_egress_matrix)
             end
 
             return sup_ctx_out_array

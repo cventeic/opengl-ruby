@@ -4,19 +4,19 @@ require './util/geo3d_matrix.rb'
 require 'ostruct'
 require './cpu_graphic_object'
 
-# Object_Indirection encapsulates the builder for an independent object
+# Aggregate encapsulates the builder for an independent object
 #
-# Object_Indirection.render outputs a vertex array of vertexes in that object's 3D space
+# Aggregate.render outputs a vertex array of vertexes in that object's 3D space
 #
-# Object_Indirection.render aggregates sub-components
+# Aggregate.render aggregates sub-components
 #   renders sub-components to generate sub-component vertex arrays
 #   translate, rotate and scales sub components vertexes to the correct place in super-component's 3D space
 #
-# Object_Indirection.render adds content
+# Aggregate.render adds content
 #   renders vertexes that can't be produced by aggregating sub-components
 #
 
-class Cpu_G_Obj_Job
+class Aggregate
   attr_reader :joins
 
   def initialize(symbol: '')
@@ -47,7 +47,7 @@ class Cpu_G_Obj_Job
         sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
         sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) {
           # Output joins input gpu_objs (super context) with rendered gpu_objects (sub_context)
-          sup_ctx_out = Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
+          sup_ctx_out = Aggregate.std_join_ctx(sup_ctx_in, sub_ctx_out)
           return sup_ctx_out
         }
       }
