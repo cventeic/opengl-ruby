@@ -168,8 +168,6 @@ def load_objects_using_aggregate(gpu, gl_program_id)
       symbol: :a_color,
 
       computes: {
-        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in },
-
         element_render: lambda { |_element_in|
           objs = arrow_obj.render
 
@@ -185,10 +183,6 @@ def load_objects_using_aggregate(gpu, gl_program_id)
 
           }
         },
-
-        element_egress: lambda { |aggregate_data_in, element_out|
-          Aggregate.std_aggregate_ctx(aggregate_data_in, element_out)
-        }
       }
     )
   end
