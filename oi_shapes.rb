@@ -172,12 +172,16 @@ class Cpu_G_Obj_Job
   ##### Make the set of (8) spheres
   # on sphere for each corner of the box
   #
-  def self.cube_corner_spheres(side_length: 20.0)
+  def self.cube_corner_spheres(**args)
+    defaults = { side_length: 0.5 }
+    args= defaults.merge(args)
+
+
     trs_matricies = [-10.0, 10.0].product([-10.0, 10.0], [-10.0, 10.0]).map do |x, y, z|
       Geo3d::Matrix.translation(x, y, z)
     end
 
-    sphere  = Cpu_G_Obj_Job.sphere(side_length: side_length)
+    sphere  = Cpu_G_Obj_Job.sphere(side_length: args[:side_length])
 
     spheres = Cpu_G_Obj_Job.new
 
@@ -189,6 +193,8 @@ class Cpu_G_Obj_Job
           sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = sphere.render },
 
           sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
+            # Were going to translate the mesh
+            # Error here...
             mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
             # Combine with the other meshes
