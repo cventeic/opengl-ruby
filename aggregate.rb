@@ -42,8 +42,13 @@ class Aggregate
     defaults = {
       symbol: '',
       computes: {
-        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in }, # Default: pass untransformed super context to sub context
-        element_render: ->(element_in) { element_out = element_in }, # Default:
+        # Default: Expose the entire unmodified aggregate data structure to the element
+        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in },
+
+        # Default lambda
+        element_render: ->(element_in) {element_out = {gpu_objs: []}}, # Default:
+
+        # Default lambda adds :gpu_objs rendered by element to :gpu_objs array in aggregates common data structure
         element_egress: ->(aggregate_data_in, element_out) {
           # Output aggregates input gpu_objs (super context) with rendered gpu_objects (sub_context)
           aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, element_out)
