@@ -251,7 +251,7 @@ module GL_Shapes
     mesh
   end
 
-  def self.sphere(fRadius = 2.0, iSlices = 16, iStacks = 16)
+  def self.sphere(fRadius: 2.0, iSlices: 16, iStacks: 16, **args)
     mesh = Mesh.new
 
     vVertex = Array.new(4)
