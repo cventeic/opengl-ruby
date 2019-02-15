@@ -25,6 +25,14 @@ class Aggregate
     @elements = Hash.new { |hash, key| hash[key] = {} }
   end
 
+  # Add gpu objects from element to aggregate
+  def add_gpu_objs_to_aggregate(aggregate_intermediate_hash, element_output_hash)
+    aggregate_intermediate_hash[:gpu_objs]  = [] unless aggregate_intermediate_hash.key?(:gpu_objs)
+    aggregate_intermediate_hash[:gpu_objs] += element_output_hash[:gpu_objs] if element_output_hash.key?(:gpu_objs)
+
+    aggregate_intermediate_hash
+  end
+
   # Add element to the aggregate
   #
   # elements can be aggregates or actual meshes
@@ -51,7 +59,7 @@ class Aggregate
 
         # Default egress lambda adds rendered :gpu_objs to :gpu_objs array in aggregate intermediate hash
         element_egress: ->(aggregate_intermediate_hash, element_output_hash) {
-          aggregate_intermediate_hash = Aggregate.add_gpu_objs_to_aggregate(aggregate_intermediate_hash, element_output_hash)
+          aggregate_intermediate_hash = self.add_gpu_objs_to_aggregate(aggregate_intermediate_hash, element_output_hash)
           return aggregate_intermediate_hash
         }
       }
