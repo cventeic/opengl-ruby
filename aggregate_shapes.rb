@@ -74,12 +74,12 @@ class Aggregate
     { mesh: mesh_in_a }
   end
 
-  # Aggregate gpu objects from two contexts
-  def self.std_aggregate_ctx(ctx_in, ctx_out)
-    ctx_in[:gpu_objs]  = [] unless ctx_in.key?(:gpu_objs)
-    ctx_in[:gpu_objs] += ctx_out[:gpu_objs] if ctx_out.key?(:gpu_objs)
+  # Add gpu objects from element to aggregate
+  def self.add_gpu_objs_to_aggregate(aggregate_intermediate_hash, element_output_hash)
+    aggregate_intermediate_hash[:gpu_objs]  = [] unless aggregate_intermediate_hash.key?(:gpu_objs)
+    aggregate_intermediate_hash[:gpu_objs] += element_output_hash[:gpu_objs] if element_output_hash.key?(:gpu_objs)
 
-    ctx_in
+    aggregate_intermediate_hash
   end
 
   ############### Base Shapes
@@ -198,7 +198,7 @@ class Aggregate
             mesh_in_a = Aggregate.mesh_transform_element_egress(element_output_hash, element_egress_matrix)
 
             # Combine with the other meshes
-            aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, mesh_in_a)
+            aggregate_data_out = Aggregate.add_gpu_objs_to_aggregate(aggregate_data_in, mesh_in_a)
           }
         }
       )

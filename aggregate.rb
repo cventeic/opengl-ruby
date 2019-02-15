@@ -51,7 +51,7 @@ class Aggregate
 
         # Default egress lambda adds rendered :gpu_objs to :gpu_objs array in aggregate intermediate hash
         element_egress: ->(aggregate_intermediate_hash, element_output_hash) {
-          aggregate_intermediate_hash = Aggregate.std_aggregate_ctx(aggregate_intermediate_hash, element_output_hash)
+          aggregate_intermediate_hash = Aggregate.add_gpu_objs_to_aggregate(aggregate_intermediate_hash, element_output_hash)
           return aggregate_intermediate_hash
         }
       }
