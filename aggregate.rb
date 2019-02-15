@@ -6,6 +6,8 @@ require './cpu_graphic_object'
 
 # Aggregate encapsulates the builder for an independent object
 #
+# Aggregation differes from composition in that aggregation does not imply ownership
+#
 # Aggregate.render outputs a vertex array of vertexes in that object's 3D space
 #
 # Aggregate.render aggregates sub-components
