@@ -42,7 +42,7 @@ class Aggregate
   def add_element(**args)
     defaults = {
       symbol: '',
-      computes: {
+      lambdas: {
         # Default ingress lambda extracts and exposes entire aggregate intermediate hash as element input
         element_ingress: ->(aggregate_intermediate_hash) { element_input_hash = aggregate_intermediate_hash},
 
@@ -58,11 +58,11 @@ class Aggregate
     }
 
     args = defaults.merge(args)
-    args[:computes] = defaults[:computes].merge(args.fetch(:computes, {})) # merge internal hash
+    args[:lambdas] = defaults[:lambdas].merge(args.fetch(:lambdas, {})) # merge internal hash
 
     guid = [args[:symbol], @elements.size]
 
-    @elements[guid] = args[:computes]
+    @elements[guid] = args[:lambdas]
   end
 
   # Render aggregate object by rendering all elements of the object.
@@ -81,18 +81,18 @@ class Aggregate
     # Render meshes for each element
     #
     aggregate_output_hash = @elements.each_pair.inject(aggregate_input_hash) do |aggregate_intermediate_hash, element|
-      element_symbol, computes = element
+      element_symbol, lambdas = element
 
       # Compute the input sub context from the input super context
       #   The sub context knows what information it needs from the super
       #   context and extracts it here.
       #
-      element_in  = computes[:element_ingress].call(aggregate_intermediate_hash) # element_ins extracted from a_state
+      element_in  = lambdas[:element_ingress].call(aggregate_intermediate_hash) # element_ins extracted from a_state
 
       # Do the compute to render the meshes from the sub object
-      element_out = computes[:element_render].call(element_in) # element_out rendered by lambda
+      element_out = lambdas[:element_render].call(element_in) # element_out rendered by lambda
 
-      aggregate_intermediate_hash = computes[:element_egress].call(aggregate_intermediate_hash, element_out) # new a_state integrating b_ouput
+      aggregate_intermediate_hash = lambdas[:element_egress].call(aggregate_intermediate_hash, element_out) # new a_state integrating b_ouput
 
       aggregate_intermediate_hash
     end

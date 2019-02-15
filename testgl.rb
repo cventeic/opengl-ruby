@@ -167,7 +167,7 @@ def load_objects_using_aggregate(gpu, gl_program_id)
     meta_object.add_element(
       symbol: :a_color,
 
-      computes: {
+      lambdas: {
         element_render: lambda { |_element_input_hash|
           objs = arrow_obj.render
 

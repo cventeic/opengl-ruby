@@ -92,7 +92,7 @@ class Aggregate
 
     sphere.add_element(
       symbol: :sphere_mesh,
-      computes: {
+      lambdas: {
         element_render: lambda { |element_input_hash|
                            element_output_hash = {
                              gpu_objs: [{
@@ -112,7 +112,7 @@ class Aggregate
 
     cylinder.add_element(
       symbol: :cylinder_mesh,
-      computes: {
+      lambdas: {
         element_render: ->(element_input_hash) {
           element_output_hash = {
             gpu_objs: [{
@@ -132,7 +132,7 @@ class Aggregate
 
     cylinder.add_element(
       symbol: :directional_cylinder_mesh,
-      computes: {
+      lambdas: {
         element_render: lambda { |element_input_hash|
           element_output_hash = {
             gpu_objs: [{
@@ -152,7 +152,7 @@ class Aggregate
 
     arrow.add_element(
       symbol: :arrow_mesh,
-      computes: {
+      lambdas: {
         element_render: lambda { |element_input_hash|
           element_output_hash = {
             gpu_objs: [{
@@ -189,7 +189,7 @@ class Aggregate
       spheres.add_element(
         symbol: :a_transform,
 
-        computes: {
+        lambdas: {
           element_render: ->(_element_input_hash) { element_output_hash = sphere.render },
 
           element_egress: lambda { |aggregate_data_in, element_output_hash|
@@ -227,7 +227,7 @@ class Aggregate
       parallel_cylinders.add_element(
         symbol: :a_transform,
 
-        computes: {
+        lambdas: {
           element_render: ->(_element_input_hash) { element_output_hash = cylinder.render }, # sub context output = rendered object
 
           element_egress: lambda { |aggregate_data_in, _element_output_hash| # super context = super context + rendered object
@@ -260,7 +260,7 @@ class Aggregate
       box.add_element(
         symbol: :a_transform,
 
-        computes: {
+        lambdas: {
           element_render: ->(_element_input_hash) { element_output_hash = parallel_cylinders.render },
 
           element_egress: lambda { |_aggregate_data_in, element_output_hash_array|
