@@ -4,9 +4,9 @@ require './util/geo3d_matrix.rb'
 require 'ostruct'
 require './cpu_graphic_object'
 
-# Aggregate encapsulates the builder for an independent object
+# Aggregate encapsulates the builder for an independent graphical object
 #
-# Aggregation differes from composition in that aggregation does not imply ownership
+# Aggregation differes from composition in that aggregation does not imply ownership of elements
 #
 # Aggregate.render outputs a vertex array of vertexes in that object's 3D space
 #
@@ -29,12 +29,13 @@ class Aggregate
   #
   # elements can be aggregates or actual meshes
   #
+  #
   # Element lambdas:
-  #  element_ingress:   lambda to extract element input from aggregate's common data structure
+  #  element_ingress: lambda to extract element input hash from aggregate's intermediate hash
   #
-  #  element_render:    lambda to render element to array of gpu_objects (vertex_array, color, etc)
+  #  element_render:  lambda to render element to hash containing array of gpu_objects (vertex_array, color, etc)
   #
-  #  element_egress:    lambda to modify aggregate's common data structure to store result of rendering element
+  #  element_egress:  lambda to add rendered output to the aggregate_intermediate hash
   #
   #  /todo clarify and document
   #
@@ -42,17 +43,16 @@ class Aggregate
     defaults = {
       symbol: '',
       computes: {
-        # Default: Expose the entire unmodified aggregate data structure to the element
-        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in },
+        # Default ingress lambda extracts and exposes entire aggregate intermediate hash as element input
+        element_ingress: ->(aggregate_intermediate_hash) { element_input_hash = aggregate_intermediate_hash},
 
-        # Default lambda
-        element_render: ->(element_in) {element_out = {gpu_objs: []}}, # Default:
+        # Default render lambda returns hash containing empty array of gpu_objs
+        element_render: ->(element_input_hash) {element_output_hash = {gpu_objs: []}},
 
-        # Default lambda adds :gpu_objs rendered by element to :gpu_objs array in aggregates common data structure
-        element_egress: ->(aggregate_data_in, element_out) {
-          # Output aggregates input gpu_objs (super context) with rendered gpu_objects (sub_context)
-          aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, element_out)
-          return aggregate_data_out
+        # Default egress lambda adds rendered :gpu_objs to :gpu_objs array in aggregate intermediate hash
+        element_egress: ->(aggregate_intermediate_hash, element_output_hash) {
+          aggregate_intermediate_hash = Aggregate.std_aggregate_ctx(aggregate_intermediate_hash, element_output_hash)
+          return aggregate_intermediate_hash
         }
       }
     }
@@ -65,33 +65,41 @@ class Aggregate
     @elements[guid] = args[:computes]
   end
 
-  # Render modified parent state (sup_ctx)
-  #  by rendering and aggregating all child lambda (sub_ctx) into parent domain.
+  # Render aggregate object by rendering all elements of the object.
   #
-  def render(**aggregate_data_initial)
-    # puts "render aggregate_data_in = #{aggregate_data_in}"
-
-    # Render meshes for each sub object
+  #  aggregate_input_hash is contains key,value pairs that may be relevant to elements
+  #
+  #  Render creates an aggregate_intermediate hash from the aggregate_input_hash
+  #
+  #  All elements can extract inputs from the aggregate_intermediate_hash and
+  #  all elements add rendered output to the aggregate_intermediate_hash.
+  #
+  #  returns a hash of the form {xxx: yyy, gpu_objs: [aaa,bbb]}
+  #  where gpu_objs contain all the meshes and surfaces needed to render the aggregate object
+  #
+  def render(**aggregate_input_hash)
+    # Render meshes for each element
     #
-    aggregate_data_final = @elements.each_pair.inject(aggregate_data_initial) do |aggregate_data_in, element|
-      element_symbol, sub_computes = element
+    aggregate_output_hash = @elements.each_pair.inject(aggregate_input_hash) do |aggregate_intermediate_hash, element|
+      element_symbol, computes = element
 
       # Compute the input sub context from the input super context
       #   The sub context knows what information it needs from the super
       #   context and extracts it here.
       #
-      element_in  = sub_computes[:element_ingress].call(aggregate_data_in) # element_ins extracted from a_state
+      element_in  = computes[:element_ingress].call(aggregate_intermediate_hash) # element_ins extracted from a_state
 
       # Do the compute to render the meshes from the sub object
-      element_out = sub_computes[:element_render].call(element_in) # element_out rendered by lambda
-      aggregate_data_out = sub_computes[:element_egress].call(aggregate_data_in, element_out) # new a_state integrating b_ouput
+      element_out = computes[:element_render].call(element_in) # element_out rendered by lambda
 
-      # Return super context
-      aggregate_data_out
+      aggregate_intermediate_hash = computes[:element_egress].call(aggregate_intermediate_hash, element_out) # new a_state integrating b_ouput
+
+      aggregate_intermediate_hash
     end
 
-    # We have an array with one element per sub context we rendered.
-    aggregate_data_final
+    # In the future we may to remove intermediate garbage from aggregate_output_hash
+
+    aggregate_output_hash
   end
 end
 
