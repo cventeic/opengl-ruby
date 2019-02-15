@@ -35,10 +35,30 @@ class Cpu_G_Obj_Job
   # Merge triangle meshes from two contexts
   #   Both contexts map to the exact same 3-Space without transforms
   #
+  #  *** This needs work.
+  #       What are we merging?
+  #       There can be multiple gpu_objs with unique mesh and color in each context
+  #       Merging should be done on specific gpu_objs
+=begin
   def self.mesh_merge(context_0, context_1)
-    context_0[:mesh] = context_0.fetch(:mesh, Mesh.new) + context_1.fetch(:mesh, Mesh.new)
+    context_0[:gpu_objs] = {} unless context_0.has_key?(:gpu_objs)
+    context_0[:gpu_objs][:mesh] = Mesh.new unless context_0[:gpu_objs].has_key?(:mesh)
+    c0_mesh = context_0[:gpu_objs][:mesh]
+
+
+    context_1[:gpu_objs] = {} unless context_1.has_key?(:gpu_objs)
+    context_1[:gpu_objs][:mesh] = Mesh.new unless context_1[:gpu_objs].has_key?(:mesh)
+    c1_mesh = context_1[:gpu_objs][:mesh]
+
+    puts "context_0[:gpu_objs][:mesh]: #{c0_mesh}"
+    puts "context_1[:gpu_objs][:mesh]: #{c1_mesh}"
+
+    context_0[:gpu_objs][:mesh] = c0_mesh + c1_mesh
+
+    puts "context_0[:gpu_objs][:mesh]: #{c0_mesh}"
     context_0
   end
+=end
 
   # Transform mesh in "b" space to mesh in "a" space
   def self.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
@@ -54,9 +74,10 @@ class Cpu_G_Obj_Job
     { mesh: mesh_in_a }
   end
 
+  # Join gpu objects from two contexts
   def self.std_join_ctx(ctx_in, ctx_out)
     ctx_in[:gpu_objs]  = [] unless ctx_in.key?(:gpu_objs)
-    ctx_in[:gpu_objs] += ctx_out[:gpu_objs]
+    ctx_in[:gpu_objs] += ctx_out[:gpu_objs] if ctx_out.key?(:gpu_objs)
 
     ctx_in
   end
@@ -75,10 +96,6 @@ class Cpu_G_Obj_Job
 
         sub_ctx_render: lambda { |sub_ctx_in|
                           sub_ctx_out = { mesh: GL_Shapes.sphere(sub_ctx_in[:radius]) }
-                        },
-
-        sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
-                          sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out)
                         }
       }
     )
@@ -94,8 +111,7 @@ class Cpu_G_Obj_Job
       computes: {
         # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
 
-        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)) } },
-        sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) { sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)) } }
       }
     )
 
@@ -129,8 +145,7 @@ class Cpu_G_Obj_Job
       symbol: :cylinder_mesh,
       computes: {
         # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
-        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)) } },
-        sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) { sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
+        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)) } }
       }
     )
 
@@ -148,8 +163,7 @@ class Cpu_G_Obj_Job
                             mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
                             color: args[:color]
                           }
-                        },
-        sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) { sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
+                        }
       }
     )
 
@@ -180,7 +194,8 @@ class Cpu_G_Obj_Job
           sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
             mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
-            sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
+            # Combine with the other meshes
+            sup_ctx_out = Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, mesh_in_a)
           }
         }
       )
@@ -250,8 +265,6 @@ class Cpu_G_Obj_Job
               # mesh_in_a = Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx,
               # sub_ctx_egress_matrix)
               Cpu_G_Obj_Job.mesh_transform_sub_ctx_egress(sub_ctx, sub_ctx_egress_matrix)
-
-              # sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, mesh_in_a)
             end
 
             return sup_ctx_out_array
