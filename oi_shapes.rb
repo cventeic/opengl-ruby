@@ -94,7 +94,6 @@ class Cpu_G_Obj_Job
       computes: {
         # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
 
-        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in },
         sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)) } },
         sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) { sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
@@ -109,11 +108,6 @@ class Cpu_G_Obj_Job
     cylinder.add(
       symbol: :cylinder_mesh,
       computes: {
-
-        sub_ctx_ingress: lambda { |sup_ctx_in|
-          sub_ctx_in = sup_ctx_in
-        },
-
         sub_ctx_render: lambda { |sub_ctx_in|
           sub_ctx_out = {
             gpu_objs: [{
@@ -121,10 +115,6 @@ class Cpu_G_Obj_Job
               color: args[:color]
             }]
           }
-        },
-
-        sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
-          Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
         }
       }
     )
@@ -139,8 +129,6 @@ class Cpu_G_Obj_Job
       symbol: :cylinder_mesh,
       computes: {
         # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
-
-        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in },
         sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)) } },
         sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) { sup_ctx_out = Cpu_G_Obj_Job.mesh_merge(sup_ctx_in, sub_ctx_out) }
       }
@@ -155,7 +143,6 @@ class Cpu_G_Obj_Job
     arrow.add(
       symbol: :arrow_mesh,
       computes: {
-        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in },
         sub_ctx_render: lambda { |sub_ctx_in|
                           sub_ctx_out = {
                             mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
@@ -188,7 +175,6 @@ class Cpu_G_Obj_Job
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in },
           sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = sphere.render },
 
           sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
@@ -224,8 +210,6 @@ class Cpu_G_Obj_Job
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in  = sup_ctx_in }, # sub context input = untransformed super context
-
           sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = cylinder.render }, # sub context output = rendered object
 
           sub_ctx_egress: lambda { |sup_ctx_in, _sub_ctx_out| # super context = super context + rendered object
@@ -259,7 +243,6 @@ class Cpu_G_Obj_Job
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in  = sup_ctx_in },
           sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = parallel_cylinders.render },
 
           sub_ctx_egress: lambda { |_sup_ctx_in, sub_ctx_out_array|
