@@ -168,14 +168,14 @@ def load_objects_using_aggregate(gpu, gl_program_id)
       symbol: :a_color,
 
       computes: {
-        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in },
+        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in },
 
-        sub_ctx_render: lambda { |_sub_ctx_in|
+        element_render: lambda { |_element_in|
           objs = arrow_obj.render
 
-          sub_ctx_out = {
+          element_out = {
             gpu_objs: [{
-              # mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)),
+              # mesh: GL_Shapes.directional_cylinder(args.merge(element_in)),
               mesh: GL_Shapes.directional_cylinder(start: p0, stop: p1,
                                                    color: new_c),
               color: new_c
@@ -186,8 +186,8 @@ def load_objects_using_aggregate(gpu, gl_program_id)
           }
         },
 
-        sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
-          Aggregate.std_aggregate_ctx(sup_ctx_in, sub_ctx_out)
+        element_egress: lambda { |aggregate_data_in, element_out|
+          Aggregate.std_aggregate_ctx(aggregate_data_in, element_out)
         }
       }
     )

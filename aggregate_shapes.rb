@@ -26,10 +26,10 @@ class Aggregate
   ############### Helpers
 
   # Concatinate with world
-  # def Aggregate.merge_mesh(sup_ctx_in, sub_ctx_out)
-  #  sup_ctx_out = sup_ctx_in
-  #  sup_ctx_out[:mesh] = sup_ctx_in.fetch(:mesh, Mesh.new) + sub_ctx_out[:mesh]
-  #  sup_ctx_out
+  # def Aggregate.merge_mesh(aggregate_data_in, element_out)
+  #  aggregate_data_out = aggregate_data_in
+  #  aggregate_data_out[:mesh] = aggregate_data_in.fetch(:mesh, Mesh.new) + element_out[:mesh]
+  #  aggregate_data_out
   # end
 
   # Merge triangle meshes from two contexts
@@ -61,15 +61,15 @@ class Aggregate
 =end
 
   # Transform mesh in "b" space to mesh in "a" space
-  def self.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+  def self.mesh_transform_element_egress(element_out, element_egress_matrix)
     puts
-    puts 'def Aggregate.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)'
+    puts 'def Aggregate.mesh_transform_element_egress(element_out, element_egress_matrix)'
 
-    ap sub_ctx_out
+    ap element_out
 
-    mesh_in_b = sub_ctx_out.fetch(:mesh, Mesh.new)
+    mesh_in_b = element_out.fetch(:mesh, Mesh.new)
 
-    mesh_in_a = mesh_in_b.applyMatrix!(sub_ctx_egress_matrix)
+    mesh_in_a = mesh_in_b.applyMatrix!(element_egress_matrix)
 
     { mesh: mesh_in_a }
   end
@@ -93,10 +93,10 @@ class Aggregate
     sphere.add_element(
       symbol: :sphere_mesh,
       computes: {
-        sub_ctx_render: lambda { |sub_ctx_in|
-                           sub_ctx_out = {
+        element_render: lambda { |element_in|
+                           element_out = {
                              gpu_objs: [{
-                               mesh: GL_Shapes.sphere(args.merge(sub_ctx_in)),
+                               mesh: GL_Shapes.sphere(args.merge(element_in)),
                                color: args[:color]
                              }]
                            }
@@ -113,10 +113,10 @@ class Aggregate
     cylinder.add_element(
       symbol: :cylinder_mesh,
       computes: {
-        sub_ctx_render: ->(sub_ctx_in) {
-          sub_ctx_out = {
+        element_render: ->(element_in) {
+          element_out = {
             gpu_objs: [{
-              mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)),
+              mesh: GL_Shapes.cylinder(args.merge(element_in)),
               color: args[:color]
             }]
           }
@@ -133,10 +133,10 @@ class Aggregate
     cylinder.add_element(
       symbol: :directional_cylinder_mesh,
       computes: {
-        sub_ctx_render: lambda { |sub_ctx_in|
-          sub_ctx_out = {
+        element_render: lambda { |element_in|
+          element_out = {
             gpu_objs: [{
-              mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)),
+              mesh: GL_Shapes.directional_cylinder(args.merge(element_in)),
               color: args[:color]
             }]
           }
@@ -153,10 +153,10 @@ class Aggregate
     arrow.add_element(
       symbol: :arrow_mesh,
       computes: {
-        sub_ctx_render: lambda { |sub_ctx_in|
-          sub_ctx_out = {
+        element_render: lambda { |element_in|
+          element_out = {
             gpu_objs: [{
-              mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
+              mesh: GL_Shapes.arrow(args.merge(element_in)),
               color: args[:color]
             }]
           }
@@ -185,20 +185,20 @@ class Aggregate
 
     spheres = Aggregate.new
 
-    trs_matricies.each do |sub_ctx_egress_matrix|
+    trs_matricies.each do |element_egress_matrix|
       spheres.add_element(
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = sphere.render },
+          element_render: ->(_element_in) { element_out = sphere.render },
 
-          sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
+          element_egress: lambda { |aggregate_data_in, element_out|
             # Were going to translate the mesh
             # Error here...
-            mesh_in_a = Aggregate.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
+            mesh_in_a = Aggregate.mesh_transform_element_egress(element_out, element_egress_matrix)
 
             # Combine with the other meshes
-            sup_ctx_out = Aggregate.std_aggregate_ctx(sup_ctx_in, mesh_in_a)
+            aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, mesh_in_a)
           }
         }
       )
@@ -228,18 +228,18 @@ class Aggregate
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = cylinder.render }, # sub context output = rendered object
+          element_render: ->(_element_in) { element_out = cylinder.render }, # sub context output = rendered object
 
-          sub_ctx_egress: lambda { |sup_ctx_in, _sub_ctx_out| # super context = super context + rendered object
-                            sup_ctx_out = sup_ctx_in
+          element_egress: lambda { |aggregate_data_in, _element_out| # super context = super context + rendered object
+                            aggregate_data_out = aggregate_data_in
 
-                            sup_ctx_out[:mesh] = sup_ctx_out.fetch(:mesh, Mesh.new)
+                            aggregate_data_out[:mesh] = aggregate_data_out.fetch(:mesh, Mesh.new)
 
-                            puts "aaa sup_ctx_out = #{sup_ctx_out}"
+                            puts "aaa aggregate_data_out = #{aggregate_data_out}"
 
-                            # sup_ctx_out[:mesh] += sub_ctx_out[:mesh].applyMatrix!(trs_matrix)
+                            # aggregate_data_out[:mesh] += element_out[:mesh].applyMatrix!(trs_matrix)
 
-                            return sup_ctx_out
+                            return aggregate_data_out
                           }
         }
       )
@@ -256,21 +256,21 @@ class Aggregate
 
     box = Aggregate.new
 
-    matricies.each do |sub_ctx_egress_matrix|
+    matricies.each do |element_egress_matrix|
       box.add_element(
         symbol: :a_transform,
 
         computes: {
-          sub_ctx_render: ->(_sub_ctx_in) { sub_ctx_out = parallel_cylinders.render },
+          element_render: ->(_element_in) { element_out = parallel_cylinders.render },
 
-          sub_ctx_egress: lambda { |_sup_ctx_in, sub_ctx_out_array|
-            sup_ctx_out_array = sub_ctx_out_array.map do |sub_ctx|
-              # mesh_in_a = Aggregate.mesh_transform_sub_ctx_egress(sub_ctx,
-              # sub_ctx_egress_matrix)
-              Aggregate.mesh_transform_sub_ctx_egress(sub_ctx, sub_ctx_egress_matrix)
+          element_egress: lambda { |_aggregate_data_in, element_out_array|
+            aggregate_data_out_array = element_out_array.map do |sub_ctx|
+              # mesh_in_a = Aggregate.mesh_transform_element_egress(sub_ctx,
+              # element_egress_matrix)
+              Aggregate.mesh_transform_element_egress(sub_ctx, element_egress_matrix)
             end
 
-            return sup_ctx_out_array
+            return aggregate_data_out_array
           }
         }
       )

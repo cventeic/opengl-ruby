@@ -10,12 +10,10 @@ require './cpu_graphic_object'
 #
 # Aggregate.render outputs a vertex array of vertexes in that object's 3D space
 #
-# Aggregate.render aggregates sub-components
-#   renders sub-components to generate sub-component vertex arrays
-#   translate, rotate and scales sub components vertexes to the correct place in super-component's 3D space
-#
-# Aggregate.render adds content
-#   renders vertexes that can't be produced by aggregating sub-components
+# Aggregate.render
+#   renders elements to produce element vertex arrays
+#   translate, rotate and scales element vertexes to the correct placement in aggregate's 3D space
+#   returns collection of vertex arrays required to render aggregate graphical object
 #
 
 class Aggregate
@@ -27,17 +25,16 @@ class Aggregate
     @elements = Hash.new { |hash, key| hash[key] = {} }
   end
 
-  # Add a sub-component to to this super-component
+  # Add element to the aggregate
   #
-  # Embedded Subcomponent(s)
+  # elements can be aggregates or actual meshes
   #
-  #  sub_ctx_ingress:   lambda to compute embedded sub-component inputs from super-component state / inputs
-  #                       (lambda returns inputs to be used when rendering recursive sub-component(s) / layer(s) )
+  # Element lambdas:
+  #  element_ingress:   lambda to extract element input from aggregate's common data structure
   #
-  #  sub_ctx_render:    lambda to render sub-component content
-  #                       (lambda returns outputs from rendering recursive sub-component(s) / layer(s))
+  #  element_render:    lambda to render element to array of gpu_objects (vertex_array, color, etc)
   #
-  #  sub_ctx_egress:    lambda to compute super-component additions/modifications from sub-component content
+  #  element_egress:    lambda to modify aggregate's common data structure to store result of rendering element
   #
   #  /todo clarify and document
   #
@@ -45,12 +42,12 @@ class Aggregate
     defaults = {
       symbol: '',
       computes: {
-        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in }, # Default: pass untransformed super context to sub context
-        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
-        sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) {
+        element_ingress: ->(aggregate_data_in) { element_in = aggregate_data_in }, # Default: pass untransformed super context to sub context
+        element_render: ->(element_in) { element_out = element_in }, # Default:
+        element_egress: ->(aggregate_data_in, element_out) {
           # Output aggregates input gpu_objs (super context) with rendered gpu_objects (sub_context)
-          sup_ctx_out = Aggregate.std_aggregate_ctx(sup_ctx_in, sub_ctx_out)
-          return sup_ctx_out
+          aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, element_out)
+          return aggregate_data_out
         }
       }
     }
@@ -66,30 +63,30 @@ class Aggregate
   # Render modified parent state (sup_ctx)
   #  by rendering and aggregating all child lambda (sub_ctx) into parent domain.
   #
-  def render(**sup_ctx_initial)
-    # puts "render sup_ctx_in = #{sup_ctx_in}"
+  def render(**aggregate_data_initial)
+    # puts "render aggregate_data_in = #{aggregate_data_in}"
 
     # Render meshes for each sub object
     #
-    sup_ctx_final = @elements.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, element|
+    aggregate_data_final = @elements.each_pair.inject(aggregate_data_initial) do |aggregate_data_in, element|
       element_symbol, sub_computes = element
 
       # Compute the input sub context from the input super context
       #   The sub context knows what information it needs from the super
       #   context and extracts it here.
       #
-      sub_ctx_in  = sub_computes[:sub_ctx_ingress].call(sup_ctx_in) # sub_ctx_ins extracted from a_state
+      element_in  = sub_computes[:element_ingress].call(aggregate_data_in) # element_ins extracted from a_state
 
       # Do the compute to render the meshes from the sub object
-      sub_ctx_out = sub_computes[:sub_ctx_render].call(sub_ctx_in) # sub_ctx_out rendered by lambda
-      sup_ctx_out = sub_computes[:sub_ctx_egress].call(sup_ctx_in, sub_ctx_out) # new a_state integrating b_ouput
+      element_out = sub_computes[:element_render].call(element_in) # element_out rendered by lambda
+      aggregate_data_out = sub_computes[:element_egress].call(aggregate_data_in, element_out) # new a_state integrating b_ouput
 
       # Return super context
-      sup_ctx_out
+      aggregate_data_out
     end
 
     # We have an array with one element per sub context we rendered.
-    sup_ctx_final
+    aggregate_data_final
   end
 end
 
