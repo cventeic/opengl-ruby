@@ -83,16 +83,14 @@ class Aggregate
     aggregate_output_hash = @elements.each_pair.inject(aggregate_input_hash) do |aggregate_intermediate_hash, element|
       element_symbol, lambdas = element
 
-      # Compute the input sub context from the input super context
-      #   The sub context knows what information it needs from the super
-      #   context and extracts it here.
-      #
-      element_in  = lambdas[:element_ingress].call(aggregate_intermediate_hash) # element_ins extracted from a_state
+      # Extract element's input from the aggregate_intermediate_hash
+      element_input_hash = lambdas[:element_ingress].call(aggregate_intermediate_hash)
 
-      # Do the compute to render the meshes from the sub object
-      element_out = lambdas[:element_render].call(element_in) # element_out rendered by lambda
+      # Render the element's meshes
+      element_output_hash = lambdas[:element_render].call(element_input_hash)
 
-      aggregate_intermediate_hash = lambdas[:element_egress].call(aggregate_intermediate_hash, element_out) # new a_state integrating b_ouput
+      # Add the element's output to the aggregate_intermediate_hash
+      aggregate_intermediate_hash = lambdas[:element_egress].call(aggregate_intermediate_hash, element_output_hash)
 
       aggregate_intermediate_hash
     end
