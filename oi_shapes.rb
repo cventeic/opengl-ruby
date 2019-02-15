@@ -154,11 +154,13 @@ class Cpu_G_Obj_Job
       symbol: :arrow_mesh,
       computes: {
         sub_ctx_render: lambda { |sub_ctx_in|
-                          sub_ctx_out = {
-                            mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
-                            color: args[:color]
-                          }
-                        }
+          sub_ctx_out = {
+            gpu_objs: [{
+              mesh: GL_Shapes.arrow(args.merge(sub_ctx_in)),
+              color: args[:color]
+            }]
+          }
+        }
       }
     )
 
