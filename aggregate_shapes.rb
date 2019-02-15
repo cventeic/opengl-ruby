@@ -26,9 +26,9 @@ class Aggregate
   ############### Helpers
 
   # Concatinate with world
-  # def Aggregate.merge_mesh(aggregate_data_in, element_out)
+  # def Aggregate.merge_mesh(aggregate_data_in, element_output_hash)
   #  aggregate_data_out = aggregate_data_in
-  #  aggregate_data_out[:mesh] = aggregate_data_in.fetch(:mesh, Mesh.new) + element_out[:mesh]
+  #  aggregate_data_out[:mesh] = aggregate_data_in.fetch(:mesh, Mesh.new) + element_output_hash[:mesh]
   #  aggregate_data_out
   # end
 
@@ -61,13 +61,13 @@ class Aggregate
 =end
 
   # Transform mesh in "b" space to mesh in "a" space
-  def self.mesh_transform_element_egress(element_out, element_egress_matrix)
+  def self.mesh_transform_element_egress(element_output_hash, element_egress_matrix)
     puts
-    puts 'def Aggregate.mesh_transform_element_egress(element_out, element_egress_matrix)'
+    puts 'def Aggregate.mesh_transform_element_egress(element_output_hash, element_egress_matrix)'
 
-    ap element_out
+    ap element_output_hash
 
-    mesh_in_b = element_out.fetch(:mesh, Mesh.new)
+    mesh_in_b = element_output_hash.fetch(:mesh, Mesh.new)
 
     mesh_in_a = mesh_in_b.applyMatrix!(element_egress_matrix)
 
@@ -93,10 +93,10 @@ class Aggregate
     sphere.add_element(
       symbol: :sphere_mesh,
       computes: {
-        element_render: lambda { |element_in|
-                           element_out = {
+        element_render: lambda { |element_input_hash|
+                           element_output_hash = {
                              gpu_objs: [{
-                               mesh: GL_Shapes.sphere(args.merge(element_in)),
+                               mesh: GL_Shapes.sphere(args.merge(element_input_hash)),
                                color: args[:color]
                              }]
                            }
@@ -113,10 +113,10 @@ class Aggregate
     cylinder.add_element(
       symbol: :cylinder_mesh,
       computes: {
-        element_render: ->(element_in) {
-          element_out = {
+        element_render: ->(element_input_hash) {
+          element_output_hash = {
             gpu_objs: [{
-              mesh: GL_Shapes.cylinder(args.merge(element_in)),
+              mesh: GL_Shapes.cylinder(args.merge(element_input_hash)),
               color: args[:color]
             }]
           }
@@ -133,10 +133,10 @@ class Aggregate
     cylinder.add_element(
       symbol: :directional_cylinder_mesh,
       computes: {
-        element_render: lambda { |element_in|
-          element_out = {
+        element_render: lambda { |element_input_hash|
+          element_output_hash = {
             gpu_objs: [{
-              mesh: GL_Shapes.directional_cylinder(args.merge(element_in)),
+              mesh: GL_Shapes.directional_cylinder(args.merge(element_input_hash)),
               color: args[:color]
             }]
           }
@@ -153,10 +153,10 @@ class Aggregate
     arrow.add_element(
       symbol: :arrow_mesh,
       computes: {
-        element_render: lambda { |element_in|
-          element_out = {
+        element_render: lambda { |element_input_hash|
+          element_output_hash = {
             gpu_objs: [{
-              mesh: GL_Shapes.arrow(args.merge(element_in)),
+              mesh: GL_Shapes.arrow(args.merge(element_input_hash)),
               color: args[:color]
             }]
           }
@@ -190,12 +190,12 @@ class Aggregate
         symbol: :a_transform,
 
         computes: {
-          element_render: ->(_element_in) { element_out = sphere.render },
+          element_render: ->(_element_input_hash) { element_output_hash = sphere.render },
 
-          element_egress: lambda { |aggregate_data_in, element_out|
+          element_egress: lambda { |aggregate_data_in, element_output_hash|
             # Were going to translate the mesh
             # Error here...
-            mesh_in_a = Aggregate.mesh_transform_element_egress(element_out, element_egress_matrix)
+            mesh_in_a = Aggregate.mesh_transform_element_egress(element_output_hash, element_egress_matrix)
 
             # Combine with the other meshes
             aggregate_data_out = Aggregate.std_aggregate_ctx(aggregate_data_in, mesh_in_a)
@@ -228,16 +228,16 @@ class Aggregate
         symbol: :a_transform,
 
         computes: {
-          element_render: ->(_element_in) { element_out = cylinder.render }, # sub context output = rendered object
+          element_render: ->(_element_input_hash) { element_output_hash = cylinder.render }, # sub context output = rendered object
 
-          element_egress: lambda { |aggregate_data_in, _element_out| # super context = super context + rendered object
+          element_egress: lambda { |aggregate_data_in, _element_output_hash| # super context = super context + rendered object
                             aggregate_data_out = aggregate_data_in
 
                             aggregate_data_out[:mesh] = aggregate_data_out.fetch(:mesh, Mesh.new)
 
                             puts "aaa aggregate_data_out = #{aggregate_data_out}"
 
-                            # aggregate_data_out[:mesh] += element_out[:mesh].applyMatrix!(trs_matrix)
+                            # aggregate_data_out[:mesh] += element_output_hash[:mesh].applyMatrix!(trs_matrix)
 
                             return aggregate_data_out
                           }
@@ -261,10 +261,10 @@ class Aggregate
         symbol: :a_transform,
 
         computes: {
-          element_render: ->(_element_in) { element_out = parallel_cylinders.render },
+          element_render: ->(_element_input_hash) { element_output_hash = parallel_cylinders.render },
 
-          element_egress: lambda { |_aggregate_data_in, element_out_array|
-            aggregate_data_out_array = element_out_array.map do |sub_ctx|
+          element_egress: lambda { |_aggregate_data_in, element_output_hash_array|
+            aggregate_data_out_array = element_output_hash_array.map do |sub_ctx|
               # mesh_in_a = Aggregate.mesh_transform_element_egress(sub_ctx,
               # element_egress_matrix)
               Aggregate.mesh_transform_element_egress(sub_ctx, element_egress_matrix)

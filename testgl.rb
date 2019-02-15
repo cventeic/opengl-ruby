@@ -168,12 +168,12 @@ def load_objects_using_aggregate(gpu, gl_program_id)
       symbol: :a_color,
 
       computes: {
-        element_render: lambda { |_element_in|
+        element_render: lambda { |_element_input_hash|
           objs = arrow_obj.render
 
-          element_out = {
+          element_output_hash = {
             gpu_objs: [{
-              # mesh: GL_Shapes.directional_cylinder(args.merge(element_in)),
+              # mesh: GL_Shapes.directional_cylinder(args.merge(element_input_hash)),
               mesh: GL_Shapes.directional_cylinder(start: p0, stop: p1,
                                                    color: new_c),
               color: new_c
