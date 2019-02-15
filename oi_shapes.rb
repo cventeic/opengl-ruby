@@ -84,19 +84,23 @@ class Cpu_G_Obj_Job
 
   ############### Base Shapes
 
-  def self.sphere(_sup_ctx_in = {})
+  def self.sphere(**args)
+    defaults = { radius: 0.5 }
+    args= defaults.merge(args)
+
     sphere = Cpu_G_Obj_Job.new(symbol: :sphere)
 
     sphere.add(
       symbol: :sphere_mesh,
       computes: {
-        sub_ctx_ingress: lambda { |sup_ctx_in|
-                           sub_ctx_in = { radius: 0.5 }.merge(sup_ctx_in)
-                         },
-
         sub_ctx_render: lambda { |sub_ctx_in|
-                          sub_ctx_out = { mesh: GL_Shapes.sphere(sub_ctx_in[:radius]) }
-                        }
+                           sub_ctx_out = {
+                             gpu_objs: [{
+                               mesh: GL_Shapes.sphere(args.merge(sub_ctx_in)),
+                               color: args[:color]
+                             }]
+                           }
+        }
       }
     )
 
@@ -109,9 +113,14 @@ class Cpu_G_Obj_Job
     cylinder.add(
       symbol: :cylinder_mesh,
       computes: {
-        # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
-
-        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)) } }
+        sub_ctx_render: ->(sub_ctx_in) {
+          sub_ctx_out = {
+            gpu_objs: [{
+              mesh: GL_Shapes.cylinder(args.merge(sub_ctx_in)),
+              color: args[:color]
+            }]
+          }
+        }
       }
     )
 
