@@ -39,17 +39,27 @@ class Cpu_G_Obj_Job
   #
   #  /todo clarify and document
   #
-  def add(symbol: '',
-          computes: {
-            sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in }, # Default: pass untransformed super context to sub context
-            sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
-            sub_ctx_egress: ->(sup_ctx_in, _sub_ctx_out) { sup_ctx_out = sup_ctx_in } # Default: don't transform super context
-          })
+  def add(**args)
+    defaults = {
+      symbol: '',
+      computes: {
+        sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in }, # Default: pass untransformed super context to sub context
+        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
+        sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) {
+          # Output joins input gpu_objs (super context) with rendered gpu_objects (sub_context)
+          sup_ctx_out = Cpu_G_Obj_Job.std_join_ctx(sup_ctx_in, sub_ctx_out)
+          return sup_ctx_out
+        }
+      }
+    }
 
-    guid = [symbol, @joins.size]
+    args = defaults.merge(args)
+    args[:computes] = defaults[:computes].merge(args.fetch(:computes, {})) # merge internal hash
 
-    @joins[guid] = computes
-end
+    guid = [args[:symbol], @joins.size]
+
+    @joins[guid] = args[:computes]
+  end
 
   # Render modified parent state (sup_ctx)
   #  by rendering and aggregating all child lambda (sub_ctx) into parent domain.
