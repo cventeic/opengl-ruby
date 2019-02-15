@@ -187,7 +187,7 @@ def load_objects_using_aggregate(gpu, gl_program_id)
         },
 
         sub_ctx_egress: lambda { |sup_ctx_in, sub_ctx_out|
-          Aggregate.std_join_ctx(sup_ctx_in, sub_ctx_out)
+          Aggregate.std_aggregate_ctx(sup_ctx_in, sub_ctx_out)
         }
       }
     )

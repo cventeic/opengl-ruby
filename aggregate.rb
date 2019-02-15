@@ -19,12 +19,12 @@ require './cpu_graphic_object'
 #
 
 class Aggregate
-  attr_reader :joins
+  attr_reader :elements
 
   def initialize(symbol: '')
     @symbol = symbol
 
-    @joins = Hash.new { |hash, key| hash[key] = {} }
+    @elements = Hash.new { |hash, key| hash[key] = {} }
   end
 
   # Add a sub-component to to this super-component
@@ -48,8 +48,8 @@ class Aggregate
         sub_ctx_ingress: ->(sup_ctx_in) { sub_ctx_in = sup_ctx_in }, # Default: pass untransformed super context to sub context
         sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = sub_ctx_in }, # Default:
         sub_ctx_egress: ->(sup_ctx_in, sub_ctx_out) {
-          # Output joins input gpu_objs (super context) with rendered gpu_objects (sub_context)
-          sup_ctx_out = Aggregate.std_join_ctx(sup_ctx_in, sub_ctx_out)
+          # Output aggregates input gpu_objs (super context) with rendered gpu_objects (sub_context)
+          sup_ctx_out = Aggregate.std_aggregate_ctx(sup_ctx_in, sub_ctx_out)
           return sup_ctx_out
         }
       }
@@ -58,9 +58,9 @@ class Aggregate
     args = defaults.merge(args)
     args[:computes] = defaults[:computes].merge(args.fetch(:computes, {})) # merge internal hash
 
-    guid = [args[:symbol], @joins.size]
+    guid = [args[:symbol], @elements.size]
 
-    @joins[guid] = args[:computes]
+    @elements[guid] = args[:computes]
   end
 
   # Render modified parent state (sup_ctx)
@@ -71,8 +71,8 @@ class Aggregate
 
     # Render meshes for each sub object
     #
-    sup_ctx_final = @joins.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, join|
-      join_symbol, sub_computes = join
+    sup_ctx_final = @elements.each_pair.inject(sup_ctx_initial) do |sup_ctx_in, element|
+      element_symbol, sub_computes = element
 
       # Compute the input sub context from the input super context
       #   The sub context knows what information it needs from the super

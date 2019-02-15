@@ -74,8 +74,8 @@ class Aggregate
     { mesh: mesh_in_a }
   end
 
-  # Join gpu objects from two contexts
-  def self.std_join_ctx(ctx_in, ctx_out)
+  # Aggregate gpu objects from two contexts
+  def self.std_aggregate_ctx(ctx_in, ctx_out)
     ctx_in[:gpu_objs]  = [] unless ctx_in.key?(:gpu_objs)
     ctx_in[:gpu_objs] += ctx_out[:gpu_objs] if ctx_out.key?(:gpu_objs)
 
@@ -198,7 +198,7 @@ class Aggregate
             mesh_in_a = Aggregate.mesh_transform_sub_ctx_egress(sub_ctx_out, sub_ctx_egress_matrix)
 
             # Combine with the other meshes
-            sup_ctx_out = Aggregate.std_join_ctx(sup_ctx_in, mesh_in_a)
+            sup_ctx_out = Aggregate.std_aggregate_ctx(sup_ctx_in, mesh_in_a)
           }
         }
       )
