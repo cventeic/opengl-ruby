@@ -127,11 +127,11 @@ class Cpu_G_Obj_Job
     cylinder
   end
 
-  def self.directional_cylinder_aa(**args)
+  def self.directional_cylinder(**args)
     cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
 
     cylinder.add(
-      symbol: :cylinder_mesh,
+      symbol: :directional_cylinder_mesh,
       computes: {
         sub_ctx_render: lambda { |sub_ctx_in|
           sub_ctx_out = {
@@ -141,20 +141,6 @@ class Cpu_G_Obj_Job
             }]
           }
         }
-      }
-    )
-
-    cylinder
-  end
-
-  def self.directional_cylinder(**args)
-    cylinder = Cpu_G_Obj_Job.new(symbol: :directional_cylinder)
-
-    cylinder.add(
-      symbol: :cylinder_mesh,
-      computes: {
-        # sub_ctx_render: lambda {|sub_ctx_in| {mesh: GL_Shapes.cylinder(sub_ctx_in[:f_length])} },
-        sub_ctx_render: ->(sub_ctx_in) { sub_ctx_out = { mesh: GL_Shapes.directional_cylinder(args.merge(sub_ctx_in)) } }
       }
     )
 

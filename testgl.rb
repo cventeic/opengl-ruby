@@ -144,7 +144,7 @@ def load_objects_using_oi(gpu, gl_program_id)
   points = 10.times.map { rand_vector_in_box }
 
   points.each_cons(2) do |p0, p1|
-    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder_aa(start: p0, stop: p1,
+    cpu_g_objs << Cpu_G_Obj_Job.directional_cylinder(start: p0, stop: p1,
                                                         color: get_new_color)
   end
 
