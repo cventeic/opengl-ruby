@@ -139,18 +139,42 @@ class Aggregate
     cylinder
   end
 
-  def self.arrow(**args)
+  def self.arrow(start:, stop:, radius: 0.05, **args)
+    defaults = { }
+    args= defaults.merge(args)
+
+    arrow_v = stop - start
+    arrow_v = arrow_v.normalize * 8.0 * radius
+    arrow_start = stop - arrow_v
+    arrow_stop  = stop
+
+    line_start = start
+    line_stop  = arrow_start
+
     arrow = Aggregate.new(symbol: :arrow)
 
     arrow.add_element(
-      symbol: :arrow_mesh,
+      symbol: :arrow_cone_shaft_mesh,
       lambdas: {
         element_render: lambda { |element_input_hash|
           element_output_hash = {
             gpu_objs: [{
-              mesh: GL_Shapes.arrow(args.merge(element_input_hash)),
-              color: args[:color]
-            }]
+                mesh: GL_Shapes.directional_cylinder(
+                  start: arrow_start, stop: arrow_stop,
+                  base_radius: (4.0 * radius),
+                  top_radius: 0.0
+                ),
+                color: args[:color]
+            },
+            {
+                mesh: GL_Shapes.directional_cylinder(
+                  start: line_start, stop: line_stop,
+                  base_radius: radius,
+                  top_radius: radius
+                ),
+                color: args[:color]
+            }
+            ]
           }
         }
       }
