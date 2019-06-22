@@ -77,7 +77,9 @@ class Aggregate
   ############### Base Shapes
 
   def self.sphere(**args)
-    defaults = { radius: 0.5 }
+    defaults = {
+      radius: 0.5,
+    }
     args= defaults.merge(args)
 
     sphere = Aggregate.new(symbol: :sphere)
@@ -140,11 +142,13 @@ class Aggregate
   end
 
   def self.arrow(start:, stop:, radius: 0.05, **args)
-    defaults = { }
+    defaults = {
+      radius: 0.05,
+    }
     args= defaults.merge(args)
 
     arrow_v = stop - start
-    arrow_v = arrow_v.normalize * 8.0 * radius
+    arrow_v = arrow_v.normalize * 8.0 * args[:radius]
     arrow_start = stop - arrow_v
     arrow_stop  = stop
 
@@ -161,7 +165,7 @@ class Aggregate
             gpu_objs: [{
                 mesh: GL_Shapes.directional_cylinder(
                   start: arrow_start, stop: arrow_stop,
-                  base_radius: (4.0 * radius),
+                  base_radius: (4.0 * args[:radius]),
                   top_radius: 0.0
                 ),
                 color: args[:color]
@@ -169,7 +173,7 @@ class Aggregate
             {
                 mesh: GL_Shapes.directional_cylinder(
                   start: line_start, stop: line_stop,
-                  base_radius: radius,
+                  base_radius: args[:radius],
                   top_radius: radius
                 ),
                 color: args[:color]
@@ -189,7 +193,9 @@ class Aggregate
   # on sphere for each corner of the box
   #
   def self.cube_corner_spheres(**args)
-    defaults = { side_length: 0.5 }
+    defaults = {
+      side_length: 0.5,
+    }
     args= defaults.merge(args)
 
 
