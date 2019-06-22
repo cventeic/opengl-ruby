@@ -79,6 +79,7 @@ class Aggregate
   def self.sphere(**args)
     defaults = {
       radius: 0.5,
+      color: get_new_color
     }
     args= defaults.merge(args)
 
@@ -144,6 +145,7 @@ class Aggregate
   def self.arrow(start:, stop:, radius: 0.05, **args)
     defaults = {
       radius: 0.05,
+      color: get_new_color
     }
     args= defaults.merge(args)
 
@@ -195,6 +197,7 @@ class Aggregate
   def self.cube_corner_spheres(**args)
     defaults = {
       side_length: 0.5,
+      color: get_new_color
     }
     args= defaults.merge(args)
 
