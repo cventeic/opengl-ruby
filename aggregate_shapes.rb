@@ -160,28 +160,32 @@ class Aggregate
     arrow = Aggregate.new(symbol: :arrow)
 
     arrow.add_element(
-      symbol: :arrow_cone_shaft_mesh,
+      symbol: :arrow_cone,
       lambdas: {
         element_render: lambda { |element_input_hash|
-          element_output_hash = {
-            gpu_objs: [{
-                mesh: GL_Shapes.directional_cylinder(
-                  start: arrow_start, stop: arrow_stop,
-                  base_radius: (4.0 * args[:radius]),
-                  top_radius: 0.0
-                ),
-                color: args[:color]
-            },
-            {
-                mesh: GL_Shapes.directional_cylinder(
-                  start: line_start, stop: line_stop,
-                  base_radius: args[:radius],
-                  top_radius: radius
-                ),
-                color: args[:color]
-            }
-            ]
-          }
+          cone = Aggregate.directional_cylinder(
+                    start: arrow_start, stop: arrow_stop,
+                    base_radius: (4.0 * args[:radius]),
+                    top_radius: 0.0 )
+
+          element_input_hash[:gpu_objs] = element_input_hash.fetch(:gpu_objs, []) + cone.render()[:gpu_objs]
+
+          element_output_hash = element_input_hash
+        }
+      }
+    )
+
+    arrow.add_element(
+      symbol: :arrow_rod,
+      lambdas: {
+        element_render: lambda { |element_input_hash|
+          rod = Aggregate.directional_cylinder(
+                    start: line_start, stop: line_stop,
+                    base_radius: args[:radius], top_radius: args[:radius])
+
+          element_input_hash[:gpu_objs] = element_input_hash.fetch(:gpu_objs, []) + rod.render()[:gpu_objs]
+
+          element_output_hash = element_input_hash
         }
       }
     )
