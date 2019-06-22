@@ -210,24 +210,25 @@ class Aggregate
       Geo3d::Matrix.translation(x, y, z)
     end
 
-    sphere  = Aggregate.sphere(side_length: args[:side_length])
-
     spheres = Aggregate.new
 
     trs_matricies.each do |element_egress_matrix|
       spheres.add_element(
-        symbol: :a_transform,
-
+        symbol: :sphere,
         lambdas: {
-          element_render: ->(_element_input_hash) { element_output_hash = sphere.render },
+          element_render: lambda { |element_input_hash|
+            sphere = Aggregate.sphere()
 
+            element_input_hash[:gpu_objs] = element_input_hash.fetch(:gpu_objs, []) + sphere.render()[:gpu_objs]
+
+            element_output_hash = element_input_hash
+          },
           element_egress: lambda { |aggregate_data_in, element_output_hash|
             # Were going to translate the mesh
-            # Error here...
             mesh_in_a = Aggregate.mesh_transform_element_egress(element_output_hash, element_egress_matrix)
 
             # Combine with the other meshes
-            aggregate_data_out = Aggregate.add_gpu_objs_to_aggregate(aggregate_data_in, mesh_in_a)
+            aggregate_data_out = spheres.add_gpu_objs_to_aggregate(aggregate_data_in, mesh_in_a)
           }
         }
       )
