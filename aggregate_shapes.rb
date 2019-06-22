@@ -142,7 +142,7 @@ class Aggregate
     cylinder
   end
 
-  def self.arrow(start:, stop:, radius: 0.05, **args)
+  def self.arrow(start:, stop:, **args)
     defaults = {
       radius: 0.05,
       color: get_new_color
