@@ -246,7 +246,7 @@ class Aggregate
       Geo3d::Matrix.translation(x, y, -hl)
     end
 
-    trs_matricies.each do |_trs_matrix|
+    trs_matricies.each do |element_egress_matrix|
       cylinder = Aggregate.cylinder(f_length: side_length)
 
       parallel_cylinders.add_element(
