@@ -2,9 +2,8 @@ require 'color-generator'
 require 'geo3d'
 
 
-@color_generator = ColorGenerator.new saturation: 0.3, lightness: 0.75
-
 def get_new_color
+  @color_generator = ColorGenerator.new saturation: 0.3, lightness: 0.75
   r, g, b = @color_generator.create_rgb.map { |c| c.to_f / 255.0 }
 
   assert { r >= 0.0 && r <= 1.0 }
