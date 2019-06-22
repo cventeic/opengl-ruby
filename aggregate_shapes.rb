@@ -273,7 +273,7 @@ class Aggregate
     ##### Make the set of (12) cylinders for each edge of the box
     #     3 sets of 4
     #
-    matricies = [
+    trs_matricies = [
       Geo3d::Matrix.rotation_y(radians(90.0)),  # Version with centerline on x
       Geo3d::Matrix.rotation_x(radians(90.0)),  # Version with centerline on y
       Geo3d::Matrix.identity # Version with centerline on z
@@ -281,7 +281,7 @@ class Aggregate
 
     box = Aggregate.new
 
-    matricies.each do |element_egress_matrix|
+    trs_matricies.each do |element_egress_matrix|
       box.add_element(
         symbol: :a_transform,
 
